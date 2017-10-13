@@ -1,4 +1,11 @@
+/*
+ * Canvas init sizes, AUTO => CANVAS OR WEBGL chosen automatically in 4rth parameter div (id), I didn't put it in because it fucks up the scaling
+ */
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
+
+/*
+ * Pacman Class constructor
+ */
 var Pacman = function(game) {
 	this.map = null;
 	this.layer = null;
@@ -14,7 +21,14 @@ var Pacman = function(game) {
 	this.current = Phaser.NONE;
 	this.turning = Phaser.NONE;
 };
+
+/*
+ * Pacman class functions
+ */
 Pacman.prototype = {
+	/*
+	 * Window auto adjust to client window size + start physics managing in phase
+	 */
 	init: function() {
 		this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.scale.pageAlignHorizontally = true;
@@ -22,36 +36,37 @@ Pacman.prototype = {
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 		this.physics.startSystem(Phaser.Physics.ARCADE);
 	},
+	/*
+	 * fetch all assets in /assets directory
+	 */
 	preload: function() {
-		//  We need this because the assets are on Amazon S3
-		//  Remove the next 2 lines if running locally
-		this.load.baseURL = 'http://files.phaser.io.s3.amazonaws.com/codingtips/issue005/';
-		this.load.crossOrigin = 'anonymous';
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
-		//  Needless to say, graphics (C)opyright Namco
 	},
+	/*
+	 * Var initialisation of in game items
+	 */
 	create: function() {
-		this.map = this.add.tilemap('map');
-		this.map.addTilesetImage('pacman-tiles', 'tiles');
+		this.map = this.add.tilemap('map'); //pacman-map.json
+		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
-		this.dots = this.add.physicsGroup();
+		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
-		//  The dots will need to be offset by 6px to put them back in the middle of the grid
+		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
 		//  Pacman should collide with everything except the safe tile
 		this.map.setCollisionByExclusion([this.safetile], true, this.layer);
-		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor)
+		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
 		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'pacman', 0);
 		this.pacman.anchor.set(0.5);
-		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true);
+		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
 		this.pacman.body.setSize(16, 16, 0, 0);
 		this.cursors = this.input.keyboard.createCursorKeys();
-		this.pacman.play('munch');
+		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT);
 	},
 	checkKeys: function() {
@@ -68,6 +83,9 @@ Pacman.prototype = {
 			this.turning = Phaser.NONE;
 		}
 	},
+	/*
+	 * Check if player can go in the requested direction (there is no tile in the way)
+	 */
 	checkDirection: function(turnTo) {
 		if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile) {
 			//  Invalid direction if they're already set to turn that way
@@ -97,11 +115,12 @@ Pacman.prototype = {
 		this.move(this.turning);
 		this.turning = Phaser.NONE;
 		return true;
+		//We should send info over socket for multiplayer at least here to tell server something moved
 	},
 	move: function(direction) {
 		var speed = this.speed;
 		if (direction === Phaser.LEFT || direction === Phaser.UP) {
-			speed = -speed;
+			speed = -speed; //pacman is going towards negative x and y value (a canvas 0,0 is at top left)
 		}
 		if (direction === Phaser.LEFT || direction === Phaser.RIGHT) {
 			this.pacman.body.velocity.x = speed;
@@ -112,7 +131,7 @@ Pacman.prototype = {
 		this.pacman.scale.x = 1;
 		this.pacman.angle = 0;
 		if (direction === Phaser.LEFT) {
-			this.pacman.scale.x = -1;
+			this.pacman.scale.x = -1; //invert the sprite
 		} else if (direction === Phaser.UP) {
 			this.pacman.angle = 270;
 		} else if (direction === Phaser.DOWN) {
@@ -126,8 +145,11 @@ Pacman.prototype = {
 			this.dots.callAll('revive');
 		}
 	},
+	/*
+	 * Called at each frame
+	 */
 	update: function() {
-
+		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
 		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 		this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
@@ -143,4 +165,6 @@ Pacman.prototype = {
 		}
 	}
 };
+
+//starts game with defined Class
 game.state.add('Game', Pacman, true);
