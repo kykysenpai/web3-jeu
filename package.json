@@ -1,0 +1,22 @@
+{
+  "name": "pacman",
+  "version": "0.0.1",
+  "description": "Jeu Pacman",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/SebbyBE/web3-jeu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/SebbyBE/web3-jeu/issues"
+  },
+  "homepage": "https://gitlab.com/SebbyBE/web3-jeu#README",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
