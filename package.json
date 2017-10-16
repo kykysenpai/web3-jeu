@@ -19,6 +19,7 @@
   "homepage": "https://gitlab.com/SebbyBE/web3-jeu#README",
   "dependencies": {
     "express": "^4.16.2",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.3",
+    "uuid": "^3.1.0"
   }
 }
