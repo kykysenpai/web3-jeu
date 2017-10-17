@@ -1,0 +1,18 @@
+image: starefossen/ruby-node # required, because we need ruby, node and npm
+
+variables:
+  NODE_ENV: "development" # required, because we need to install devDependencies
+
+stages:
+  - deploy
+
+deploy_job:
+  stage: deploy
+  script:
+  - npm -v
+  - npm install -qs # install all dependencies (and devDependencies)
+  - npm run build:production # run webpack, set NODE_ENV=production
+  - gem install dpl # install dpl...
+  - dpl --skip_cleanup --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY #...and deploy (skip_cleanup prevents deleting the previous generated bundled assets)
+  only:
+  - master
