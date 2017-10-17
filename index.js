@@ -30,17 +30,32 @@ io.on('connection', function(socket) {
 	var id = uuid();
 	var player = new Player(id);
 	game.addPlayer(player);
-	socket.id = id;
+	socket.player = {
+		id: id
+	}
+	socket.broadcast.emit('user', {
+		playerId: id
+	});
 
 	//on disconnection from websocket the player is removed from the game
 	socket.on('disconnect', function() {
-		game.removePlayer(socket.id);
+		game.removePlayer(socket.player.id);
 	});
 
 	//Websocket sends player informations
 	socket.on('user', function(data) {
-		data.id = socket.id;
+		data.id = socket.player.id;
 		game.setInfos(data);
+		//broadcasts information to everyone except itself
+		socket.broadcast.emit('user', data);
+	});
+
+	//got position update from a socket
+	socket.on('positionUpdate', function(data) {
+		game.setPosition(socket.player.id, data);
+		//broadcasts information to everyone except itself
+		data.playerId = socket.player.id;
+		socket.broadcast.emit('positionUpdate', data);
 	});
 });
 
