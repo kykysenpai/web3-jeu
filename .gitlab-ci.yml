@@ -1,6 +1,0 @@
-staging:
-  type: deploy
-  script:
-  - dpl --provider=heroku --app=pacman-web3 --api-key=$HEROKU_STAGING_API_KEY
-  only:
-  - master
