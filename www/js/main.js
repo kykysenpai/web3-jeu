@@ -76,6 +76,8 @@ Pacman.prototype = {
 		whenReady();
 	},
 	updatePlayer: function(data) {
+		if (!this.players[data.playerId])
+			return;
 		this.players[data.playerId].x = data.x;
 		this.players[data.playerId].y = data.y;
 	},
@@ -165,6 +167,8 @@ Pacman.prototype = {
 		}
 	},
 	killPlayer: function(data) {
+		if (!this.players[data.playerId])
+			return;
 		this.players[data.playerId].kill();
 	},
 	/*
