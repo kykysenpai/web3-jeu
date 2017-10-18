@@ -1,0 +1,18 @@
+image: node:6 # required, because we need ruby, node and npm
+
+before_script:
+  - apt-get -qq update
+  - npm install
+
+variables:
+  NODE_ENV: "development" # required, because we need to install devDependencies
+
+deploy:
+  script:
+  - apt-get install -yqq ruby ruby-dev --silent
+  - npm -v
+  - npm install -qs # install all dependencies (and devDependencies)
+  - gem install dpl # install dpl...
+  - dpl --skip_cleanup --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY #...and deploy (skip_cleanup prevents deleting the previous generated bundled assets)
+  only:
+  - master
