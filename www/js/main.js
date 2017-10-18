@@ -3,6 +3,9 @@
  */
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
 
+var howManyInfoPerSecond = 5;
+var theoreticalFps = 60;
+
 /*
  * Pacman Class constructor
  */
@@ -20,6 +23,8 @@ var Pacman = function(game) {
 	this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
 	this.current = Phaser.NONE;
 	this.turning = Phaser.NONE;
+	this.updateNeeded = 0;
+	this.players = {};
 };
 
 /*
@@ -68,6 +73,20 @@ Pacman.prototype = {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT);
+		whenReady();
+	},
+	updatePlayer: function(data) {
+		this.players[data.playerId].x = data.x;
+		this.players[data.playerId].y = data.y;
+	},
+	createPlayer: function(data) {
+		var newPlayer = this.add.sprite((data.x * 16) + 8, (data.y * 16) + 8, 'pacman', 0);
+		newPlayer.anchor.set(0.5);
+		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
+		this.physics.arcade.enable(newPlayer);
+		newPlayer.body.setSize(16, 16, 0, 0);
+		newPlayer.play('munch');
+		this.players[data.playerId] = newPlayer;
 	},
 	checkKeys: function() {
 		if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
@@ -163,8 +182,43 @@ Pacman.prototype = {
 		if (this.turning !== Phaser.NONE) {
 			this.turn();
 		}
+		//sends info $HowManyInfoPerSecond times per second of current position
+		//less should decrease server load but might bring collision problems and lags
+		//FPS should be 60, if less performance problems, lags
+		this.updateNeeded++;
+		if (this.updateNeeded == (theoreticalFps / howManyInfoPerSecond)) {
+			this.updateNeeded = 0;
+			socket.emit('positionUpdate', {
+				x: this.pacman.x,
+				y: this.pacman.y
+			})
+		}
 	}
 };
 
 //starts game with defined Class
 game.state.add('Game', Pacman, true);
+
+
+function whenReady() {
+
+	socket.emit('users');
+
+	socket.on('users', function(data) {
+		for (var user in data) {
+			game.state.callbackContext.createPlayer(user);
+		}
+	});
+
+	socket.on('user', function(data) {
+		console.log("another player connected");
+		console.log(data);
+		game.state.callbackContext.createPlayer(data);
+	});
+
+	socket.on('positionUpdate', function(data) {
+		console.log(data);
+		game.state.callbackContext.updatePlayer(data);
+	});
+
+}

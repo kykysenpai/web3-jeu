@@ -14,5 +14,9 @@ exports.Game.prototype = {
 	setInfos: function(player) {
 		this.players[player.id] = player;
 		console.log(this.players[player.id].name + ' just set his informations');
+	},
+	setPosition: function(playerId, player) {
+		this.players[playerId].x = player.x;
+		this.players[playerId].y = player.y;
 	}
 };
