@@ -37,6 +37,10 @@ io.on('connection', function(socket) {
 		playerId: id
 	});
 
+	socket.on('users', function() {
+		socket.emit('users', game.players);
+	});
+
 	//on disconnection from websocket the player is removed from the game
 	socket.on('disconnect', function() {
 		game.removePlayer(socket.player.id);

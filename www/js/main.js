@@ -3,7 +3,7 @@
  */
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
 
-var howManyInfoPerSecond = 0.2;
+var howManyInfoPerSecond = 5;
 var theoreticalFps = 60;
 
 /*
@@ -73,6 +73,7 @@ Pacman.prototype = {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT);
+		whenReady();
 	},
 	updatePlayer: function(data) {
 		this.players[data.playerId].x = data.x;
@@ -198,15 +199,26 @@ Pacman.prototype = {
 //starts game with defined Class
 game.state.add('Game', Pacman, true);
 
-socket.on('user', function(data) {
-	console.log("another player connected");
-	console.log(data);
-	game.state.callbackContext.createPlayer(data);
-});
 
-socket.on('positionUpdate', function(data) {
-	console.log(data);
-	game.state.callbackContext.updatePlayer(data);
-});
+function whenReady() {
 
-console.log(game.state);
+	socket.emit('users');
+
+	socket.on('users', function(data) {
+		for (var user in data) {
+			game.state.callbackContext.createPlayer(user);
+		}
+	});
+
+	socket.on('user', function(data) {
+		console.log("another player connected");
+		console.log(data);
+		game.state.callbackContext.createPlayer(data);
+	});
+
+	socket.on('positionUpdate', function(data) {
+		console.log(data);
+		game.state.callbackContext.updatePlayer(data);
+	});
+
+}
