@@ -205,30 +205,29 @@ game.state.add('Game', Pacman, true);
 
 function whenReady() {
 
+	//Another player disconnected
 	socket.on('disconnectedUser', function(data) {
-		console.log("Killing player " + data.playerId);
 		game.state.callbackContext.killPlayer(data);
 	});
 
+	//Getting all currently connected player
 	socket.on('users', function(data) {
-		console.log("connected players");
-		console.log(data);
 		for (var user in data) {
 			game.state.callbackContext.createPlayer(data[user]);
 		}
 	});
 
+	//A new player connected
 	socket.on('user', function(data) {
-		console.log("another player connected");
-		console.log(data);
 		game.state.callbackContext.createPlayer(data);
 	});
 
+	//Anoter player sent his moving informations
 	socket.on('positionUpdate', function(data) {
-		//console.log(data);
 		game.state.callbackContext.updatePlayer(data);
 	});
 
+	//Ask servers for currently connected players
 	socket.emit('users');
 
 }

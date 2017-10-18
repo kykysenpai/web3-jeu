@@ -49,14 +49,6 @@ io.on('connection', function(socket) {
 		});
 	});
 
-	//Websocket sends player informations
-	socket.on('user', function(data) {
-		data.playerId = socket.player.playerId;
-		game.setInfos(data);
-		//broadcasts information to everyone except itself
-		socket.broadcast.emit('user', data);
-	});
-
 	//got position update from a socket
 	socket.on('positionUpdate', function(data) {
 		game.setPosition(socket.player.playerId, data);
