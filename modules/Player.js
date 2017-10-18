@@ -1,5 +1,5 @@
-exports.Player = function(id) {
-	this.id = id;
+exports.Player = function(playerId) {
+	this.playerId = playerId;
 	this.name = null;
 	this.x = null;
 	this.y = null;

@@ -164,6 +164,9 @@ Pacman.prototype = {
 			this.dots.callAll('revive');
 		}
 	},
+	killPlayer: function(data) {
+		this.players[data.playerId].kill();
+	},
 	/*
 	 * Called at each frame
 	 */
@@ -202,11 +205,16 @@ game.state.add('Game', Pacman, true);
 
 function whenReady() {
 
-	socket.emit('users');
+	socket.on('disconnectedUser', function(data) {
+		console.log("Killing player " + data.playerId);
+		game.state.callbackContext.killPlayer(data);
+	});
 
 	socket.on('users', function(data) {
+		console.log("connected players");
+		console.log(data);
 		for (var user in data) {
-			game.state.callbackContext.createPlayer(user);
+			game.state.callbackContext.createPlayer(data[user]);
 		}
 	});
 
@@ -217,8 +225,10 @@ function whenReady() {
 	});
 
 	socket.on('positionUpdate', function(data) {
-		console.log(data);
+		//console.log(data);
 		game.state.callbackContext.updatePlayer(data);
 	});
+
+	socket.emit('users');
 
 }
