@@ -38,7 +38,9 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('users', function() {
-		socket.emit('users', game.players);
+		var connectedUsers = game.players;
+		delete connectedUsers[socket.player.playerId];
+		socket.emit('users', connectedUsers);
 	});
 
 	//on disconnection from websocket the player is removed from the game
@@ -52,8 +54,8 @@ io.on('connection', function(socket) {
 	//got position update from a socket
 	socket.on('positionUpdate', function(data) {
 		game.setPosition(socket.player.playerId, data);
-		//broadcasts information to everyone except itself
 		data.playerId = socket.player.playerId;
+		//broadcasts information to everyone except itself
 		socket.broadcast.emit('positionUpdate', data);
 	});
 });

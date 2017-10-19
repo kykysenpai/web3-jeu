@@ -3,6 +3,7 @@
  */
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
 
+//Number or position update infos sent to servers per second if fps is accurate
 var howManyInfoPerSecond = 5;
 var theoreticalFps = 60;
 
@@ -136,7 +137,6 @@ Pacman.prototype = {
 		this.move(this.turning);
 		this.turning = Phaser.NONE;
 		return true;
-		//We should send info over socket for multiplayer at least here to tell server something moved
 	},
 	move: function(direction) {
 		var speed = this.speed;
