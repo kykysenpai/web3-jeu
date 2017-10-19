@@ -1,12 +1,12 @@
 # Pacman
-
-
+A multiplayer Pacman game *Work Still in Progress*
 ## Built With
 
 * [Node.js](https://nodejs.org/) - Back-end server
 * [Socket.io](https://nodejs.org/en/) - Communication between clients and server
 * [Uuid](https://www.npmjs.com/package/uuid) - Used for user identification for server
 * [express](https://www.npmjs.com/package/express) - Used for server
+* [Phaser](https://phaser.io/) - Game engine
 
 
 ## Authors
