@@ -26,7 +26,6 @@ var game = new Game();
 //socket managing
 io.on('connection', function(socket) {
 	//adding a new Player on connection to a websocket
-	console.log("A websocket connected");
 	var playerId = uuid();
 	var player = new Player(playerId);
 	game.addPlayer(player);
@@ -38,9 +37,11 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('users', function() {
-		var connectedUsers = game.players;
-		delete connectedUsers[socket.player.playerId];
-		socket.emit('users', connectedUsers);
+		socket.emit('users', {
+			//Sending playerId so he doesn't add himself to the game
+			playerId: socket.player.playerId,
+			players: game.players
+		});
 	});
 
 	//on disconnection from websocket the player is removed from the game
