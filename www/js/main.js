@@ -233,5 +233,4 @@ function whenReady() {
 
 	//Ask servers for currently connected players
 	socket.emit('users');
-
 }
