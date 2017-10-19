@@ -206,7 +206,7 @@ Pacman.prototype = {
 //starts game with defined Class
 game.state.add('Game', Pacman, true);
 
-
+//Start when game is ready
 function whenReady() {
 
 	//Another player disconnected
