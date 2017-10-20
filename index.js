@@ -5,12 +5,8 @@ var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
 //imports pac man game related
-var Game = require('./modules/Game.js');
-var Player = require('./modules/Player.js');
-
-//class aliases
-var Game = Game.Game;
-var Player = Player.Player;
+var Game = require('./modules/Game.js').Game;
+var Player = require('./modules/Player.js').Player;
 
 app.set('port', (process.env.PORT || 5000));
 //www is the public directory served to clients

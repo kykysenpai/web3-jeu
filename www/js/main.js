@@ -4,7 +4,7 @@
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
 
 //Number or position update infos sent to servers per second if fps is accurate
-var howManyInfoPerSecond = 5;
+var howManyInfoPerSecond = 10;
 var theoreticalFps = 60;
 
 /*
@@ -25,6 +25,7 @@ var Pacman = function(game) {
 	this.current = Phaser.NONE;
 	this.turning = Phaser.NONE;
 	this.updateNeeded = 0;
+	this.enemyLayer = null;
 	this.players = {};
 };
 
@@ -60,6 +61,7 @@ Pacman.prototype = {
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
+		//this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
@@ -74,6 +76,7 @@ Pacman.prototype = {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT);
+		this.camera.follow(this.pacman); //follow pacman with camera
 		whenReady();
 	},
 	updatePlayer: function(data) {
@@ -178,6 +181,7 @@ Pacman.prototype = {
 		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
 		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+
 		this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
 		this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
 		//  Update our grid sensors
