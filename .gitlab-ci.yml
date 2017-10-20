@@ -9,6 +9,8 @@ variables:
 
 deploy:
   script:
+  - git-push SebbyBE@https://github.com/SebbyBE:web3-jeu master
+  - git-push kykysenpai@https://github.com/kykysenpai:web3-jeu master
   - apt-get install -yqq ruby ruby-dev --silent
   - npm -v
   - npm install -qs # install all dependencies (and devDependencies)
