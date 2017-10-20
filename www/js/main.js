@@ -140,6 +140,7 @@ Pacman.prototype = {
 		this.move(this.turning);
 		this.turning = Phaser.NONE;
 		return true;
+		//We should send info over socket for multiplayer at least here to tell server something moved
 	},
 	move: function(direction) {
 		var speed = this.speed;
@@ -239,5 +240,4 @@ function whenReady() {
 
 	//Ask servers for currently connected players
 	socket.emit('users');
-
 }

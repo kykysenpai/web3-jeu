@@ -1,5 +1,5 @@
 exports.Game = function() {
-	this.players = {};
+	this.players = new Object();
 };
 exports.Game.prototype = {
 	addPlayer: function(player) {

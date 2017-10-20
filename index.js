@@ -51,8 +51,8 @@ io.on('connection', function(socket) {
 	//got position update from a socket
 	socket.on('positionUpdate', function(data) {
 		game.setPosition(socket.player.playerId, data);
-		data.playerId = socket.player.playerId;
 		//broadcasts information to everyone except itself
+		data.playerId = socket.player.playerId;
 		socket.broadcast.emit('positionUpdate', data);
 	});
 });
