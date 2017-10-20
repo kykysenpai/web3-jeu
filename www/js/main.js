@@ -4,7 +4,7 @@
 
 var size = 400
 var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
-var map = "assets/random-map.json";
+var map = "assets/pacman-map.json";
 
 //Number or position update infos sent to servers per second if fps is accurate
 var howManyInfoPerSecond = 10;
