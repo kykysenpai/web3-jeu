@@ -1,7 +1,10 @@
 /*
  * Canvas init sizes, AUTO => CANVAS OR WEBGL chosen automatically in 4rth parameter div (id), I didn't put it in because it fucks up the scaling
  */
-var game = new Phaser.Game(448, 496, Phaser.AUTO, "gameDiv");
+
+var size = 400
+var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
+var map = "assets/random-map.json";
 
 //Number or position update infos sent to servers per second if fps is accurate
 var howManyInfoPerSecond = 10;
@@ -50,7 +53,7 @@ Pacman.prototype = {
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/big-map.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
 	},
 	/*
 	 * Var initialisation of in game items
