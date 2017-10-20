@@ -14,7 +14,6 @@ var Game = Game.Game;
 var Player = Player.Player;
 var Mongo = Mongo.Mongo;
 
-
 app.set('port', (process.env.PORT || 5000));
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
