@@ -7,6 +7,9 @@ var game = new Phaser.Game(448, 496, Phaser.AUTO);
 var howManyInfoPerSecond = 10;
 var theoreticalFps = 60;
 
+var randTeam = Math.floor(Math.random() * 2) + 1;
+console.log("Team : " + randTeam);
+
 /*
  * Pacman Class constructor
  */
@@ -25,8 +28,11 @@ var Pacman = function(game) {
 	this.current = Phaser.NONE;
 	this.turning = Phaser.NONE;
 	this.updateNeeded = 0;
-	this.enemyLayer = null;
+	this.enemies = null;
+	this.allies = null;
 	this.players = {};
+	//Receives a random team, will be changed later
+	this.team = randTeam;
 };
 
 /*
@@ -60,8 +66,10 @@ Pacman.prototype = {
 		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
+		this.enemies = this.add.physicsGroup();
+		this.allies = this.add.physicsGroup();
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
-		//this.world.setBounds(0, 0, 1920, 1920);
+		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
@@ -80,19 +88,40 @@ Pacman.prototype = {
 		whenReady();
 	},
 	updatePlayer: function(data) {
-		if (!this.players[data.playerId])
+		var player;
+		if (!(player = this.players[data.playerId]))
 			return;
-		this.players[data.playerId].x = data.x;
-		this.players[data.playerId].y = data.y;
+		player.x = data.x;
+		player.y = data.y;
+
+		//change angle
+		player.scale.x = 1;
+		player.angle = 0;
+		if (data.dir === Phaser.LEFT) {
+			player.scale.x = -1; //invert the sprite
+		} else if (data.dir === Phaser.UP) {
+			player.angle = 270;
+		} else if (data.dir === Phaser.DOWN) {
+			player.angle = 90;
+		}
 	},
 	createPlayer: function(data) {
-		var newPlayer = this.add.sprite((data.x * 16) + 8, (data.y * 16) + 8, 'pacman', 0);
+		var newPlayer;
+		if (data.team === this.team) {
+			newPlayer = this.allies.create(data.x, data.y, 'pacman');
+		} else {
+			newPlayer = this.enemies.create(data.x, data.y, 'pacman');
+		}
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
 		this.physics.arcade.enable(newPlayer);
 		newPlayer.body.setSize(16, 16, 0, 0);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
+		console.log("allies");
+		console.log(this.allies.children);
+		console.log("enemies");
+		console.log(this.enemies.children);
 	},
 	checkKeys: function() {
 		if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
@@ -170,10 +199,20 @@ Pacman.prototype = {
 			this.dots.callAll('revive');
 		}
 	},
+	destroyPlayer: function(pacman, pacmanEnemy) {
+		pacman.kill();
+		socket.emit('playerIsDead');
+	},
 	killPlayer: function(data) {
 		if (!this.players[data.playerId])
 			return;
 		this.players[data.playerId].kill();
+		this.players.remove(data.playerId);
+		if (this.enemies[data.playerId]) {
+			this.enemies.remove(data.playerId);
+		} else {
+			this.allies.remove(data.playerId);
+		}
 	},
 	/*
 	 * Called at each frame
@@ -182,6 +221,12 @@ Pacman.prototype = {
 		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
 		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+		//collision entre le joueur et les ennemis
+		this.physics.arcade.collide(this.pacman, this.enemies, this.destroyPlayer);
+		this.physics.arcade.collide(this.pacman, this.allies);
+		//collision entre les pacmans et le décor
+		this.physics.arcade.collide(this.enemies, this.layer);
+		this.physics.arcade.collide(this.allies, this.layer);
 
 		this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
 		this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
@@ -202,7 +247,8 @@ Pacman.prototype = {
 			this.updateNeeded = 0;
 			socket.emit('positionUpdate', {
 				x: this.pacman.x,
-				y: this.pacman.y
+				y: this.pacman.y,
+				dir: this.current
 			})
 		}
 	}
@@ -238,6 +284,12 @@ function whenReady() {
 		game.state.callbackContext.updatePlayer(data);
 	});
 
+	socket.on('playerIsDead', function(playerId) {
+		game.state.callbackContext.killPlayer({
+			playerId: playerId
+		});
+	});
+
 	//Ask servers for currently connected players
-	socket.emit('users');
+	socket.emit('users', game.state.callbackContext.team);
 }

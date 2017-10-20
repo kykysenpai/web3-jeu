@@ -14,5 +14,9 @@ exports.Game.prototype = {
 	setPosition: function(playerId, player) {
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
+		this.players[playerId].dir = player.dir;
+	},
+	setTeam: function(playerId, team) {
+		this.players[playerId].team = team;
 	}
 };

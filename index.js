@@ -32,7 +32,12 @@ io.on('connection', function(socket) {
 		playerId: playerId
 	});
 
-	socket.on('users', function() {
+	socket.on('playerIsDead', function() {
+		socket.broadcast.emit('playerIsDead', socket.player.playerId);
+	});
+
+	socket.on('users', function(team) {
+		game.setTeam(socket.player.playerId, team);
 		socket.emit('users', {
 			//Sending playerId so he doesn't add himself to the game
 			playerId: socket.player.playerId,
