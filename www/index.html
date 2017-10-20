@@ -6,13 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Jeu Pac Man développé dans le cadre du cours de web 3">
 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link href="css/OPCSS.css" rel="stylesheet">
   <title>Pacman</title>
 </head>
 
 <body>
-  <div id="gameDiv">
-
+  <div class="container"></div>
+    <div class="col-md-3" id="left_pannel"></div>
+    <div class="col-md-6" id="gameDiv"></div>
+    <div class="col-md-3" id="right_pannel"></div>
   </div>
 
   <!-- libraries -->
@@ -27,6 +30,9 @@
 
   <!-- up to date phaser -> should use -->
   <!--<script src="js/phaser.min.js"></script>-->
+
+  <!-- css bootstrap -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
   <script src="js/form.js"></script>
   <script src="js/main.js"></script>
