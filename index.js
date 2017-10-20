@@ -23,6 +23,10 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
+app.post('/tonurl',(req,res) => {
+	
+});
+
 
 var mongo = new Mongo();
 var game = new Game();
