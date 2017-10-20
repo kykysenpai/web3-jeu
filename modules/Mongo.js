@@ -32,6 +32,16 @@ exports.Mongo.prototype = {
             var p = {'login':login,'password':password, 'currentSkin':1,'skin':{'s1':1,'s2':2}};
             players.insert(doc);
         }
+    },
+    connectPlayer: function(login,password){
+        if(connected){
+            var res = players.find({
+            "login": login,
+            "mdp": mdp
+            });
+            
+            console.log(res);
+        }
     }
 
 };
