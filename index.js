@@ -4,8 +4,6 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
-
-
 //imports pac man game related
 var Game = require('./modules/Game.js');
 var Player = require('./modules/Player.js');
@@ -15,7 +13,6 @@ var Mongo = require('./modules/Mongo.js');
 var Game = Game.Game;
 var Player = Player.Player;
 var Mongo = Mongo.Mongo;
-
 
 app.set('port', (process.env.PORT || 5000));
 //www is the public directory served to clients
@@ -28,7 +25,6 @@ app.get('/', function(req, res) {
 
 var mongo = new Mongo();
 var game = new Game();
-
 
 //socket managing
 io.on('connection', function(socket) {
