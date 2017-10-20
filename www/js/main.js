@@ -1,7 +1,10 @@
 /*
  * Canvas init sizes, AUTO => CANVAS OR WEBGL chosen automatically in 4rth parameter div (id), I didn't put it in because it fucks up the scaling
  */
-var game = new Phaser.Game(448, 496, Phaser.AUTO);
+
+var size = 400
+var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
+var map = "assets/random-map.json";
 
 //Number or position update infos sent to servers per second if fps is accurate
 var howManyInfoPerSecond = 10;
@@ -50,7 +53,7 @@ Pacman.prototype = {
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
 	},
 	/*
 	 * Var initialisation of in game items
@@ -61,7 +64,7 @@ Pacman.prototype = {
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
-		//this.world.setBounds(0, 0, 1920, 1920);
+		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
