@@ -23,6 +23,11 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
+app.post('/tonurl',(req,res) => {
+	
+});
+
+
 var mongo = new Mongo();
 var game = new Game();
 
@@ -63,6 +68,7 @@ io.on('connection', function(socket) {
 		socket.broadcast.emit('positionUpdate', data);
 	});
 });
+
 
 server.listen(app.get('port'), function() {
 	console.log("Pacman is listening on port " + app.get('port'));
