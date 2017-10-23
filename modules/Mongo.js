@@ -28,19 +28,20 @@ exports.Mongo = function(){
 exports.Mongo.prototype = {
     addPlayer: function(login,password){
         if(connected){
-            console.log("INSERT");
+            console.log("INSERT PLAYER");
             var p = {'login':login,'password':password, 'currentSkin':1,'skin':{'s1':1,'s2':2}};
             players.insert(doc);
         }
     },
     connectPlayer: function(login,password){
         if(connected){
+            console.log("CONNECT PLAYER")
             var res = players.find({
             "login": login,
             "mdp": mdp
             });
             
-            console.log(res);
+            console.log("res Mongo.js -> " + res);
         }
     }
 
