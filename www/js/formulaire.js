@@ -15,10 +15,11 @@ $(function(){
         */
 
         $.ajax({
-          url:"/tonurl",
+          url:"/seConnecter",
           type:"POST",
-          data:"",
+          data:{login:$('#pseudoConnexion').val(),mdp:$('#mdpConnextion').val()},
           sucess:function(data,textStatus,jqXHR){
+            
             console.log('sucess ' + data);
           },
           error:function(jqXHR,textStatus,errorThrown){

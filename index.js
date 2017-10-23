@@ -23,8 +23,14 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-app.post('/tonurl',(req,res) => {
-	
+app.post('/seConnecter',(req,res) => {
+	console.log("Index.js -> app.post");
+	console.log("req" + req);
+	var res = db.players.find({
+		"login": login,
+		"mdp": mdp
+	  });
+	console.log("res " + res);
 });
 
 
