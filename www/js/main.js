@@ -4,12 +4,11 @@
 var game = new Phaser.Game(448, 496, Phaser.AUTO);
 
 //Number or position update infos sent to servers per second if fps is accurate
-var howManyInfoPerSecond = 10;
+var howManyInfoPerSecond = 20;
 var theoreticalFps = 60;
 
 var randTeam = Math.floor(Math.random() * 2) + 1;
-console.log("Team : " + randTeam);
-
+alert("Vous êtes dans la team : " + randTeam);
 /*
  * Pacman Class constructor
  */
@@ -17,6 +16,7 @@ var Pacman = function(game) {
 	this.map = null;
 	this.layer = null;
 	this.pacman = null;
+	this.skin = null;
 	this.safetile = 14;
 	this.gridsize = 16;
 	this.speed = 150;
@@ -75,14 +75,10 @@ Pacman.prototype = {
 		this.dots.setAll('y', 6, false, false, 1);
 		//  Pacman should collide with everything except the safe tile
 		this.map.setCollisionByExclusion([this.safetile], true, this.layer);
-		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
-		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'pacman', 0);
-		this.pacman.anchor.set(0.5);
-		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
-		this.physics.arcade.enable(this.pacman);
-		this.pacman.body.setSize(16, 16, 0, 0);
-		this.cursors = this.input.keyboard.createCursorKeys();
-		this.pacman.play('munch'); //play animation
+		//skin is hardcoded, should be added to GUI later
+		this.createLocalPlayer({
+			skin: 'pacman'
+		});
 		this.move(Phaser.LEFT);
 		this.camera.follow(this.pacman); //follow pacman with camera
 		whenReady();
@@ -105,12 +101,30 @@ Pacman.prototype = {
 			player.angle = 90;
 		}
 	},
+	createLocalPlayer: function(data) {
+		if (this.pacman) { // this.pacman is not null
+			if (this.pacman.alive) { //check if alive before reinstancing
+				console.log(this.pacman.alive);
+				return;
+			}
+		}
+		this.skin = data.skin;
+		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
+		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, data.skin, 0);
+		this.pacman.anchor.set(0.5);
+		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
+		this.physics.arcade.enable(this.pacman);
+		this.pacman.body.setSize(16, 16, 0, 0);
+		this.cursors = this.input.keyboard.createCursorKeys();
+		this.pacman.play('munch'); //play animation
+	},
 	createPlayer: function(data) {
+		console.log(data);
 		var newPlayer;
 		if (data.team === this.team) {
-			newPlayer = this.allies.create(data.x, data.y, 'pacman');
+			newPlayer = this.allies.create(data.x, data.y, data.skin);
 		} else {
-			newPlayer = this.enemies.create(data.x, data.y, 'pacman');
+			newPlayer = this.enemies.create(data.x, data.y, data.skin);
 		}
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
@@ -118,10 +132,6 @@ Pacman.prototype = {
 		newPlayer.body.setSize(16, 16, 0, 0);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
-		console.log("allies");
-		console.log(this.allies.children);
-		console.log("enemies");
-		console.log(this.enemies.children);
 	},
 	checkKeys: function() {
 		if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
@@ -199,19 +209,24 @@ Pacman.prototype = {
 			this.dots.callAll('revive');
 		}
 	},
+	//kill local player
 	destroyPlayer: function(pacman, pacmanEnemy) {
 		pacman.kill();
 		socket.emit('playerIsDead');
+		game.state.callbackContext.createLocalPlayer({
+			skin: 'pacman'
+		});
 	},
+	//kill not local player
 	killPlayer: function(data) {
 		if (!this.players[data.playerId])
 			return;
 		this.players[data.playerId].kill();
-		this.players.remove(data.playerId);
+		delete this.players[data.playerId];
 		if (this.enemies[data.playerId]) {
-			this.enemies.remove(data.playerId);
+			delete this.enemies[data.playerId];
 		} else {
-			this.allies.remove(data.playerId);
+			delete this.allies[data.playerId];
 		}
 	},
 	/*
@@ -257,7 +272,6 @@ Pacman.prototype = {
 //starts game with defined Class
 game.state.add('Game', Pacman, true);
 
-
 function whenReady() {
 
 	//Another player disconnected
@@ -291,5 +305,12 @@ function whenReady() {
 	});
 
 	//Ask servers for currently connected players
-	socket.emit('users', game.state.callbackContext.team);
+	//And send personal informations
+	socket.emit('firstInit', {
+		team: game.state.callbackContext.team,
+		skin: game.state.callbackContext.skin,
+		x: game.state.callbackContext.pacman.x,
+		y: game.state.callbackContext.pacman.y,
+		dir: game.state.callbackContext.current
+	});
 }
