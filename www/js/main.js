@@ -79,8 +79,6 @@ Pacman.prototype = {
 		this.createLocalPlayer({
 			skin: 'pacman'
 		});
-		this.move(Phaser.LEFT);
-		this.camera.follow(this.pacman); //follow pacman with camera
 		whenReady();
 	},
 	updatePlayer: function(data) {
@@ -101,6 +99,7 @@ Pacman.prototype = {
 			player.angle = 90;
 		}
 	},
+	//create player movable with keys
 	createLocalPlayer: function(data) {
 		if (this.pacman) { // this.pacman is not null
 			if (this.pacman.alive) { //check if alive before reinstancing
@@ -117,7 +116,10 @@ Pacman.prototype = {
 		this.pacman.body.setSize(16, 16, 0, 0);
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
+		this.move(Phaser.LEFT); //initial movement
+		this.camera.follow(this.pacman); //follow pacman with camera
 	},
+	//instanciate external player
 	createPlayer: function(data) {
 		console.log(data);
 		var newPlayer;
