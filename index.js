@@ -35,16 +35,22 @@ io.on('connection', function(socket) {
 	socket.player = {
 		playerId: playerId
 	}
-	socket.broadcast.emit('user', {
-		playerId: playerId
+
+	//a client notifies server that he dies
+	socket.on('playerIsDead', function() {
+		socket.broadcast.emit('playerIsDead', socket.player.playerId);
 	});
 
-	socket.on('users', function() {
+	//a socket is initialising and asks for current connected players
+	//and is sending is personal informations
+	socket.on('firstInit', function(data) {
+		game.setInfos(socket.player.playerId, data);
 		socket.emit('users', {
 			//Sending playerId so he doesn't add himself to the game
 			playerId: socket.player.playerId,
 			players: game.players
 		});
+		socket.broadcast.emit('user', game.players[socket.player.playerId]);
 	});
 
 	//on disconnection from websocket the player is removed from the game

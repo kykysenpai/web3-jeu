@@ -1,5 +1,5 @@
 exports.Game = function() {
-	this.players = new Object();
+	this.players = {};
 };
 exports.Game.prototype = {
 	addPlayer: function(player) {
@@ -14,5 +14,10 @@ exports.Game.prototype = {
 	setPosition: function(playerId, player) {
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
+		this.players[playerId].dir = player.dir;
+	},
+	setInfos: function(playerId, data) {
+		this.players[playerId].team = data.team;
+		this.players[playerId].skin = data.skin;
 	}
 };
