@@ -17,7 +17,6 @@ exports.Game.prototype = {
 		this.players[playerId].dir = player.dir;
 	},
 	setInfos: function(playerId, data) {
-		this.players[playerId].team = data.team;
-		this.players[playerId].skin = data.skin;
+		this.players[playerId] = data;
 	}
 };

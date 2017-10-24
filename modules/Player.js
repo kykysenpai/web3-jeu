@@ -4,6 +4,7 @@ exports.Player = function(playerId) {
 	this.y = null;
 	this.dir = null;
 	this.team = null;
+	this.skin = null;
 };
 exports.Player.prototype = {
 
