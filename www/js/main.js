@@ -35,7 +35,7 @@ var Pacman = function(game) {
 	this.allies = null;
 	this.players = {};
 	//Receives a random team, will be changed later
-	this.team = randTeam;
+	this.team = null;
 };
 
 /*
@@ -82,6 +82,7 @@ Pacman.prototype = {
 		this.createLocalPlayer({
 			skin: 'pacman'
 		});
+		this.team = randTeam;
 		whenReady();
 	},
 	updatePlayer: function(data) {
@@ -218,9 +219,10 @@ Pacman.prototype = {
 	destroyPlayer: function(pacman, pacmanEnemy) {
 		pacman.kill();
 		socket.emit('playerIsDead');
-		game.state.callbackContext.createLocalPlayer({
+		/*game.state.callbackContext.createLocalPlayer({
 			skin: 'pacman'
-		});
+		});*/
+		//respawn
 	},
 	//kill not local player
 	killPlayer: function(data) {
