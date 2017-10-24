@@ -289,8 +289,6 @@ function whenReady() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
-		//remove info about self
-		delete data.players[data.playerId];
 		for (var user in data.players) {
 			game.state.callbackContext.createPlayer(data.players[user]);
 		}

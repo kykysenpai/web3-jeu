@@ -7,16 +7,18 @@ exports.Game.prototype = {
 		console.log("a new player connected to the game");
 	},
 	removePlayer: function(playerId) {
+		if (!this.players[playerId])
+			return;
 		console.log(this.players[playerId].name + ' was removed' +
 			' from the game with id : ' + this.players[playerId].playerId);
 		delete this.players[playerId];
 	},
 	setPosition: function(playerId, player) {
+		if (!this.players[playerId]) {
+			console.log("UN JOUEUR FANTOOOOOME");
+		}
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
-	},
-	setInfos: function(playerId, data) {
-		this.players[playerId] = data;
 	}
 };

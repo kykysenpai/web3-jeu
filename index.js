@@ -5,14 +5,10 @@ var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
 //imports pac man game related
-var Game = require('./modules/Game.js');
-var Player = require('./modules/Player.js');
-var Mongo = require('./modules/Mongo.js');
+var Game = require('./modules/Game.js').Game;
+var Player = require('./modules/Player.js').Player;
+//var Mongo = require('./modules/Mongo.js').Mongo;
 
-//class aliases
-var Game = Game.Game;
-var Player = Player.Player;
-var Mongo = Mongo.Mongo;
 
 app.set('port', (process.env.PORT || 5000));
 //www is the public directory served to clients
@@ -23,15 +19,13 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-var mongo = new Mongo();
+//var mongo = new Mongo();
 var game = new Game();
 
 //socket managing
 io.on('connection', function(socket) {
 	//adding a new Player on connection to a websocket
 	var playerId = uuid();
-	var player = new Player(playerId);
-	game.addPlayer(player);
 	socket.player = {
 		playerId: playerId
 	}
@@ -44,12 +38,14 @@ io.on('connection', function(socket) {
 	//a socket is initialising and asks for current connected players
 	//and is sending is personal informations
 	socket.on('firstInit', function(data) {
-		game.setInfos(socket.player.playerId, data);
+		data.playerId = socket.player.playerId;
+		var player = new Player(data);
 		socket.emit('users', {
 			//Sending playerId so he doesn't add himself to the game
 			playerId: socket.player.playerId,
 			players: game.players
 		});
+		game.addPlayer(player);
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
 	});
 
