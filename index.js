@@ -11,6 +11,16 @@ var Player = require('./modules/Player.js').Player;
 
 
 app.set('port', (process.env.PORT || 5000));
+
+//forece secure connection with the client
+app.use(function(req, res, next) {
+	if(!req.secure) {
+	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	next();
+  });
+
+
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
 
@@ -18,6 +28,7 @@ app.use(express.static(__dirname + '/www'));
 app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
+
 
 //var mongo = new Mongo();
 var game = new Game();
