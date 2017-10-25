@@ -17,12 +17,12 @@ var https_redirect = function(req, res, next) {
     }
 };
 
+app.use(https_redirect);
+
 app.set('port', (process.env.PORT || 5000));
 
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
-
-app.use(https_redirect);
 
 //get at root
 app.get('/', function(req, res) {
