@@ -13,12 +13,12 @@ var Player = require('./modules/Player.js').Player;
 app.set('port', (process.env.PORT || 5000));
 
 //forece secure connection with the client
-app.use(function(req, res, next) {
+
+app.use(function(req, res) {
 	if(!req.secure) {
 	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
 	}
-	next();
-  });
+});
 
 
 //www is the public directory served to clients
