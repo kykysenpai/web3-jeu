@@ -83,6 +83,10 @@ Pacman.prototype = {
 			skin: 'pacman'
 		});
 		this.team = randTeam;
+		//Enabling gamepad
+		game.input.gamepad.start();
+		pad1 = game.input.gamepad.pad1;
+		
 		whenReady();
 	},
 	updatePlayer: function(data) {
@@ -140,17 +144,33 @@ Pacman.prototype = {
 		this.players[data.playerId] = newPlayer;
 	},
 	checkKeys: function() {
-		if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
-			this.checkDirection(Phaser.LEFT);
-		} else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT) {
-			this.checkDirection(Phaser.RIGHT);
-		} else if (this.cursors.up.isDown && this.current !== Phaser.UP) {
-			this.checkDirection(Phaser.UP);
-		} else if (this.cursors.down.isDown && this.current !== Phaser.DOWN) {
-			this.checkDirection(Phaser.DOWN);
-		} else {
-			//  This forces them to hold the key down to turn the corner
-			this.turning = Phaser.NONE;
+
+		if (game.input.gamepad.supported && game.input.gamepad.active && pad1.connected){
+			if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1) && this.current !== Phaser.LEFT){
+				this.checkDirection(Phaser.LEFT);
+			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_RIGHT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1) && this.current !== Phaser.RIGHT){
+				this.checkDirection(Phaser.RIGHT);				
+			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_UP) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) < -0.1) && this.current !== Phaser.UP){
+				this.checkDirection(Phaser.UP);
+			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_DOWN) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) > 0.1) && this.current !== Phaser.DOWN){
+				this.checkDirection(Phaser.DOWN);				
+			} else {
+				//  This forces them to hold the key down to turn the corner
+				this.turning = Phaser.NONE;
+			} 
+		}else{
+			if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
+				this.checkDirection(Phaser.LEFT);
+			} else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT) {
+				this.checkDirection(Phaser.RIGHT);
+			} else if (this.cursors.up.isDown && this.current !== Phaser.UP) {
+				this.checkDirection(Phaser.UP);
+			} else if (this.cursors.down.isDown && this.current !== Phaser.DOWN) {
+				this.checkDirection(Phaser.DOWN);
+			} else {
+				//  This forces them to hold the key down to turn the corner
+				this.turning = Phaser.NONE;
+			}			
 		}
 	},
 	/*
