@@ -12,15 +12,6 @@ var Player = require('./modules/Player.js').Player;
 
 app.set('port', (process.env.PORT || 5000));
 
-//forece secure connection with the client
-
-app.use(function(req, res) {
-	if(!req.secure) {
-	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
-	}
-});
-
-
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
 
@@ -75,6 +66,14 @@ io.on('connection', function(socket) {
 		data.playerId = socket.player.playerId;
 		socket.broadcast.emit('positionUpdate', data);
 	});
+});
+
+//force secure connection with the client
+app.use(function(req, res, next) {
+	if(!req.secure) {
+	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	next();
 });
 
 server.listen(app.get('port'), function() {
