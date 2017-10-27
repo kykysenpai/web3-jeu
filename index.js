@@ -9,8 +9,22 @@ var Game = require('./modules/Game.js').Game;
 var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
 
+var https_redirect = function(req, res, next) {
+    if (process.env.NODE_ENV === 'production') {
+        if (req.headers['x-forwarded-proto'] != 'https') {
+            return res.redirect('https://' + req.headers.host + req.url);
+        } else {
+            return next();
+        }
+    } else {
+        return next();
+    }
+};
+
+app.use(https_redirect);
 
 app.set('port', (process.env.PORT || 5000));
+
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
 
@@ -18,6 +32,7 @@ app.use(express.static(__dirname + '/www'));
 app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
+
 
 //var mongo = new Mongo();
 var game = new Game();
@@ -68,6 +83,16 @@ io.on('connection', function(socket) {
 		socket.broadcast.emit('positionUpdate', data);
 	});
 });
+
+/*
+//force secure connection with the client
+app.use(function(req, res, next) {
+	if(!req.secure) {
+	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	next();
+});
+*/
 
 server.listen(app.get('port'), function() {
 	console.log("Pacman is listening on port " + app.get('port'));
