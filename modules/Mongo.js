@@ -1,6 +1,5 @@
 //Cryptage
 var bcrypt = require('bcrypt-nodejs');
-const saltRounds = 10;
 
 //db
 var mongoose = require('mongoose');
@@ -33,9 +32,10 @@ exports.Mongo.prototype = {
         if(connectedDB){
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
             //crypting before insert
-            bcrypt.hash(password, saltRounds).then(function(hash){
+            bcrypt.hash(password, null, null, function(err, hash) {
                 password = hash;
             });
+
             var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / Object player login et pass : " + p.login + "  " + p.password);
 
@@ -69,38 +69,34 @@ exports.Mongo.prototype = {
         console.log("Mongo.js / mongo proto / IN FUNCTION CONNECT");
         if(connectedDB){
             console.log("Mongo.js / mongo proto / connect login et pass : " + login + "  " + password);
-            
-             //crypting before insert
-            bcrypt.hash(password, saltRounds).then(function(hash){
-                password = hash;
-            });
             var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / connect Object player login et pass : " + p.login + "  " + p.password);
          
             //Check si le login name est present et si oui recupere le player correspondant
             var gotPlayer = false;
+            
             Player.findOne({"login" : login}).exec(function (err,player) {
-              if (err) {
-                return true;
-              } else if (!player) {
-                var err = new Error("Player not found.");
-                gotPlayer = false;
-                err.status = 400;
-                return false;
-              }
-              console.log('Got the player with this login -> ', player.login);
-              gotPlayer = true;
-              console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
-              //compare
-              bcrypt.compare(p.password, player.password, function (err, result) {
-                if (result) {
-                    console.log("Mongo.js / mongo proto / bon mdp");
+                if (err) {
                     return true;
-                } else {
-                    console.log("Mongo.js / mongo proto / pas bon mdp");
+                } else if (!player) {
+                    var err = new Error("Player not found.");
+                    gotPlayer = false;
+                    err.status = 400;
                     return false;
                 }
-              })
+                console.log('Got the player with this login -> ', player.login);
+                gotPlayer = true;
+                console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
+                //compare
+                bcrypt.compare(p.password, player.password, function(err, res) {
+                    if (result) {
+                        console.log("Mongo.js / mongo proto / bon mdp");
+                        return true;
+                    } else {
+                        console.log("Mongo.js / mongo proto / pas bon mdp");
+                        return false;
+                    }
+                });  
             });
         }
     },
