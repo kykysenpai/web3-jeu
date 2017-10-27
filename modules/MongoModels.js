@@ -12,32 +12,32 @@ var Room;
 
 //schemas player
 playerSchema = mongoose.Schema({
-    id_player: Schema.Types.ObjectId,
+    id_player: Number,
     login: { type:String, unique : true, trim:true},
     password : String,
-    currentGhost : {type : Schema.Types.ObjectId, ref : 'Skin'},
-    currentPacman : {type : Schema.Types.ObjectId, ref : 'Skin'},
+    currentGhost : {type : Number, ref : 'Skin'},
+    currentPacman : {type : Number, ref : 'Skin'},
     stats : {
-        bestScorePacman : Number,
-        bestScoreGhost : Number,
-        nbPlayedGames : Number,
-        nbVictory : Number,
-        nbDefeat : Number
+        bestScorePacman : { type : Number, default : 0},
+        bestScoreGhost :  { type : Number, default : 0},
+        nbPlayedGames :  { type : Number, default : 0},
+        nbVictory :  { type : Number, default : 0},
+        nbDefeat :  { type : Number, default : 0}
     },
     ghostSkins : [{
-        type : Schema.Types.ObjectId, ref : 'Skin'}],
+        type : Number, ref : 'Skin'}],
     pacmanSkins : [{
-        type : Schema.Types.ObjectId, ref : 'Skin'}]
+        type : Number, ref : 'Skin'}]
 });
 //schema skins
 skinSchema = mongoose.Schema({
-    id_skin : Schema.Types.ObjectId,
+    id_skin : Number,
     type : Boolean, //pacman = 0 && ghost = 1
     image : String
 });
 //schema rooms
 roomSchema = mongoose.Schema({
-    id_room : Schema.Types.ObjectId,
+    id_room : Number,
     name : String,
     type : {
         name : String, 
@@ -50,6 +50,6 @@ Players = mongoose.model('Players', playerSchema);
 Skins = mongoose.model('Skins', skinSchema);
 Rooms = mongoose.model('Rooms', roomSchema);
 
-module.exports.players = Players;
-module.exports.skins = Skins;
-module.exports.user = User;
+exports.players = Players;
+exports.skins = Skins;
+exports.user = Rooms;

@@ -6,9 +6,8 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-//app.use(multer()); // for parsing multipart/form-data
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 //imports pac man game related
 var Game = require('./modules/Game.js');
@@ -30,17 +29,26 @@ app.get('/', function(req, res) {
 });
 
 var mongo = new Mongo();
+
 var game = new Game();
 
 app.post('/seConnecter',(req,res) => {
-	console.log("Index.js -> app.post");
+	console.log("Index.js seConnecter-> app.post");
 	console.log("req:" + req.body.login);
 	var res = mongo.connectPlayer(req.body.login,req.body.mdp);
 	
-	console.log("res app post ->  " + res);
+	console.log("res app post seConnecter ->  " + res);
 	
 });
 
+app.post('/sInscrire',(req,res) => {
+	console.log("Index.js sInscrire-> app.post");
+	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
+	var res = mongo.insertPlayer(req.body.login,req.body.mdp);
+	
+	console.log("res app post sInscrire ->  " + res);
+	
+});
 
 //socket managing
 io.on('connection', function(socket) {
