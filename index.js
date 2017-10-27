@@ -23,6 +23,13 @@ app.set('port', (process.env.PORT || 5000));
 //www is the public directory served to clients
 app.use(express.static(__dirname + '/www'));
 
+//use sessions for tracking logins
+app.use(session({
+	secret: 'work hard',
+	resave: true,
+	saveUninitialized: false
+  }));
+
 //get at root
 app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
