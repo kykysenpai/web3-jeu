@@ -79,7 +79,7 @@ exports.Mongo.prototype = {
          
             //Check si le login name est present et si oui recupere le player correspondant
             var gotPlayer = false;
-            User.findOne({"login" : login}).exec(function (err,player) {
+            Player.findOne({"login" : login}).exec(function (err,player) {
               if (err) {
                 return true;
               } else if (!player) {
