@@ -41,17 +41,17 @@ exports.Mongo.prototype = {
                         console.log('%s exists already.', player.login);
                         found = true;
                     }
-                    Player.create(p, function(err,player){
-                        if (err) {
-                            return next(err)
-                        } else {
-                            return true;
-                        }
-                    });
             });
             if(!found){
                 console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
                 //INSERT IN DB
+                Player.create(p, function(err,player){
+                    if (err) {
+                        return next(err)
+                    } else {
+                        return true;
+                    }
+                });
             }
         }
     },
