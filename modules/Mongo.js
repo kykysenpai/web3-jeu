@@ -19,11 +19,7 @@ mongodb.MongoClient.connect(uri, function(err, db) {
     }
 });
 
-
-
-exports.Mongo = function(){
-
-};
+exports.Mongo = function(){};
 
 exports.Mongo.prototype = {
     addPlayer: function(login,password){
@@ -38,8 +34,7 @@ exports.Mongo.prototype = {
             var res = players.find({
             "login": login,
             "mdp": mdp
-            });
-            
+            });   
             console.log(res);
         }
     }
