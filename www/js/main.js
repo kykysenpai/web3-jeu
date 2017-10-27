@@ -125,7 +125,6 @@ Pacman.prototype = {
 	},
 	//instanciate external player
 	createPlayer: function(data) {
-		console.log(data);
 		var newPlayer;
 		if (data.team === this.team) {
 			newPlayer = this.allies.create(data.x, data.y, data.skin);
@@ -304,11 +303,13 @@ function whenReady() {
 		game.state.callbackContext.updatePlayer(data);
 	});
 
+	//another player died
 	socket.on('playerIsDead', function(playerId) {
 		game.state.callbackContext.killPlayer({
 			playerId: playerId
 		});
 	});
+
 
 	//Ask servers for currently connected players
 	//And send personal informations

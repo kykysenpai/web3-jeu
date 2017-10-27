@@ -40,11 +40,7 @@ io.on('connection', function(socket) {
 	socket.on('firstInit', function(data) {
 		data.playerId = socket.player.playerId;
 		var player = new Player(data);
-		socket.emit('users', {
-			//Sending playerId so he doesn't add himself to the game
-			playerId: socket.player.playerId,
-			players: game.players
-		});
+		socket.emit('users', game.players);
 		game.addPlayer(player);
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
 	});
@@ -59,6 +55,10 @@ io.on('connection', function(socket) {
 
 	//got position update from a socket
 	socket.on('positionUpdate', function(data) {
+		if (!game.players[socket.player.playerId]) {
+			//received position from a player that didn't make his first init yet
+			return;
+		}
 		game.setPosition(socket.player.playerId, data);
 		//broadcasts information to everyone except itself
 		data.playerId = socket.player.playerId;

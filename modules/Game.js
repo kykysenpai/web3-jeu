@@ -14,9 +14,7 @@ exports.Game.prototype = {
 		delete this.players[playerId];
 	},
 	setPosition: function(playerId, player) {
-		if (!this.players[playerId]) {
-			console.log("UN JOUEUR FANTOOOOOME");
-		}
+		if(!this.players)
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
