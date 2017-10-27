@@ -1,5 +1,5 @@
 //Cryptage
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 const saltRounds = 10;
 
 //db
