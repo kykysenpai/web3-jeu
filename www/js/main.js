@@ -310,8 +310,10 @@ function whenReady() {
 	socket.on('users', function(data) {
 		console.log("DEBUG : Players already in game sent by server at init:");
 		console.log(data);
-		for (var user in data.players) {
-			game.state.callbackContext.createPlayer(data.players[user]);
+		for (var user in data) {
+			console.log("DEBUG : creating player ...");
+			console.log(data[user]);
+			game.state.callbackContext.createPlayer(data[user]);
 		}
 	});
 
