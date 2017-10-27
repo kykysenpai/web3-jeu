@@ -86,7 +86,7 @@ Pacman.prototype = {
 		//Enabling gamepad
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
-		
+
 		whenReady();
 	},
 	updatePlayer: function(data) {
@@ -144,20 +144,20 @@ Pacman.prototype = {
 	},
 	checkKeys: function() {
 
-		if (game.input.gamepad.supported && game.input.gamepad.active && pad1.connected){
-			if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1) && this.current !== Phaser.LEFT){
+		if (game.input.gamepad.supported && game.input.gamepad.active && pad1.connected) {
+			if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1) && this.current !== Phaser.LEFT) {
 				this.checkDirection(Phaser.LEFT);
-			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_RIGHT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1) && this.current !== Phaser.RIGHT){
-				this.checkDirection(Phaser.RIGHT);				
-			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_UP) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) < -0.1) && this.current !== Phaser.UP){
+			} else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_RIGHT) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1) && this.current !== Phaser.RIGHT) {
+				this.checkDirection(Phaser.RIGHT);
+			} else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_UP) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) < -0.1) && this.current !== Phaser.UP) {
 				this.checkDirection(Phaser.UP);
-			}else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_DOWN) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) > 0.1) && this.current !== Phaser.DOWN){
-				this.checkDirection(Phaser.DOWN);				
+			} else if ((pad1.isDown(Phaser.Gamepad.XBOX360_DPAD_DOWN) || pad1.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_Y) > 0.1) && this.current !== Phaser.DOWN) {
+				this.checkDirection(Phaser.DOWN);
 			} else {
 				//  This forces them to hold the key down to turn the corner
 				this.turning = Phaser.NONE;
-			} 
-		}else{
+			}
+		} else {
 			if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
 				this.checkDirection(Phaser.LEFT);
 			} else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT) {
@@ -169,7 +169,7 @@ Pacman.prototype = {
 			} else {
 				//  This forces them to hold the key down to turn the corner
 				this.turning = Phaser.NONE;
-			}			
+			}
 		}
 	},
 	/*
@@ -308,6 +308,8 @@ function whenReady() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
+		console.log("DEBUG : Players already in game sent by server at init:");
+		console.log(data);
 		for (var user in data.players) {
 			game.state.callbackContext.createPlayer(data.players[user]);
 		}
