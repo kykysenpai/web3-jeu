@@ -1,8 +1,14 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+var multer = require('multer'); 
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+//app.use(multer()); // for parsing multipart/form-data
 
 //imports pac man game related
 var Game = require('./modules/Game.js');
@@ -23,13 +29,18 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-app.post('/tonurl',(req,res) => {
+var mongo = new Mongo();
+var game = new Game();
+
+app.post('/seConnecter',(req,res) => {
+	console.log("Index.js -> app.post");
+	console.log("req:" + req.body.login);
+	var res = mongo.connectPlayer(req.body.login,req.body.mdp);
+	
+	console.log("res app post ->  " + res);
 	
 });
 
-
-var mongo = new Mongo();
-var game = new Game();
 
 //socket managing
 io.on('connection', function(socket) {
