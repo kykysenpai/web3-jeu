@@ -7,11 +7,21 @@ var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
 var map = "assets/pacman-map.json";
 
 //Number or position update infos sent to servers per second if fps is accurate
-var howManyInfoPerSecond = 20;
+var howManyInfoPerSecond = 10;
 var theoreticalFps = 60;
 
 var randTeam = Math.floor(Math.random() * 2) + 1;
 alert("Vous êtes dans la team : " + randTeam);
+
+var spawn1 = {
+	x: 24,
+	y: 232
+}
+
+var spawn2 = {
+	x: 424,
+	y: 232
+}
 /*
  * Pacman Class constructor
  */
@@ -79,10 +89,10 @@ Pacman.prototype = {
 		//  Pacman should collide with everything except the safe tile
 		this.map.setCollisionByExclusion([this.safetile], true, this.layer);
 		//skin is hardcoded, should be added to GUI later
+		this.team = randTeam;
 		this.createLocalPlayer({
 			skin: 'pacman'
 		});
-		this.team = randTeam;
 		//Enabling gamepad
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
@@ -111,13 +121,21 @@ Pacman.prototype = {
 	createLocalPlayer: function(data) {
 		if (this.pacman) { // this.pacman is not null
 			if (this.pacman.alive) { //check if alive before reinstancing
-				console.log(this.pacman.alive);
 				return;
 			}
 		}
 		this.skin = data.skin;
+		var xSpawn;
+		var ySpawn;
+		if (this.team === 1) {
+			xSpawn = spawn1.x;
+			ySpawn = spawn1.y;
+		} else if (this.team === 2) {
+			xSpawn = spawn2.x;
+			ySpawn = spawn2.y;
+		}
 		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
-		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, data.skin, 0);
+		this.pacman = this.add.sprite(xSpawn, ySpawn, data.skin, 0);
 		this.pacman.anchor.set(0.5);
 		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
@@ -308,12 +326,13 @@ function whenReady() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
-		console.log("DEBUG : Players already in game sent by server at init:");
-		console.log(data);
-		for (var user in data) {
-			console.log("DEBUG : creating player ...");
-			console.log(data[user]);
-			game.state.callbackContext.createPlayer(data[user]);
+		game.state.callbackContext.id = data.playerId;
+		for (var player in data.players) {
+			if (player === data.playerId) {
+				//doesn't create itself
+				continue;
+			}
+			game.state.callbackContext.createPlayer(data.players[player]);
 		}
 	});
 
@@ -322,9 +341,15 @@ function whenReady() {
 		game.state.callbackContext.createPlayer(data);
 	});
 
-	//Anoter player sent his moving informations
-	socket.on('positionUpdate', function(data) {
-		game.state.callbackContext.updatePlayer(data);
+	//Server sent current state
+	socket.on('gameUpdate', function(data) {
+		for (var player in data) {
+			if (data[player].playerId === game.state.callbackContext) {
+				//info sur sois même
+				continue;
+			}
+			game.state.callbackContext.updatePlayer(data[player]);
+		}
 	});
 
 	//another player died
