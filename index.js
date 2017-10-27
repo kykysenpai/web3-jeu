@@ -52,11 +52,6 @@ io.on('connection', function(socket) {
 		playerId: playerId
 	}
 
-	//a client notifies server that he dies
-	socket.on('playerIsDead', function() {
-		socket.broadcast.emit('playerIsDead', socket.player.playerId);
-	});
-
 	//a socket is initialising and asks for current connected players
 	//and is sending his personal informations
 	socket.on('firstInit', function(data) {

@@ -5,6 +5,7 @@ exports.Player = function(data) {
 	this.dir = data.dir;
 	this.team = data.team;
 	this.skin = data.skin;
+	this.isAlive = true;
 };
 exports.Player.prototype = {
 

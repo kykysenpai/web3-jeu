@@ -46,6 +46,7 @@ var Pacman = function(game) {
 	this.players = {};
 	//Receives a random team, will be changed later
 	this.team = null;
+	this.playerId = null;
 };
 
 /*
@@ -103,6 +104,13 @@ Pacman.prototype = {
 		var player;
 		if (!(player = this.players[data.playerId]))
 			return;
+		//player died
+		if (!data.isAlive) {
+			this.killPlayer({
+				playerId: data.playerId
+			});
+			return;
+		}
 		player.x = data.x;
 		player.y = data.y;
 
@@ -253,9 +261,9 @@ Pacman.prototype = {
 		}
 	},
 	//kill local player
-	destroyPlayer: function(pacman, pacmanEnemy) {
-		pacman.kill();
-		socket.emit('playerIsDead');
+	destroyPlayer: function() {
+		this.pacman.kill();
+		//socket.emit('playerIsDead');
 		/*game.state.callbackContext.createLocalPlayer({
 			skin: 'pacman'
 		});*/
@@ -280,9 +288,13 @@ Pacman.prototype = {
 		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
 		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+
+		/* gérer coté serveur
 		//collision entre le joueur et les ennemis
 		this.physics.arcade.collide(this.pacman, this.enemies, this.destroyPlayer);
 		this.physics.arcade.collide(this.pacman, this.allies);
+		*/
+
 		//collision entre les pacmans et le décor
 		this.physics.arcade.collide(this.enemies, this.layer);
 		this.physics.arcade.collide(this.allies, this.layer);
@@ -326,7 +338,7 @@ function whenReady() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
-		game.state.callbackContext.id = data.playerId;
+		game.state.callbackContext.playerId = data.playerId;
 		for (var player in data.players) {
 			if (player === data.playerId) {
 				//doesn't create itself
@@ -344,21 +356,17 @@ function whenReady() {
 	//Server sent current state
 	socket.on('gameUpdate', function(data) {
 		for (var player in data) {
-			if (data[player].playerId === game.state.callbackContext) {
+			if (data[player].playerId === game.state.callbackContext.playerId) {
 				//info sur sois même
+				console.log(data[player]);
+				if (!data[player].isAlive) {
+					game.state.callbackContext.destroyPlayer();
+				}
 				continue;
 			}
 			game.state.callbackContext.updatePlayer(data[player]);
 		}
 	});
-
-	//another player died
-	socket.on('playerIsDead', function(playerId) {
-		game.state.callbackContext.killPlayer({
-			playerId: playerId
-		});
-	});
-
 
 	//Ask servers for currently connected players
 	//And send personal informations
