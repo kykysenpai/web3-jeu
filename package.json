@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node index.js",
+    "install": "npm install",
     "start": "node index.js"
   },
   "repository": {
