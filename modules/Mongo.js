@@ -89,7 +89,7 @@ exports.Mongo.prototype = {
                 console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
                 //compare
                 bcrypt.compare(p.password, player.password, function(err, res) {
-                    if (result) {
+                    if (res) {
                         console.log("Mongo.js / mongo proto / bon mdp");
                         return true;
                     } else {
