@@ -36,7 +36,7 @@ exports.Mongo.prototype = {
                 console.log("Mongo.js / mongo proto / hash : " + password + " - hash : " + hash);   
                 password = hash;
             });
-
+            console.log("Password after hash : " + password);
             var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / Object player login et pass : " + p.login + "  " + p.password);
 
