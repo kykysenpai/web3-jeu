@@ -37,6 +37,17 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
+app.get('/lobby', function(req,res){
+	res.send("Lobby goes here");
+});
+
+app.get('/game', function(req,res){
+	res.send("Game hoes here");
+});
+
+app.post('/login', function(req,res){
+	res.send("Login logic goes here");
+});
 
 //var mongo = new Mongo();
 var game = new Game();
