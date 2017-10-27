@@ -6,12 +6,7 @@ $(function(){
         var mdp = $('#mdpConnexion').val();
         console.log("login : "+ login);        
         console.log("mdp : "+ mdp);
-        /*
-        var res = db.players.find({
-          "login": login,
-          "mdp": mdp
-        });
-        */
+        
 
         $.ajax({
           url:'/seConnecter',

@@ -38,6 +38,7 @@ app.post('/seConnecter',(req,res) => {
 	var res = mongo.connectPlayer(req.body.login,req.body.mdp);
 	
 	console.log("res app post ->  " + res);
+	
 });
 
 
