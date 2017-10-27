@@ -33,7 +33,7 @@ exports.Mongo.prototype = {
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
             //crypting before insert
             var psw = password;
-            bcrypt.hash(password, 10, function(err, hash) {
+            bcrypt.hashSync(password, 10, function(err, hash) {
                 console.log("Mongo.js / mongo proto / hash : " + password + " - hash : " + hash);   
                 psw = hash;
             });
