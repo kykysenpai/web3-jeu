@@ -71,7 +71,7 @@ exports.Mongo.prototype = {
             console.log("Mongo.js / mongo proto / connect login et pass : " + login + "  " + password);
             
              //crypting before insert
-            bcrypt.hash(p.password, saltRounds).then(function(hash){
+            bcrypt.hash(password, saltRounds).then(function(hash){
                 password = hash;
             });
             var p = new Player({login:login, password : password});
