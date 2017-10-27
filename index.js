@@ -24,8 +24,11 @@ var game = new Game();
 
 //socket managing
 io.on('connection', function(socket) {
-	//adding a new Player on connection to a websocket
+
+	//generate a new uniquer playerId for the connecting socket
 	var playerId = uuid();
+
+	//link the socket with the generating id to identify it
 	socket.player = {
 		playerId: playerId
 	}
@@ -36,7 +39,7 @@ io.on('connection', function(socket) {
 	});
 
 	//a socket is initialising and asks for current connected players
-	//and is sending is personal informations
+	//and is sending his personal informations
 	socket.on('firstInit', function(data) {
 		data.playerId = socket.player.playerId;
 		var player = new Player(data);
@@ -57,7 +60,7 @@ io.on('connection', function(socket) {
 	socket.on('positionUpdate', function(data) {
 		if (!game.players[socket.player.playerId]) {
 			//received position from a player that didn't make his first init yet
-			return;
+			return; //return to avoid sending useless informations to clients
 		}
 		game.setPosition(socket.player.playerId, data);
 		//broadcasts information to everyone except itself
