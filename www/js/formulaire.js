@@ -14,9 +14,8 @@ $(function(){
             login:$('#pseudoConnexion').val(),
             mdp:$('#mdpConnexion').val()
           },
-          sucess:function(data,textStatus){
-            
-            console.log('sucess ' + data);
+          success:function(data,textStatus){
+            console.log('success ' + textStatus);
           },
           error:function(textStatus,errorThrown){
             console.log("textStatus" + textStatus);
@@ -42,9 +41,8 @@ $(function(){
             login:$('#pseudoInscription').val(),
             mdp:$('#mdpInscription').val()
           },
-          sucess:function(data,textStatus){
-            
-            console.log('sucess ' + data);
+          success:function(data,textStatus){
+            console.log('success ' + textStatus);
           },
           error:function(textStatus,errorThrown){
             console.log("textStatus" + textStatus);

@@ -35,19 +35,31 @@ var game = new Game();
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
 	console.log("req:" + req.body.login);
-	var res = mongo.connectPlayer(req.body.login,req.body.mdp);
-	
-	console.log("res app post seConnecter ->  " + res);
-	
+	var success = mongo.connectPlayer(req.body.login,req.body.mdp);
+	if(success){
+		console.log("Connexion succeded");
+		res.status(200);
+		res.send("OK");
+	}else{
+		console.log("Connexion failed");
+		res.status(400);
+		res.send("KO");
+	}	
 });
 
 app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	var res = mongo.insertPlayer(req.body.login,req.body.mdp);
-	
-	console.log("res app post sInscrire ->  " + res);
-	
+	var success = mongo.insertPlayer(req.body.login,req.body.mdp);
+	if(success){
+		console.log("Inscription succeded");
+		res.status(201);
+		res.send("OK");
+	}else{
+		console.log("Inscription failed");
+		res.status(400);
+		res.send("KO");
+	}	
 });
 
 //socket managing
