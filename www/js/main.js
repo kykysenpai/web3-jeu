@@ -3,7 +3,7 @@
  */
 
 var size = 400
-var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
+var game = new Phaser.Game(size, size, Phaser.AUTO, "game");
 var map = "assets/pacman-map.json";
 
 //Number or position update infos sent to servers per second if fps is accurate
@@ -60,6 +60,8 @@ Pacman.prototype = {
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
+		this.load.spritesheet('buttonhorizontal','assets/button-horizontal.png',96,64);
+		this.load.spritesheet('buttonvertical','assets/button-vertical.png',64,64);
 	},
 	/*
 	 * Var initialisation of in game items
@@ -86,6 +88,22 @@ Pacman.prototype = {
 		//Enabling gamepad
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
+
+
+		//Add mobile support
+		var buttonLeft = null;
+		var buttonRight = null;
+		var buttonUp = null;
+		var buttonDown = null;
+		if (!game.device.desktop){
+			console.log("Je suis mobile");
+			buttonLeft = game.add.button(0,472,'buttonhorizontal', null, this, 0,1,0,1);
+			buttonLeft.fixedToCamera = true;
+			buttonLeft.cameraOffset.setTo(0, 300);
+			buttonLeft.events.onInputOver.add(function(){this.current = Phaser.LEFT});
+			buttonLeft.events.onInputDown.add(function(){this.current = Phaser.LEFT});
+			buttonLeft.events.onInputUp.add(function(){this.current = Phaser.NONE});
+		}//if mobile go fullscreen
 
 		whenReady();
 	},
