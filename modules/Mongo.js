@@ -1,5 +1,5 @@
 //Cryptage
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt');
 
 //db
 var mongoose = require('mongoose');
@@ -33,7 +33,7 @@ exports.Mongo.prototype = {
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
             //crypting before insert
             var psw = password;
-            bcrypt.hash(password, null, null, function(err, hash) {
+            bcrypt.hash(password, 10, function(err, hash) {
                 console.log("Mongo.js / mongo proto / hash : " + password + " - hash : " + hash);   
                 psw = hash;
             });
