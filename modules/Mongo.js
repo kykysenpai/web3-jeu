@@ -90,7 +90,7 @@ exports.Mongo.prototype = {
               }
               console.log('Got the player with this login -> ', player.login);
               gotPlayer = true;
-              console.log("Mongo.js / mongo proto / after get player -> comparison of mdp");
+              console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
               //compare
               bcrypt.compare(p.password, player.password, function (err, result) {
                 if (result) {
