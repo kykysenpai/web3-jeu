@@ -32,12 +32,9 @@ exports.Mongo.prototype = {
         if(connectedDB){
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
             //crypting before insert
-            var psw = password;
-            bcrypt.hashSync(password, 10, function(err, hash) {
-                console.log("Mongo.js / mongo proto / hash : " + password + " - hash : " + hash);   
-                psw = hash;
-            });
-            console.log("Password after hash : " + psw);
+            password = bcrypt.hashSync(password, 10);
+            console.log("Mongo.js / mongo proto / hashed password : " + password);   
+            
             var p = new Player({login:login, password : psw});
             console.log("Mongo.js / mongo proto / Object player login et pass : " + p.login + "  " + p.password);
 
