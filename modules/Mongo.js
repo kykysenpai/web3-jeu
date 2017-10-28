@@ -3,6 +3,7 @@ var bcrypt = require('bcrypt');
 
 //db
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://heroku_user_test:pacmanweb3@ds127375.mlab.com:27375/heroku_djnrjqpc");
 var db = mongoose.connection;
 
@@ -35,7 +36,7 @@ exports.Mongo.prototype = {
             password = bcrypt.hashSync(password, 10);
             console.log("Mongo.js / mongo proto / hashed password : " + password);   
             
-            var p = new Player({login:login, password : psw});
+            var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / Object player login et pass : " + p.login + "  " + p.password);
 
             //Check si le login name est deja utilise
