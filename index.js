@@ -27,7 +27,8 @@ app.use(express.static(__dirname + '/www'));
 app.use(session({
 	secret: 'work hard',
 	resave: true,
-	saveUninitialized: false
+	saveUninitialized: false,
+	cookie: { name : null, maxAge: 0 }
   }));
 
 //get at root
@@ -46,7 +47,9 @@ app.post('/seConnecter',(req,res) => {
 	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
 		console.log("resp of function connect : " + resp);
 		if(resp){
-			console.log("Connexion succeded");
+			req.session.cookie.name = req.body.login;
+			req.session.cookie.maxAge = 10 * 60 * 1000; //10min
+			console.log("Connexion succeded : name -> " + req.session.cookie.name + " & maxAge -> " + req.session.cookie.maxAge);
 			res.status(200);
 			res.send("OK");
 		}else{
