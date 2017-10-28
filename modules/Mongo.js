@@ -57,7 +57,7 @@ exports.Mongo.prototype = {
                 //INSERT IN DB
                 Player.create(p, function(err,player){
                     if (err) {
-                        return next(err)
+                        return err;
                     } else {
                         return true;
                     }
