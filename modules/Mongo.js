@@ -28,7 +28,7 @@ db.once('open', function() {
 exports.Mongo = function(){};
 
 exports.Mongo.prototype = {
-    insertPlayer: function(login,password,callback){
+    insertPlayer: function(login,password){
         console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
         if(connectedDB){
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
@@ -37,7 +37,7 @@ exports.Mongo.prototype = {
             console.log("Mongo.js / mongo proto / hashed password : " + password);   
             
             var p = new Player({login:login, password : password});
-            console.log("Mongo.js / mongo proto / Object player login et pass : " + p.login + "  " + p.password);
+            console.log("Mongo.js / mongo proto / Object player login et pass, id : " + p.login + "  " + p.password + " " + p._id_player);
 
             //Check si le login name est deja utilise
             var found = false;
