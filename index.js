@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var multer = require('multer'); 
 var app = express();
+var $ = require("jquery");
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
@@ -28,12 +29,22 @@ app.use(session({
 	secret: 'work hard',
 	resave: true,
 	saveUninitialized: false,
-	cookie: { name : null, maxAge: 0 }
+	cookie: { name : null, maxAge: 0, playing:false }
   }));
 
 //get at root
 app.get('/', function(req, res) {
-	res.sendFile('www/index.html');
+	//if connected, hide connection screen
+	if(req.session.cookie.name){
+		//si choix deja fait
+		if(req.session.cookie.playing){
+			res.sendFile('www/game.html');
+		}else{
+			res.sendFile('www/choices.html');
+		}
+	}else{
+		res.sendFile('www/registerLogin.html');
+	}
 });
 
 var mongo = new Mongo();
