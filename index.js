@@ -60,7 +60,7 @@ app.post('/seConnecter',(req,res) => {
 app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	mongo.insertPlayer(req.body.login,req.body.mdp, function(err,resp){
+	mongo.insertPlayer(req.body.login,req.body.mdp).then(function(resp){
 		console.log("resp of function connect : " + resp);
 		if(resp){
 			console.log("Inscription succeded");
