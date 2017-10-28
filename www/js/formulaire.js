@@ -18,6 +18,9 @@ $(function(){
             console.log("success " + response.status);
             $("#formulaires").hide();
             $("#choix").show();
+            if (response.redirect) {
+              window.location.href = response.redirect;
+            }
           },
           error:function(response){
             console.log("success " + response.status);

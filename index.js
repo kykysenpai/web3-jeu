@@ -63,6 +63,7 @@ app.post('/seConnecter',(req,res) => {
 			req.session.cookie.maxAge = 10 * 60 * 1000; //10min
 			console.log("Connexion succeded : name -> " + req.session.cookie.name + " & maxAge -> " + req.session.cookie.maxAge);
 			res.status(200);
+			res.redirect("/");
 			res.send("OK");
 		}else{
 			console.log("Connexion failed");
