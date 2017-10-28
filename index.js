@@ -35,6 +35,7 @@ app.use(session({
 //get at root
 app.get('/', function(req, res) {
 	//if connected, hide connection screen
+	console.log(req.session.cookie.name);
 	if(req.session.cookie.name){
 		//si choix deja fait
 		if(req.session.cookie.playing){
