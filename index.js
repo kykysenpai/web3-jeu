@@ -42,7 +42,7 @@ var game = new Game();
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
 	console.log("req:" + req.body.login);
-	var success = mongo.connectPlayer(req.body.login,req.body.mdp);
+	var success = mongo.connectPlayer(req.body.login,req.body.mdp, callback);
 	if(success){
 		console.log("Connexion succeded");
 		res.status(200);
@@ -57,7 +57,7 @@ app.post('/seConnecter',(req,res) => {
 app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	var success = mongo.insertPlayer(req.body.login,req.body.mdp);
+	var success = mongo.insertPlayer(req.body.login,req.body.mdp, callback);
 	if(success){
 		console.log("Inscription succeded");
 		res.status(201);

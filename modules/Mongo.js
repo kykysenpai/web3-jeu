@@ -28,7 +28,7 @@ db.once('open', function() {
 exports.Mongo = function(){};
 
 exports.Mongo.prototype = {
-    insertPlayer: function(login,password){
+    insertPlayer: function(login,password, callback){
         console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
         if(connectedDB){
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
@@ -45,7 +45,7 @@ exports.Mongo.prototype = {
                    if (err) return handleError(err);
                    if(player==null) {
                        found = false;
-                       return false;
+                       return callback(false);
                    }
                     else{
                         console.log('%s exists already.', player.login);
@@ -59,13 +59,13 @@ exports.Mongo.prototype = {
                     if (err) {
                         return next(err)
                     } else {
-                        return true;
+                        return callback(true);
                     }
                 });
             }
         }
     },
-    connectPlayer: function(login,password){
+    connectPlayer: function(login,password, callback){
         console.log("Mongo.js / mongo proto / IN FUNCTION CONNECT");
         if(connectedDB){
             console.log("Mongo.js / mongo proto / connect login et pass : " + login + "  " + password);
@@ -77,12 +77,12 @@ exports.Mongo.prototype = {
             
             Player.findOne({"login" : login}).exec(function (err,player) {
                 if (err) {
-                    return true;
+                    return err;
                 } else if (!player) {
                     var err = new Error("Player not found.");
                     gotPlayer = false;
                     err.status = 400;
-                    return false;
+                    return callback(false);
                 }
                 console.log('Got the player with this login -> ', player.login);
                 gotPlayer = true;
@@ -91,10 +91,10 @@ exports.Mongo.prototype = {
                 bcrypt.compare(p.password, player.password, function(err, res) {
                     if (res) {
                         console.log("Mongo.js / mongo proto / bon mdp");
-                        return true;
+                        return callback(true);
                     } else {
                         console.log("Mongo.js / mongo proto / pas bon mdp");
-                        return false;
+                        return callback(false);
                     }
                 });  
             });
