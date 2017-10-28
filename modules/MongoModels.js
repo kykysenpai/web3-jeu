@@ -12,7 +12,7 @@ var Room;
 
 //schemas player
 playerSchema = mongoose.Schema({
-    _id_player: { type : Schema.Types.ObjectId, default : new mongoose.Types.ObjectId},
+    _id_player: { type : mongoose.Schema.Types.ObjectId, default : new mongoose.Types.ObjectId},
     login: { type:String, unique : true, trim:true},
     password : String,
     currentGhost : {type : Number, ref : 'Skin'},
@@ -31,13 +31,13 @@ playerSchema = mongoose.Schema({
 });
 //schema skins
 skinSchema = mongoose.Schema({
-    id_skin : Schema.Types.ObjectId,
+    id_skin : { type : mongoose.Schema.Types.ObjectId, default : new mongoose.Types.ObjectId},
     type : Boolean, //pacman = 0 && ghost = 1
     image : String
 });
 //schema rooms
 roomSchema = mongoose.Schema({
-    id_room : Schema.Types.ObjectId,
+    id_room : { type : mongoose.Schema.Types.ObjectId, default : new mongoose.Types.ObjectId},
     name : String,
     type : {
         name : String, 
