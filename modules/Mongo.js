@@ -31,14 +31,10 @@ exports.Mongo.prototype = {
     insertPlayer: function(login,password){
         console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
         if(connectedDB){
-            console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
             //crypting before insert
-            password = bcrypt.hashSync(password, 10);
-            console.log("Mongo.js / mongo proto / hashed password : " + password);   
+            password = bcrypt.hashSync(password, 10);   
             
             var p = new Player({login:login, password : password});
-            console.log("Mongo.js / mongo proto / Object player login et pass, id : " + p.login + "  " + p.password + " " + p._id_player);
-
             //promise answer
             return new Promise(function(resolve, reject) {                
                 //Check si le login name est deja utilise
@@ -71,11 +67,8 @@ exports.Mongo.prototype = {
     connectPlayer: function(login,password, callback){
         console.log("Mongo.js / mongo proto / IN FUNCTION CONNECT");
         if(connectedDB){
-
-            console.log("Mongo.js / mongo proto / connect login et pass : " + login + "  " + password);
             var p = new Player({login:login, password : password});
-            console.log("Mongo.js / mongo proto / connect Object player login et pass : " + p.login + "  " + p.password);
-         
+                     
             //promise answer
             return new Promise(function(resolve, reject) {   
                 //Check si le login name est present et si oui recupere le player correspondant
@@ -89,9 +82,7 @@ exports.Mongo.prototype = {
                         err.status = 400;
                         return reject(false);
                     }
-                    console.log('Got the player with this login -> ', player.login);
                     gotPlayer = true;
-                    console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
                     //compare
                     bcrypt.compare(p.password, player.password, function(err, res) {
                         if (res) {

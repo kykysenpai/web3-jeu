@@ -14,14 +14,12 @@ $(function(){
             login:$('#pseudoConnexion').val(),
             mdp:$('#mdpConnexion').val()
           },
-          success:function(data,textStatus){
-            console.log('success ' + textStatus);
+          success:function(response){
+            console.log("success " + response.status);
           },
-          error:function(textStatus,errorThrown){
-            console.log("textStatus" + textStatus);
-            throw errorThrown;
+          error:function(response){
+            console.log("success " + response.status);
           }
-          
         });
       });
 
@@ -41,16 +39,12 @@ $(function(){
             login:$('#pseudoInscription').val(),
             mdp:$('#mdpInscription').val()
           },
-          success:function(data,textStatus){
-            console.log('success ' + textStatus);
+          success:function(response){
+            console.log("success " + response.status);
           },
-          error:function(textStatus,errorThrown){
-            console.log("textStatus" + textStatus);
-            throw errorThrown;
-          }
-          
+          error:function(response){
+            console.log("success " + response.status);
+          }          
         });
       });
-
-
 });
