@@ -1,5 +1,3 @@
-var $ = require("jquery");
-
 $(function(){
     $('#seConnecter').on('click',function(e){
         console.log("formulaire.js -> on clic SeConnecter");
