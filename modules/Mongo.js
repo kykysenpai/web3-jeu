@@ -47,7 +47,6 @@ exports.Mongo.prototype = {
                     if (err) return reject(err);
                     if(player==null) {
                         found = false;
-                        return resolve(false);
                     }
                         else{
                             console.log('%s exists already.', player.login);
