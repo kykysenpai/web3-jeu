@@ -45,7 +45,7 @@ exports.Mongo.prototype = {
                    if (err) return handleError(err);
                    if(player==null) {
                        found = false;
-                       return callback(false);
+                       return false;
                    }
                     else{
                         console.log('%s exists already.', player.login);
@@ -59,7 +59,7 @@ exports.Mongo.prototype = {
                     if (err) {
                         return next(err)
                     } else {
-                        return callback(true);
+                        return true;
                     }
                 });
             }
@@ -82,7 +82,7 @@ exports.Mongo.prototype = {
                     var err = new Error("Player not found.");
                     gotPlayer = false;
                     err.status = 400;
-                    return callback(false);
+                    return false;
                 }
                 console.log('Got the player with this login -> ', player.login);
                 gotPlayer = true;
@@ -91,10 +91,10 @@ exports.Mongo.prototype = {
                 bcrypt.compare(p.password, player.password, function(err, res) {
                     if (res) {
                         console.log("Mongo.js / mongo proto / bon mdp");
-                        return callback(true);
+                        return true;
                     } else {
                         console.log("Mongo.js / mongo proto / pas bon mdp");
-                        return callback(false);
+                        return false;
                     }
                 });  
             });
