@@ -39,65 +39,72 @@ exports.Mongo.prototype = {
             var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / Object player login et pass, id : " + p.login + "  " + p.password + " " + p._id_player);
 
-            //Check si le login name est deja utilise
-            var found = false;
-            Player.findOne({ "login" : login},function (err, player) {
-                   if (err) return handleError(err);
-                   if(player==null) {
-                       found = false;
-                       return false;
-                   }
-                    else{
-                        console.log('%s exists already.', player.login);
-                        found = true;
+            //promise answer
+            return new Promise(function(resolve, reject) {                
+                //Check si le login name est deja utilise
+                var found = false;
+                Player.findOne({ "login" : login},function (err, player) {
+                    if (err) return reject(err);
+                    if(player==null) {
+                        found = false;
+                        return resolve(false);
                     }
-            });
-            if(!found){
-                console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
-                //INSERT IN DB
-                Player.create(p, function(err,player){
-                    if (err) {
-                        return err;
-                    } else {
-                        return true;
-                    }
+                        else{
+                            console.log('%s exists already.', player.login);
+                            found = true;
+                        }
                 });
-            }
+                if(!found){
+                    console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
+                    //INSERT IN DB
+
+                    Player.create(p, function(err,player){
+                        if (err) {
+                            return reject(err);
+                        } else {
+                            return resolve(true);
+                        }
+                    });
+                }
+            })
         }
     },
     connectPlayer: function(login,password, callback){
         console.log("Mongo.js / mongo proto / IN FUNCTION CONNECT");
         if(connectedDB){
+
             console.log("Mongo.js / mongo proto / connect login et pass : " + login + "  " + password);
             var p = new Player({login:login, password : password});
             console.log("Mongo.js / mongo proto / connect Object player login et pass : " + p.login + "  " + p.password);
          
-            //Check si le login name est present et si oui recupere le player correspondant
-            var gotPlayer = false;
-            
-            Player.findOne({"login" : login}).exec(function (err,player) {
-                if (err) {
-                    return err;
-                } else if (!player) {
-                    var err = new Error("Player not found.");
-                    gotPlayer = false;
-                    err.status = 400;
-                    return false;
-                }
-                console.log('Got the player with this login -> ', player.login);
-                gotPlayer = true;
-                console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
-                //compare
-                bcrypt.compare(p.password, player.password, function(err, res) {
-                    if (res) {
-                        console.log("Mongo.js / mongo proto / bon mdp");
-                        return true;
-                    } else {
-                        console.log("Mongo.js / mongo proto / pas bon mdp");
-                        return false;
+            //promise answer
+            return new Promise(function(resolve, reject) {   
+                //Check si le login name est present et si oui recupere le player correspondant
+                var gotPlayer = false;
+                Player.findOne({"login" : login}).exec(function (err,player) {
+                    if (err) {
+                        return reject(err);
+                    } else if (!player) {
+                        var err = new Error("Player not found.");
+                        gotPlayer = false;
+                        err.status = 400;
+                        return reject(false);
                     }
-                });  
-            });
+                    console.log('Got the player with this login -> ', player.login);
+                    gotPlayer = true;
+                    console.log("Mongo.js / mongo proto / after get player -> comparison of mdp : " + p.password + " " + player.password);
+                    //compare
+                    bcrypt.compare(p.password, player.password, function(err, res) {
+                        if (res) {
+                            console.log("Mongo.js / mongo proto / bon mdp");
+                            return resolve(true);
+                        } else {
+                            console.log("Mongo.js / mongo proto / pas bon mdp");
+                            return reject(false);
+                        }
+                    });  
+                });
+            })
         }
     },
 };

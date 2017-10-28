@@ -42,7 +42,8 @@ var game = new Game();
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
 	console.log("req:" + req.body.login);
-	mongo.connectPlayer(req.body.login,req.body.mdp, function(err,resp){
+	//promesse
+	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
 		console.log("resp of function connect : " + resp);
 		if(resp){
 			console.log("Connexion succeded");
