@@ -69,6 +69,9 @@ app.post('/seConnecter',(req,res) => {
 			res.status(400);
 			res.send("KO");
 		}
+	}).catch(function(err){
+		res.status(400);
+		res.send("KO");
 	});
 });
 
@@ -86,6 +89,9 @@ app.post('/sInscrire',(req,res) => {
 			res.status(400);
 			res.send("KO");
 		}
+	}).catch(function(err){
+		res.status(400);
+		res.send("KO");
 	});
 });
 

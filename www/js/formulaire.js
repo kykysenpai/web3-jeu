@@ -1,3 +1,5 @@
+var $ = require("jquery");
+
 $(function(){
     $('#seConnecter').on('click',function(e){
         console.log("formulaire.js -> on clic SeConnecter");
@@ -16,9 +18,13 @@ $(function(){
           },
           success:function(response){
             console.log("success " + response.status);
+            $("#formulaires").hide();
+            $("#choix").show();
           },
           error:function(response){
             console.log("success " + response.status);
+            $("#messageInscription").html("<p>La connexion a échoué.</>");
+            $("#messageInscription").css("color:red");
           }
         });
       });
@@ -41,9 +47,13 @@ $(function(){
           },
           success:function(response){
             console.log("success " + response.status);
+            $("#messageLogin").html("<p>L'inscription a été prise en compte!</>");
+            $("#messageLogin").css("color:green");
           },
           error:function(response){
             console.log("success " + response.status);
+            $("#messageLogin").html("<p>L'inscription a échoué</>");
+            $("#messageLogin").css("color:red");
           }          
         });
       });
