@@ -28,7 +28,7 @@ db.once('open', function() {
 exports.Mongo = function(){};
 
 exports.Mongo.prototype = {
-    insertPlayer: function(login,password, callback){
+    insertPlayer: function(login,password,callback){
         console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
         if(connectedDB){
             console.log("Mongo.js / mongo proto / login et pass : " + login + "  " + password);
