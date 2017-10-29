@@ -54,7 +54,6 @@ var game = new Game();
 
 //socket managing
 io.on('connection', function(socket) {
-
 	//generate a new uniquer playerId for the connecting socket
 	var playerId = uuid();
 
@@ -76,6 +75,7 @@ io.on('connection', function(socket) {
 		});
 		//envoie des infos du socket connectant a tout le monde
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
+		socket.emit('dotInit', game.grid);
 	});
 
 	//on disconnection from websocket the player is removed from the game
@@ -84,6 +84,14 @@ io.on('connection', function(socket) {
 		io.emit('disconnectedUser', {
 			playerId: socket.player.playerId
 		});
+	});
+
+	socket.on('eatDot', function(dot)	{
+			if(game.grid[dot]!=0){
+			console.log("munch");
+			game.grid[dot]=0
+			io.emit('dotEated', dot);
+		}
 	});
 
 	//got position update from a socket

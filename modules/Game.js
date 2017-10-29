@@ -1,4 +1,9 @@
 exports.Game = function() {
+	this.size = 256;
+	this.grid = [];
+	for(var i = 0; i < this.size; i++) {
+		this.grid.push(1);
+	}
 	this.players = {};
 };
 exports.Game.prototype = {
