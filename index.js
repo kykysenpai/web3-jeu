@@ -87,9 +87,10 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('eatDot', function(dot)	{
-			if(game.grid[dot]!=0){
-			console.log("munch");
-			game.grid[dot]=0
+		if(game.grid[dot]!=0){
+			//console.log("munch");
+			game.incScore(socket.player.playerId);
+			game.grid[dot]=0;
 			io.emit('dotEated', dot);
 		}
 	});
@@ -108,7 +109,7 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-	io.emit('gameUpdate', game.players);
+	io.emit('gameUpdate', game.players, game.scores);
 }, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
 

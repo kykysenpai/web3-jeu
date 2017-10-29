@@ -44,6 +44,7 @@ var Pacman = function(game) {
 	this.enemies = null;
 	this.allies = null;
 	this.players = {};
+	this.scores = [];
 	//Receives a random team, will be changed later
 	this.team = null;
 	this.playerId = null;
@@ -124,6 +125,10 @@ Pacman.prototype = {
 		} else if (data.dir === Phaser.DOWN) {
 			player.angle = 90;
 		}
+	},
+
+	updateScores: function(scores){
+		this.scores = scores;
 	},
 	//create player movable with keys
 	createLocalPlayer: function(data) {
@@ -377,17 +382,18 @@ function whenReady() {
 	})
 
 	//Server sent current state
-	socket.on('gameUpdate', function(data) {
-		for (var player in data) {
-			if (data[player].playerId === game.state.callbackContext.playerId) {
+	socket.on('gameUpdate', function(players, scores) {
+		for (var player in players) {
+			if (players[player].playerId === game.state.callbackContext.playerId) {
 				//info sur sois même
-				//console.log(data[player]);
-				if (!data[player].isAlive) {
+				//console.log(players[player]);
+				if (!players[player].isAlive) {
 					game.state.callbackContext.destroyPlayer();
 				}
 				continue;
 			}
-			game.state.callbackContext.updatePlayer(data[player]);
+			game.state.callbackContext.updatePlayer(players[player]);
+			game.state.callbackContext.updateScores(scores);
 		}
 	});
 
