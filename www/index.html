@@ -5,93 +5,95 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Jeu Pac Man développé dans le cadre du cours de web 3">
- 
+
   <link href="css/OPCSS.css" rel="stylesheet">
- 
+
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
-  
+
   <link href="css/font.css" rel="stylesheet">
   <!--<link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>-->
-  
+
   <link rel="stylesheet" href="css/login.css">
   <title>Pacman</title>
 </head>
 
 <body>
-    <div class="form">
-        <img src="images/pacman.png" alt="pacman" id="pacman"/>
-        <ul class="tab-group">
-          <li class="tab active"><a href="#signup">Inscription</a></li>
-          <li class="tab"><a href="#login">Connexion</a></li>
-        </ul>
-        
-        <div class="tab-content">
-          <div id="signup">   
-            <h1>Prêt à jouer? Inscris toi !</h1>
-            
-            <form action="/" method="post">
-            
-            <div class="field-wrap">
-                <label>
+  <div class="form">
+    <img src="images/pacman.png" alt="pacman" id="pacman" />
+    <ul class="tab-group">
+      <li class="tab active"><a href="#signup">Inscription</a></li>
+      <li class="tab"><a href="#login">Connexion</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div id="signup">
+        <h1>Prêt à jouer? Inscris toi !</h1>
+
+        <form action="/" method="post">
+
+          <div class="field-wrap">
+            <label>
                     Pseudo<span class="req">*</span>
                 </label>
-              <input type="text" required autocomplete="off" />
-            </div>
-  
-            <div class="field-wrap">
-              <label>
+            <input type="text" required autocomplete="off" />
+          </div>
+
+          <div class="field-wrap">
+            <label>
                 Adresse email<span class="req">*</span>
               </label>
-              <input type="email"required autocomplete="off"/>
-            </div>
-            
-            <div class="field-wrap">
-              <label>
+            <input type="email" required autocomplete="off" />
+          </div>
+
+          <div class="field-wrap">
+            <label>
                 Mot de passe<span class="req">*</span>
               </label>
-              <input type="password"required autocomplete="off"/>
-            </div>
-            
-            <button type="submit" class="button button-block"/>C'est parti!</button>
-            
-            </form>
-  
+            <input type="password" required autocomplete="off" />
           </div>
-          
-          <div id="login">   
-            <h1>On joue?</h1>
-            
-            <form action="/" method="post">
-            
-              <div class="field-wrap">
-              <label>
+
+          <button type="submit" class="button button-block" />C'est parti!</button>
+
+        </form>
+
+      </div>
+
+      <div id="login">
+        <h1>On joue?</h1>
+
+        <form action="/" method="post">
+
+          <div class="field-wrap">
+            <label>
                 Pseudo<span class="req">*</span>
               </label>
-              <input type="email"required autocomplete="off"/>
-            </div>
-            
-            <div class="field-wrap">
-              <label>
+            <input type="email" required autocomplete="off" />
+          </div>
+
+          <div class="field-wrap">
+            <label>
                 Mot de passe<span class="req">*</span>
               </label>
-              <input type="password"required autocomplete="off"/>
-            </div>
-            
-            <p class="forgot"><a href="#">Mot de passe oublié?</a></p>
-            
-            <button class="button button-block"/>Se connecter</button>
-            
-            </form>
-          </div>  
-        </div><!-- tab-content -->   
-  </div> <!-- /form -->
-  
-   <div class="container">
+            <input type="password" required autocomplete="off" />
+          </div>
+
+          <p class="forgot"><a href="#">Mot de passe oublié?</a></p>
+
+          <button class="button button-block" />Se connecter</button>
+
+        </form>
+      </div>
+    </div>
+    <!-- tab-content -->
+  </div>
+  <!-- /form -->
+
+  <div class="container">
     <div class="col-md-2" id="left_pannel"></div>
     <div class="col-md-8" id="gameDiv" style="height : 600px;"></div>
     <div class="col-md-2" id="right_pannel"></div>
-    </div>
+  </div>
 
 
   <!-- libraries -->
@@ -111,9 +113,11 @@
 
   <!-- css bootstrap -->
   <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
-    <script src="js/local-bootstrap3.3.7.min.js"></script>
+  <script src="js/local-bootstrap3.3.7.min.js"></script>
 
   <script src="js/form.js"></script>
+
+  <script src="js/defaultPacman.js"></script>
   <script src="js/main.js"></script>
   <script src="js/login.js"></script>
 </body>
