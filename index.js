@@ -10,16 +10,19 @@ var Game = require('./modules/Game.js').Game;
 var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
 
+//interval in milliseconds between information sending to clients
+var millisecondsBtwUpdates = 50;
+
 var https_redirect = function(req, res, next) {
-    if (process.env.NODE_ENV === 'production') {
-        if (req.headers['x-forwarded-proto'] != 'https') {
-            return res.redirect('https://' + req.headers.host + req.url);
-        } else {
-            return next();
-        }
-    } else {
-        return next();
-    }
+	if (process.env.NODE_ENV === 'production') {
+		if (req.headers['x-forwarded-proto'] != 'https') {
+			return res.redirect('https://' + req.headers.host + req.url);
+		} else {
+			return next();
+		}
+	} else {
+		return next();
+	}
 };
 
 app.use(https_redirect);
@@ -34,6 +37,17 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
+app.get('/lobby', function(req,res){
+	res.send("Lobby goes here");
+});
+
+app.get('/game', function(req,res){
+	res.send("Game hoes here");
+});
+
+app.post('/login', function(req,res){
+	res.send("Login logic goes here");
+});
 
 //var mongo = new Mongo();
 var game = new Game();
@@ -49,18 +63,18 @@ io.on('connection', function(socket) {
 		playerId: playerId
 	}
 
-	//a client notifies server that he dies
-	socket.on('playerIsDead', function() {
-		socket.broadcast.emit('playerIsDead', socket.player.playerId);
-	});
-
 	//a socket is initialising and asks for current connected players
 	//and is sending his personal informations
 	socket.on('firstInit', function(data) {
 		data.playerId = socket.player.playerId;
 		var player = new Player(data);
-		socket.emit('users', game.players);
 		game.addPlayer(player);
+		//envoie des joueurs déja présent au socket demandant
+		socket.emit('users', {
+			playerId: socket.player.playerId,
+			players: game.players
+		});
+		//envoie des infos du socket connectant a tout le monde
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
 	});
 
@@ -81,9 +95,15 @@ io.on('connection', function(socket) {
 		game.setPosition(socket.player.playerId, data);
 		//broadcasts information to everyone except itself
 		data.playerId = socket.player.playerId;
-		socket.broadcast.emit('positionUpdate', data);
+		//socket.broadcast.emit('positionUpdate', data);
 	});
 });
+
+setInterval(function() {
+	io.emit('gameUpdate', game.players);
+}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
+
+
 
 /*
 //force secure connection with the client
