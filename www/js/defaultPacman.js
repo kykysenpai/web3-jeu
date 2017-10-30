@@ -1,71 +1,66 @@
+var map = "assets/pacman-map.json";
+
+var randTeam = Math.floor(Math.random() * 2) + 1;
+alert("Vous êtes dans la team : " + randTeam);
+
+var spawn1 = {
+	x: 24,
+	y: 232
+}
+
+var spawn2 = {
+	x: 424,
+	y: 232
+}
+
 /*
- * Canvas init sizes, AUTO => CANVAS OR WEBGL chosen automatically in 4rth parameter div (id), I didn't put it in because it fucks up the scaling
- */
-
-var size = 400
-var game = new Phaser.Game(size, size, Phaser.AUTO, "gameDiv");
-
-
-//Number or position update infos sent to servers per second if fps is accurate
-var howManyInfoPerSecond = 10;
-var theoreticalFps = 60;
-
-
-
-/*
- * Pacman Class constructor
- */
-/*
-var DefaultState = function(game) {
-	this.map = null;
-	this.layer = null;
-	this.pacman = null;
-	this.skin = null;
-	this.safetile = 14;
-	this.gridsize = 16;
-	this.speed = 150;
-	this.threshold = 3;
-	this.marker = new Phaser.Point();
-	this.turnPoint = new Phaser.Point();
-	this.directions = [null, null, null, null, null];
-	this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
-	this.current = Phaser.NONE;
-	this.turning = Phaser.NONE;
-	this.updateNeeded = 0;
-	this.enemies = null;
-	this.allies = null;
-	this.players = {};
-	//Receives a random team, will be changed later
-	this.team = null;
-	this.playerId = null;
-};
-
-
- //Pacman class functions
-
-Pacman.prototype = {
-
-	 //Window auto adjust to client window size + start physics managing in phase
-
+ Default Pacman game
+*/
+var defaultState = {
+	/*
+	 * Window auto adjust to client window size + start physics managing in phase
+	 */
 	init: function() {
+		this.map = null;
+		this.layer = null;
+		this.pacman = null;
+		this.skin = null;
+		this.safetile = 14;
+		this.gridsize = 16;
+		this.speed = 150;
+		this.threshold = 3;
+		this.marker = new Phaser.Point();
+		this.turnPoint = new Phaser.Point();
+		this.directions = [null, null, null, null, null];
+		this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
+		this.current = Phaser.NONE;
+		this.turning = Phaser.NONE;
+		this.updateNeeded = 0;
+		this.enemies = null;
+		this.allies = null;
+		this.players = {};
+		//Receives a random team, will be changed later
+		this.team = null;
+		this.playerId = null;
+
 		this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.scale.pageAlignHorizontally = true;
 		this.scale.pageAlignVertically = true;
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 		this.physics.startSystem(Phaser.Physics.ARCADE);
 	},
-
-	 //fetch all assets in /assets directory
-
+	/*
+	 * fetch all assets in /assets directory
+	 */
 	preload: function() {
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
 	},
-
-	 //Var initialisation of in game items
-
+	/*
+	 * Var initialisation of in game items
+	 */
 	create: function() {
 		this.map = this.add.tilemap('map'); //pacman-map.json
 		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
@@ -189,9 +184,9 @@ Pacman.prototype = {
 			}
 		}
 	},
-
-	 //Check if player can go in the requested direction (there is no tile in the way)
-
+	/*
+	 * Check if player can go in the requested direction (there is no tile in the way)
+	 */
 	checkDirection: function(turnTo) {
 		if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile) {
 			//  Invalid direction if they're already set to turn that way
@@ -255,9 +250,9 @@ Pacman.prototype = {
 	destroyPlayer: function() {
 		this.pacman.kill();
 		//socket.emit('playerIsDead');
-		//game.state.callbackContext.createLocalPlayer({
-		//	skin: 'pacman'
-		//});
+		/*game.state.callbackContext.createLocalPlayer({
+			skin: 'pacman'
+		});*/
 		//respawn
 	},
 	//kill not local player
@@ -272,19 +267,19 @@ Pacman.prototype = {
 			delete this.allies[data.playerId];
 		}
 	},
-
-	 //Called at each frame
-
+	/*
+	 * Called at each frame
+	 */
 	update: function() {
 		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
 		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 
-		//gérer coté serveur
+		/* gérer coté serveur
 		//collision entre le joueur et les ennemis
-		//this.physics.arcade.collide(this.pacman, this.enemies, this.destroyPlayer);
-		//this.physics.arcade.collide(this.pacman, this.allies);
-
+		this.physics.arcade.collide(this.pacman, this.enemies, this.destroyPlayer);
+		this.physics.arcade.collide(this.pacman, this.allies);
+		*/
 
 		//collision entre les pacmans et le décor
 		this.physics.arcade.collide(this.enemies, this.layer);
@@ -314,58 +309,4 @@ Pacman.prototype = {
 			})
 		}
 	}
-};*/
-
-//add all states
-game.state.add('DefaultGame', defaultState);
-game.state.start('DefaultGame');
-
-//Start when game is ready
-function whenReady() {
-
-	//Another player disconnected
-	socket.on('disconnectedUser', function(data) {
-		game.state.callbackContext.killPlayer(data);
-	});
-
-	//Getting all currently connected player
-	socket.on('users', function(data) {
-		game.state.callbackContext.playerId = data.playerId;
-		for (var player in data.players) {
-			if (player === data.playerId) {
-				//doesn't create itself
-				continue;
-			}
-			game.state.callbackContext.createPlayer(data.players[player]);
-		}
-	});
-
-	//A new player connected
-	socket.on('user', function(data) {
-		game.state.callbackContext.createPlayer(data);
-	});
-
-	//Server sent current state
-	socket.on('gameUpdate', function(data) {
-		for (var player in data) {
-			if (data[player].playerId === game.state.callbackContext.playerId) {
-				//info sur sois même
-				if (!data[player].isAlive) {
-					game.state.callbackContext.destroyPlayer();
-				}
-				continue;
-			}
-			game.state.callbackContext.updatePlayer(data[player]);
-		}
-	});
-
-	//Ask servers for currently connected players
-	//And send personal informations
-	socket.emit('firstInit', {
-		team: game.state.callbackContext.team,
-		skin: game.state.callbackContext.skin,
-		x: game.state.callbackContext.pacman.x,
-		y: game.state.callbackContext.pacman.y,
-		dir: game.state.callbackContext.current
-	});
 }
