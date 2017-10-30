@@ -39,6 +39,7 @@ var defaultState = {
 		this.enemies = null;
 		this.allies = null;
 		this.players = {};
+		this.scores = [];
 		//Receives a random team, will be changed later
 		this.team = null;
 		this.playerId = null;
@@ -84,7 +85,7 @@ var defaultState = {
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
 
-		whenReady();
+		defaultPacmanSockets();
 	},
 	updatePlayer: function(data) {
 		var player;
@@ -110,6 +111,9 @@ var defaultState = {
 		} else if (data.dir === Phaser.DOWN) {
 			player.angle = 90;
 		}
+	},
+	updateScores: function(scores) {
+		this.scores = scores;
 	},
 	//create player movable with keys
 	createLocalPlayer: function(data) {
@@ -246,6 +250,15 @@ var defaultState = {
 			this.dots.callAll('revive');
 		}
 	},
+	eatDot: function(pacman, dot) {
+		/*
+		dot.kill();
+		if (this.dots.total === 0) {
+			this.dots.callAll('revive');
+		}
+		*/
+		socket.emit('eatDot', this.dots.getChildIndex(dot));
+	},
 	//kill local player
 	destroyPlayer: function() {
 		this.pacman.kill();
@@ -266,6 +279,11 @@ var defaultState = {
 		} else {
 			delete this.allies[data.playerId];
 		}
+	},
+	//Dot eated by not local player
+	eatedDot: function(dot) {
+		console.log("eatedDot");
+		this.dots.getChildAt(dot).kill();
 	},
 	/*
 	 * Called at each frame
@@ -309,4 +327,69 @@ var defaultState = {
 			})
 		}
 	}
+}
+
+
+function defaultPacmanSockets() {
+
+	//Another player disconnected
+	socket.on('disconnectedUser', function(data) {
+		game.state.callbackContext.killPlayer(data);
+	});
+
+	//Receiption of eated dot
+	socket.on('dotEated', function(dot) {
+		game.state.callbackContext.eatedDot(dot);
+	});
+
+	//Getting all currently connected player
+	socket.on('users', function(data) {
+		game.state.callbackContext.playerId = data.playerId;
+		for (var player in data.players) {
+			if (player === data.playerId) {
+				//doesn't create itself
+				continue;
+			}
+			game.state.callbackContext.createPlayer(data.players[player]);
+		}
+	});
+
+	//A new player connected
+	socket.on('user', function(data) {
+		game.state.callbackContext.createPlayer(data);
+	});
+
+	socket.on('dotInit', function(grid) {
+		console.log(grid.length);
+		for (var i = 0; i < grid.length; i++) {
+			if (grid[i] == 0) {
+				game.state.callbackContext.eatedDot(i);
+			}
+		}
+	})
+
+	//Server sent current state
+	socket.on('gameUpdate', function(players, scores) {
+		for (var player in players) {
+			if (players[player].playerId === game.state.callbackContext.playerId) {
+				//info sur sois même
+				if (!players[player].isAlive) {
+					game.state.callbackContext.destroyPlayer();
+				}
+				continue;
+			}
+			game.state.callbackContext.updatePlayer(players[player]);
+			game.state.callbackContext.updateScores(scores);
+		}
+	});
+
+	//Ask servers for currently connected players
+	//And send personal informations
+	socket.emit('firstInit', {
+		team: game.state.callbackContext.team,
+		skin: game.state.callbackContext.skin,
+		x: game.state.callbackContext.pacman.x,
+		y: game.state.callbackContext.pacman.y,
+		dir: game.state.callbackContext.current
+	});
 }
