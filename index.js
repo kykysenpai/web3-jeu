@@ -75,7 +75,7 @@ io.on('connection', function(socket) {
 		});
 		//envoie des infos du socket connectant a tout le monde
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
-		socket.emit('dotInit', game.grid);
+		socket.emit('dotInit', game.grid, game.scores);
 	});
 
 	//on disconnection from websocket the player is removed from the game
@@ -91,7 +91,7 @@ io.on('connection', function(socket) {
 			//console.log("munch");
 			game.incScore(socket.player.playerId);
 			game.grid[dot]=0;
-			io.emit('dotEated', dot);
+			io.emit('dotEated', dot, game.scores);
 		}
 	});
 

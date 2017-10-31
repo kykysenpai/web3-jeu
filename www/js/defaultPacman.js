@@ -39,7 +39,8 @@ var defaultState = {
 		this.enemies = null;
 		this.allies = null;
 		this.players = {};
-		this.scores = [];
+		this.scores = [0,0];
+		this.scoresDisplay = null;
 		//Receives a random team, will be changed later
 		this.team = null;
 		this.playerId = null;
@@ -69,6 +70,9 @@ var defaultState = {
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
 		this.allies = this.add.physicsGroup();
+		this.scoresDisplay = this.add.text(0, 0, "000 | 000",{ font: "bold 12px Arial", backgroundColor: "#000000", fill: "#ffffff", align: "center",boundsAlignH: "center", boundsAlignV: "top" });
+		this.scoresDisplay.setTextBounds(0,0,400,0);
+		this.scoresDisplay.fixedToCamera = true;
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
@@ -114,6 +118,8 @@ var defaultState = {
 	},
 	updateScores: function(scores) {
 		this.scores = scores;
+		this.scoresDisplay.setText(('000'+scores[0]).slice(-3)+" | "+('000'+scores[1]).slice(-3));
+		('0000'+scores[0]).slice(-4);
 	},
 	//create player movable with keys
 	createLocalPlayer: function(data) {
@@ -137,7 +143,7 @@ var defaultState = {
 		this.pacman.anchor.set(0.5);
 		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
-		this.pacman.body.setSize(16, 16, 0, 0);
+		this.pacman.body.setSize(16, 16, 8, 8);
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT); //initial movement
@@ -154,7 +160,7 @@ var defaultState = {
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
 		this.physics.arcade.enable(newPlayer);
-		newPlayer.body.setSize(16, 16, 0, 0);
+		newPlayer.body.setSize(16, 16, 8, 8);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
 	},
@@ -282,7 +288,6 @@ var defaultState = {
 	},
 	//Dot eated by not local player
 	eatedDot: function(dot) {
-		console.log("eatedDot");
 		this.dots.getChildAt(dot).kill();
 	},
 	/*
@@ -338,8 +343,10 @@ function defaultPacmanSockets() {
 	});
 
 	//Receiption of eated dot
-	socket.on('dotEated', function(dot) {
+	socket.on('dotEated', function(dot, scores) {
 		game.state.callbackContext.eatedDot(dot);
+		game.state.callbackContext.updateScores(scores);
+		
 	});
 
 	//Getting all currently connected player
@@ -359,17 +366,17 @@ function defaultPacmanSockets() {
 		game.state.callbackContext.createPlayer(data);
 	});
 
-	socket.on('dotInit', function(grid) {
-		console.log(grid.length);
+	socket.on('dotInit', function(grid, scores) {
 		for (var i = 0; i < grid.length; i++) {
 			if (grid[i] == 0) {
 				game.state.callbackContext.eatedDot(i);
 			}
 		}
+		game.state.callbackContext.updateScores(scores);
 	})
 
 	//Server sent current state
-	socket.on('gameUpdate', function(players, scores) {
+	socket.on('gameUpdate', function(players) {
 		for (var player in players) {
 			if (players[player].playerId === game.state.callbackContext.playerId) {
 				//info sur sois même
@@ -379,7 +386,6 @@ function defaultPacmanSockets() {
 				continue;
 			}
 			game.state.callbackContext.updatePlayer(players[player]);
-			game.state.callbackContext.updateScores(scores);
 		}
 	});
 
