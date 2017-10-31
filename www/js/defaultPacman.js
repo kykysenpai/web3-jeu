@@ -13,6 +13,11 @@ var spawn2 = {
 	y: 232
 }
 
+var leftMobile = false;
+var rightMobile = false;
+var upMobile = false;
+var downMobile = false;
+
 /*
  Default Pacman game
 */
@@ -57,11 +62,19 @@ var defaultState = {
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
+		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32,48);
+		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',48,32);
 	},
 	/*
 	 * Var initialisation of in game items
 	 */
 	create: function() {
+		//mobile button var
+		var buttonLeft = null;
+		var buttonRight = null;
+		var buttonUp = null;
+		var buttonDown = null;
+
 		this.map = this.add.tilemap('map'); //pacman-map.json
 		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
@@ -80,9 +93,40 @@ var defaultState = {
 		this.createLocalPlayer({
 			skin: 'pacman'
 		});
-		//Enabling gamepad
+		//Enabling gamepad	
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
+
+		//check if mobile device to render mobile button
+		if(!game.device.desktop){
+		}
+		buttonLeft = game.add.button(0,320,'buttonhorizontal',null,this,0,1,0,1);
+		buttonLeft.fixedToCamera = true;
+		buttonLeft.events.onInputDown.add(function(){leftMobile = true;});
+		buttonLeft.events.onInputOver.add(function(){leftMobile = true;});
+		buttonLeft.events.onInputOut.add(function(){leftMobile = false;});
+		buttonLeft.events.onInputUp.add(function(){leftMobile = false;});
+
+		buttonUp = game.add.button(48,272,'buttonvertical',null,this,0,1,0,1);
+		buttonUp.fixedToCamera = true;
+		buttonUp.events.onInputDown.add(function(){upMobile = true;});
+		buttonUp.events.onInputOver.add(function(){upMobile = true;});
+		buttonUp.events.onInputUp.add(function(){upMobile = false;});
+		buttonUp.events.onInputOut.add(function(){upMobile = false;});
+
+		buttonDown = game.add.button(48,352,'buttonvertical',null,this,0,1,0,1);
+		buttonDown.fixedToCamera = true;
+		buttonDown.events.onInputDown.add(function(){downMobile = true;});
+		buttonDown.events.onInputOver.add(function(){downMobile = true;});
+		buttonDown.events.onInputUp.add(function(){downMobile = false;});
+		buttonDown.events.onInputOut.add(function(){downMobile = false;});
+
+		buttonRight = game.add.button(80,320,'buttonhorizontal',null,this,0,1,0,1);
+		buttonRight.fixedToCamera = true;
+		buttonRight.events.onInputDown.add(function(){rightMobile = true;});
+		buttonRight.events.onInputOver.add(function(){rightMobile = true;});
+		buttonRight.events.onInputUp.add(function(){rightMobile = false;});
+		buttonRight.events.onInputOut.add(function(){rightMobile = false;});
 
 		whenReady();
 	},
@@ -170,13 +214,13 @@ var defaultState = {
 				this.turning = Phaser.NONE;
 			}
 		} else {
-			if (this.cursors.left.isDown && this.current !== Phaser.LEFT) {
+			if ((this.cursors.left.isDown || leftMobile) && this.current !== Phaser.LEFT) {
 				this.checkDirection(Phaser.LEFT);
-			} else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT) {
+			} else if ((this.cursors.right.isDown || rightMobile) && this.current !== Phaser.RIGHT) {
 				this.checkDirection(Phaser.RIGHT);
-			} else if (this.cursors.up.isDown && this.current !== Phaser.UP) {
+			} else if ((this.cursors.up.isDown || upMobile) && this.current !== Phaser.UP) {
 				this.checkDirection(Phaser.UP);
-			} else if (this.cursors.down.isDown && this.current !== Phaser.DOWN) {
+			} else if ((this.cursors.down.isDown || downMobile) && this.current !== Phaser.DOWN) {
 				this.checkDirection(Phaser.DOWN);
 			} else {
 				//  This forces them to hold the key down to turn the corner
