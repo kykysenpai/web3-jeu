@@ -11,7 +11,7 @@ var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
-var millisecondsBtwUpdates = 50;
+var millisecondsBtwUpdates = 25;
 
 var https_redirect = function(req, res, next) {
 	if (process.env.NODE_ENV === 'production') {

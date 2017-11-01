@@ -29,6 +29,7 @@ var defaultState = {
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
+		this.networkThreshold = 15;
 		this.marker = new Phaser.Point();
 		this.turnPoint = new Phaser.Point();
 		this.directions = [null, null, null, null, null];
@@ -70,7 +71,7 @@ var defaultState = {
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
 		this.allies = this.add.physicsGroup();
-		this.scoresDisplay = this.add.text(0, 0, "000 | 000",{ font: "bold 12px Arial", backgroundColor: "#000000", fill: "#ffffff", align: "center",boundsAlignH: "center", boundsAlignV: "top" });
+		this.scoresDisplay = this.add.text(0, 0, "000 | 000",{ font: "12px Arial", backgroundColor: "#000000", fill: "#ffffff", align: "center",boundsAlignH: "center", boundsAlignV: "top" });
 		this.scoresDisplay.setTextBounds(0,0,400,0);
 		this.scoresDisplay.fixedToCamera = true;
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
@@ -93,6 +94,7 @@ var defaultState = {
 	},
 	updatePlayer: function(data) {
 		var player;
+		var speed = this.speed;
 		if (!(player = this.players[data.playerId]))
 			return;
 		//player died
@@ -102,18 +104,31 @@ var defaultState = {
 			});
 			return;
 		}
-		player.x = data.x;
-		player.y = data.y;
 
-		//change angle
 		player.scale.x = 1;
 		player.angle = 0;
 		if (data.dir === Phaser.LEFT) {
 			player.scale.x = -1; //invert the sprite
+			speed = -speed;
 		} else if (data.dir === Phaser.UP) {
 			player.angle = 270;
+			speed = -speed
 		} else if (data.dir === Phaser.DOWN) {
 			player.angle = 90;
+		}
+
+		//regulate speed OR replace player if detla too big
+		if(!this.math.fuzzyEqual(player.y, data.y, this.networkThreshold) || !this.math.fuzzyEqual(player.x, data.x, this.networkThreshold)){
+			player.x = data.x;
+			player.y = data.y;
+		}else{
+			speed += this.math.max((data.x - player.x)*2,(player.y - data.y));
+		}
+		
+		if (data.dir === Phaser.LEFT || data.dir === Phaser.RIGHT) {
+			player.body.velocity.x = speed;
+		} else {
+			player.body.velocity.y = speed;
 		}
 	},
 	updateScores: function(scores) {
@@ -239,17 +254,33 @@ var defaultState = {
 			this.pacman.body.velocity.y = speed;
 		}
 		//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
-		this.pacman.scale.x = 1;
-		this.pacman.angle = 0;
-		if (direction === Phaser.LEFT) {
-			this.pacman.scale.x = -1; //invert the sprite
-		} else if (direction === Phaser.UP) {
-			this.pacman.angle = 270;
-		} else if (direction === Phaser.DOWN) {
-			this.pacman.angle = 90;
+		//  Only update sprite when change direction (not at EVERY frame)
+		//	Send update to server (reduce rubberbanding effect caused by lag)
+		if(this.current != direction){
+			this.pacman.scale.x = 1;
+			this.pacman.angle = 0;
+			if (direction === Phaser.LEFT) {
+				this.pacman.scale.x = -1; //invert the sprite
+			} else if (direction === Phaser.UP) {
+				this.pacman.angle = 270;
+			} else if (direction === Phaser.DOWN) {
+				this.pacman.angle = 90;
+			}
+			this.current = direction;
+			this.positionUpdate();
 		}
-		this.current = direction;
+		
 	},
+
+	positionUpdate: function(){
+		if(this.pacman===null){return;}
+		socket.emit('positionUpdate', {
+			x: this.pacman.x,
+			y: this.pacman.y,
+			dir: this.current
+		})
+	},
+
 	eatDot: function(pacman, dot) {
 		dot.kill();
 		if (this.dots.total === 0) {
@@ -325,11 +356,7 @@ var defaultState = {
 		this.updateNeeded++;
 		if (this.updateNeeded == (theoreticalFps / howManyInfoPerSecond)) {
 			this.updateNeeded = 0;
-			socket.emit('positionUpdate', {
-				x: this.pacman.x,
-				y: this.pacman.y,
-				dir: this.current
-			})
+			this.positionUpdate();
 		}
 	}
 }
