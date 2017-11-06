@@ -1,14 +1,30 @@
+//---------- Variables declarations ----------------//
 var express = require('express');
-var bodyParser = require('body-parser');
-var multer = require('multer'); 
 var app = express();
+//parser pour requetes ajax
+var bodyParser = require('body-parser');
+//favicon
+var favicon = require('serve-favicon');
+var path = require('path');
+
 var $ = require("jquery");
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
+//gestion des sessions
 var session = require('express-session');
+
 app.use(bodyParser.json()); 
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+	secret: 'pacman web3',
+	saveUninitialized: false,
+	resave: false,
+	cookie: { name: null, playing : true, maxAge : 0 }
+}));
+app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
+var options = {index: "./index.js"};
+app.use('/', express.static('app', options));
 
 //imports pac man game related
 var Game = require('./modules/Game.js');
@@ -20,37 +36,30 @@ var Game = Game.Game;
 var Player = Player.Player;
 var Mongo = Mongo.Mongo;
 
-app.set('port', (process.env.PORT || 5000));
-//www is the public directory served to clients
-app.use(express.static(__dirname + '/www'));
+var mongo = new Mongo();
+var game = new Game();
+var session = null;
 
-//use sessions for tracking logins
-app.use(session({
-	secret: 'work hard',
-	resave: true,
-	saveUninitialized: false,
-	cookie: { name : null, maxAge: 0, playing:false }
-  }));
+//--------------------------- Gestion des routes ------------------------------//
 
 //get at root
 app.get('/', function(req, res) {
-	//if connected, hide connection screen
-	console.log(req.session.cookie.name);
+	//res.sendFile('index.html');
+	console.log("get / : name " + req.session.cookie.name);
 	if(req.session.cookie.name){
 		//si choix deja fait
 		if(req.session.cookie.playing){
-			res.sendFile('www/game.html');
+			res.status("200");
+			res.send("JEU");
 		}else{
-			res.sendFile('www/choices.html');
+			res.status("200");
+			res.send("CHOIX");
 		}
 	}else{
-		res.sendFile('www/registerLogin.html');
+		res.status("200");
+		res.send("FORM");
 	}
 });
-
-var mongo = new Mongo();
-
-var game = new Game();
 
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
@@ -59,13 +68,16 @@ app.post('/seConnecter',(req,res) => {
 	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
 		console.log("resp of function connect : " + resp);
 		if(resp){
+			session = req.session;
 			req.session.cookie.name = req.body.login;
 			req.session.cookie.maxAge = 10 * 60 * 1000; //10min
 			console.log("Connexion succeded : name -> " + req.session.cookie.name + " & maxAge -> " + req.session.cookie.maxAge);
 			res.status(200);
 			res.redirect("/");
+			req.session.save();
 			res.send("OK");
 		}else{
+		
 			console.log("Connexion failed");
 			res.status(400);
 			res.send("KO");
@@ -134,7 +146,7 @@ io.on('connection', function(socket) {
 	});
 });
 
-
+app.set('port', process.env.PORT || 5000);
 server.listen(app.get('port'), function() {
 	console.log("Pacman is listening on port " + app.get('port'));
 });

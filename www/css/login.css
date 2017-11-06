@@ -6,6 +6,10 @@ html {
   overflow-y: scroll;
 }
 
+.hidden {
+  display: none;
+}
+
 body {
   background: #c1bdba;
   font-family: 'Titillium Web', sans-serif;
