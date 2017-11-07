@@ -134,7 +134,6 @@ var defaultState = {
 			buttonRight.events.onInputOut.add(function(){rightMobile = false;});
 		}
 
-		whenReady();
 		defaultPacmanSockets();
 	},
 	updatePlayer: function(data) {
