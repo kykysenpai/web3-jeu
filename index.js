@@ -11,7 +11,7 @@ var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
-var millisecondsBtwUpdates = 50;
+var millisecondsBtwUpdates = 25;
 
 var https_redirect = function(req, res, next) {
 	if (process.env.NODE_ENV === 'production') {
@@ -54,7 +54,6 @@ var game = new Game();
 
 //socket managing
 io.on('connection', function(socket) {
-
 	//generate a new uniquer playerId for the connecting socket
 	var playerId = uuid();
 
@@ -76,6 +75,7 @@ io.on('connection', function(socket) {
 		});
 		//envoie des infos du socket connectant a tout le monde
 		socket.broadcast.emit('user', game.players[socket.player.playerId]);
+		socket.emit('dotInit', game.grid, game.scores);
 	});
 
 	//on disconnection from websocket the player is removed from the game
@@ -84,6 +84,15 @@ io.on('connection', function(socket) {
 		io.emit('disconnectedUser', {
 			playerId: socket.player.playerId
 		});
+	});
+
+	socket.on('eatDot', function(dot)	{
+		if(game.grid[dot]!=0){
+			//console.log("munch");
+			game.incScore(socket.player.playerId);
+			game.grid[dot]=0;
+			io.emit('dotEated', dot, game.scores);
+		}
 	});
 
 	//got position update from a socket
@@ -100,7 +109,7 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-	io.emit('gameUpdate', game.players);
+	io.emit('gameUpdate', game.players, game.scores);
 }, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
 

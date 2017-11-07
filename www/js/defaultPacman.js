@@ -34,6 +34,7 @@ var defaultState = {
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
+		this.networkThreshold = 15;
 		this.marker = new Phaser.Point();
 		this.turnPoint = new Phaser.Point();
 		this.directions = [null, null, null, null, null];
@@ -44,6 +45,8 @@ var defaultState = {
 		this.enemies = null;
 		this.allies = null;
 		this.players = {};
+		this.scores = [0,0];
+		this.scoresDisplay = null;
 		//Receives a random team, will be changed later
 		this.team = null;
 		this.playerId = null;
@@ -81,6 +84,9 @@ var defaultState = {
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
 		this.allies = this.add.physicsGroup();
+		this.scoresDisplay = this.add.text(0, 0, "000 | 000",{ font: "12px Arial", backgroundColor: "#000000", fill: "#ffffff", align: "center",boundsAlignH: "center", boundsAlignV: "top" });
+		this.scoresDisplay.setTextBounds(0,0,400,0);
+		this.scoresDisplay.fixedToCamera = true;
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
@@ -129,9 +135,11 @@ var defaultState = {
 		buttonRight.events.onInputOut.add(function(){rightMobile = false;});
 
 		whenReady();
+		defaultPacmanSockets();
 	},
 	updatePlayer: function(data) {
 		var player;
+		var speed = this.speed;
 		if (!(player = this.players[data.playerId]))
 			return;
 		//player died
@@ -141,19 +149,37 @@ var defaultState = {
 			});
 			return;
 		}
-		player.x = data.x;
-		player.y = data.y;
 
-		//change angle
 		player.scale.x = 1;
 		player.angle = 0;
 		if (data.dir === Phaser.LEFT) {
 			player.scale.x = -1; //invert the sprite
+			speed = -speed;
 		} else if (data.dir === Phaser.UP) {
 			player.angle = 270;
+			speed = -speed
 		} else if (data.dir === Phaser.DOWN) {
 			player.angle = 90;
 		}
+
+		//regulate speed OR replace player if detla too big
+		if(!this.math.fuzzyEqual(player.y, data.y, this.networkThreshold) || !this.math.fuzzyEqual(player.x, data.x, this.networkThreshold)){
+			player.x = data.x;
+			player.y = data.y;
+		}else{
+			speed += this.math.max((data.x - player.x)*2,(player.y - data.y));
+		}
+		
+		if (data.dir === Phaser.LEFT || data.dir === Phaser.RIGHT) {
+			player.body.velocity.x = speed;
+		} else {
+			player.body.velocity.y = speed;
+		}
+	},
+	updateScores: function(scores) {
+		this.scores = scores;
+		this.scoresDisplay.setText(('000'+scores[0]).slice(-3)+" | "+('000'+scores[1]).slice(-3));
+		('0000'+scores[0]).slice(-4);
 	},
 	//create player movable with keys
 	createLocalPlayer: function(data) {
@@ -177,7 +203,7 @@ var defaultState = {
 		this.pacman.anchor.set(0.5);
 		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
-		this.pacman.body.setSize(16, 16, 0, 0);
+		this.pacman.body.setSize(16, 16, 8, 8);
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT); //initial movement
@@ -194,7 +220,7 @@ var defaultState = {
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
 		this.physics.arcade.enable(newPlayer);
-		newPlayer.body.setSize(16, 16, 0, 0);
+		newPlayer.body.setSize(16, 16, 8, 8);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
 	},
@@ -273,22 +299,47 @@ var defaultState = {
 			this.pacman.body.velocity.y = speed;
 		}
 		//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
-		this.pacman.scale.x = 1;
-		this.pacman.angle = 0;
-		if (direction === Phaser.LEFT) {
-			this.pacman.scale.x = -1; //invert the sprite
-		} else if (direction === Phaser.UP) {
-			this.pacman.angle = 270;
-		} else if (direction === Phaser.DOWN) {
-			this.pacman.angle = 90;
+		//  Only update sprite when change direction (not at EVERY frame)
+		//	Send update to server (reduce rubberbanding effect caused by lag)
+		if(this.current != direction){
+			this.pacman.scale.x = 1;
+			this.pacman.angle = 0;
+			if (direction === Phaser.LEFT) {
+				this.pacman.scale.x = -1; //invert the sprite
+			} else if (direction === Phaser.UP) {
+				this.pacman.angle = 270;
+			} else if (direction === Phaser.DOWN) {
+				this.pacman.angle = 90;
+			}
+			this.current = direction;
+			this.positionUpdate();
 		}
-		this.current = direction;
+		
 	},
+
+	positionUpdate: function(){
+		if(this.pacman===null){return;}
+		socket.emit('positionUpdate', {
+			x: this.pacman.x,
+			y: this.pacman.y,
+			dir: this.current
+		})
+	},
+
 	eatDot: function(pacman, dot) {
 		dot.kill();
 		if (this.dots.total === 0) {
 			this.dots.callAll('revive');
 		}
+	},
+	eatDot: function(pacman, dot) {
+		/*
+		dot.kill();
+		if (this.dots.total === 0) {
+			this.dots.callAll('revive');
+		}
+		*/
+		socket.emit('eatDot', this.dots.getChildIndex(dot));
 	},
 	//kill local player
 	destroyPlayer: function() {
@@ -310,6 +361,10 @@ var defaultState = {
 		} else {
 			delete this.allies[data.playerId];
 		}
+	},
+	//Dot eated by not local player
+	eatedDot: function(dot) {
+		this.dots.getChildAt(dot).kill();
 	},
 	/*
 	 * Called at each frame
@@ -346,11 +401,73 @@ var defaultState = {
 		this.updateNeeded++;
 		if (this.updateNeeded == (theoreticalFps / howManyInfoPerSecond)) {
 			this.updateNeeded = 0;
-			socket.emit('positionUpdate', {
-				x: this.pacman.x,
-				y: this.pacman.y,
-				dir: this.current
-			})
+			this.positionUpdate();
 		}
 	}
+}
+
+
+function defaultPacmanSockets() {
+
+	//Another player disconnected
+	socket.on('disconnectedUser', function(data) {
+		game.state.callbackContext.killPlayer(data);
+	});
+
+	//Receiption of eated dot
+	socket.on('dotEated', function(dot, scores) {
+		game.state.callbackContext.eatedDot(dot);
+		game.state.callbackContext.updateScores(scores);
+		
+	});
+
+	//Getting all currently connected player
+	socket.on('users', function(data) {
+		game.state.callbackContext.playerId = data.playerId;
+		for (var player in data.players) {
+			if (player === data.playerId) {
+				//doesn't create itself
+				continue;
+			}
+			game.state.callbackContext.createPlayer(data.players[player]);
+		}
+	});
+
+	//A new player connected
+	socket.on('user', function(data) {
+		game.state.callbackContext.createPlayer(data);
+	});
+
+	socket.on('dotInit', function(grid, scores) {
+		for (var i = 0; i < grid.length; i++) {
+			if (grid[i] == 0) {
+				game.state.callbackContext.eatedDot(i);
+			}
+		}
+		game.state.callbackContext.updateScores(scores);
+	})
+
+	//Server sent current state
+	socket.on('gameUpdate', function(players) {
+		for (var player in players) {
+			if (players[player].playerId === game.state.callbackContext.playerId) {
+				//info sur sois même
+				if (!players[player].isAlive) {
+					game.state.callbackContext.destroyPlayer();
+				}
+				continue;
+			}
+			game.state.callbackContext.updatePlayer(players[player]);
+		}
+	});
+
+	//Ask servers for currently connected players
+	//And send personal informations
+	socket.emit('firstInit', {
+		team: game.state.callbackContext.team,
+		skin: game.state.callbackContext.skin,
+		x: game.state.callbackContext.pacman.x,
+		y: game.state.callbackContext.pacman.y,
+		dir: game.state.callbackContext.current
+	});
 }
