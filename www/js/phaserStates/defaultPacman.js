@@ -51,9 +51,6 @@ var defaultPacman = {
 		this.team = null;
 		this.playerId = null;
 
-		this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.scale.pageAlignHorizontally = true;
-		this.scale.pageAlignVertically = true;
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	},
 	/*
