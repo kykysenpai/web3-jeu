@@ -1,5 +1,5 @@
 var map = "assets/pacman-map.json";
-
+var showDebug = false;
 var randTeam = Math.floor(Math.random() * 2) + 1;
 alert("Vous êtes dans la team : " + randTeam);
 
@@ -21,7 +21,7 @@ var downMobile = false;
 /*
  Default Pacman game
 */
-var defaultState = {
+var defaultPacman = {
 	/*
 	 * Window auto adjust to client window size + start physics managing in phase
 	 */
@@ -45,7 +45,7 @@ var defaultState = {
 		this.enemies = null;
 		this.allies = null;
 		this.players = {};
-		this.scores = [0,0];
+		this.scores = [0, 0];
 		this.scoresDisplay = null;
 		//Receives a random team, will be changed later
 		this.team = null;
@@ -55,23 +55,26 @@ var defaultState = {
 		this.scale.pageAlignHorizontally = true;
 		this.scale.pageAlignVertically = true;
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-		this.physics.startSystem(Phaser.Physics.ARCADE);
 	},
 	/*
 	 * fetch all assets in /assets directory
 	 */
 	preload: function() {
+		if (showDebug) {
+			game.time.advancedTiming = true;
+		}
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
-		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32,48);
-		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',48,32);
+		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
+		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 	},
 	/*
 	 * Var initialisation of in game items
 	 */
 	create: function() {
+
 		//mobile button var
 		var buttonLeft = null;
 		var buttonRight = null;
@@ -84,8 +87,16 @@ var defaultState = {
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
 		this.allies = this.add.physicsGroup();
-		this.scoresDisplay = this.add.text(0, 0, "000 | 000",{ font: "12px Arial", backgroundColor: "#000000", fill: "#ffffff", align: "center",boundsAlignH: "center", boundsAlignV: "top" });
-		this.scoresDisplay.setTextBounds(0,0,400,0);
+		this.scoresDisplay = this.add.text(0, 0, "000 | 000", {
+			font: "12px Arial",
+			backgroundColor: "#000000",
+			fill: "#ffffff",
+			align: "center",
+			boundsAlignH: "center",
+			boundsAlignV: "top"
+		});
+		this.scoresDisplay.position.x = game.width / 2;
+		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
 		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
@@ -99,42 +110,80 @@ var defaultState = {
 		this.createLocalPlayer({
 			skin: 'pacman'
 		});
-		//Enabling gamepad	
+
+		//Enabling gamepad
 		game.input.gamepad.start();
 		pad1 = game.input.gamepad.pad1;
 
 		//check if mobile device to render mobile button
-		if(!game.device.desktop){
-			buttonLeft = game.add.button(0,320,'buttonhorizontal',null,this,0,1,0,1);
+		if (!game.device.desktop) {
+			buttonLeft = game.add.button(0, 320, 'buttonhorizontal', null, this, 0, 1, 0, 1);
 			buttonLeft.fixedToCamera = true;
-			buttonLeft.events.onInputDown.add(function(){leftMobile = true;});
-			buttonLeft.events.onInputOver.add(function(){leftMobile = true;});
-			buttonLeft.events.onInputOut.add(function(){leftMobile = false;});
-			buttonLeft.events.onInputUp.add(function(){leftMobile = false;});
-	
-			buttonUp = game.add.button(48,272,'buttonvertical',null,this,0,1,0,1);
-			buttonUp.fixedToCamera = true;
-			buttonUp.events.onInputDown.add(function(){upMobile = true;});
-			buttonUp.events.onInputOver.add(function(){upMobile = true;});
-			buttonUp.events.onInputUp.add(function(){upMobile = false;});
-			buttonUp.events.onInputOut.add(function(){upMobile = false;});
-	
-			buttonDown = game.add.button(48,352,'buttonvertical',null,this,0,1,0,1);
-			buttonDown.fixedToCamera = true;
-			buttonDown.events.onInputDown.add(function(){downMobile = true;});
-			buttonDown.events.onInputOver.add(function(){downMobile = true;});
-			buttonDown.events.onInputUp.add(function(){downMobile = false;});
-			buttonDown.events.onInputOut.add(function(){downMobile = false;});
-	
-			buttonRight = game.add.button(80,320,'buttonhorizontal',null,this,0,1,0,1);
-			buttonRight.fixedToCamera = true;
-			buttonRight.events.onInputDown.add(function(){rightMobile = true;});
-			buttonRight.events.onInputOver.add(function(){rightMobile = true;});
-			buttonRight.events.onInputUp.add(function(){rightMobile = false;});
-			buttonRight.events.onInputOut.add(function(){rightMobile = false;});
-		}
+			buttonLeft.events.onInputDown.add(function() {
+				leftMobile = true;
+			});
+			buttonLeft.events.onInputOver.add(function() {
+				leftMobile = true;
+			});
+			buttonLeft.events.onInputOut.add(function() {
+				leftMobile = false;
+			});
+			buttonLeft.events.onInputUp.add(function() {
+				leftMobile = false;
+			});
 
+			buttonUp = game.add.button(48, 272, 'buttonvertical', null, this, 0, 1, 0, 1);
+			buttonUp.fixedToCamera = true;
+			buttonUp.events.onInputDown.add(function() {
+				upMobile = true;
+			});
+			buttonUp.events.onInputOver.add(function() {
+				upMobile = true;
+			});
+			buttonUp.events.onInputUp.add(function() {
+				upMobile = false;
+			});
+			buttonUp.events.onInputOut.add(function() {
+				upMobile = false;
+			});
+
+			buttonDown = game.add.button(48, 352, 'buttonvertical', null, this, 0, 1, 0, 1);
+			buttonDown.fixedToCamera = true;
+			buttonDown.events.onInputDown.add(function() {
+				downMobile = true;
+			});
+			buttonDown.events.onInputOver.add(function() {
+				downMobile = true;
+			});
+			buttonDown.events.onInputUp.add(function() {
+				downMobile = false;
+			});
+			buttonDown.events.onInputOut.add(function() {
+				downMobile = false;
+			});
+
+			buttonRight = game.add.button(80, 320, 'buttonhorizontal', null, this, 0, 1, 0, 1);
+			buttonRight.fixedToCamera = true;
+			buttonRight.events.onInputDown.add(function() {
+				rightMobile = true;
+			});
+			buttonRight.events.onInputOver.add(function() {
+				rightMobile = true;
+			});
+			buttonRight.events.onInputUp.add(function() {
+				rightMobile = false;
+			});
+			buttonRight.events.onInputOut.add(function() {
+				rightMobile = false;
+			});
+		}
 		defaultPacmanSockets();
+	},
+	render: function() {
+		if (showDebug) {
+			game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
+			game.debug.body(this.pacman);
+		}
 	},
 	updatePlayer: function(data) {
 		var player;
@@ -162,13 +211,13 @@ var defaultState = {
 		}
 
 		//regulate speed OR replace player if detla too big
-		if(!this.math.fuzzyEqual(player.y, data.y, this.networkThreshold) || !this.math.fuzzyEqual(player.x, data.x, this.networkThreshold)){
+		if (!this.math.fuzzyEqual(player.y, data.y, this.networkThreshold) || !this.math.fuzzyEqual(player.x, data.x, this.networkThreshold)) {
 			player.x = data.x;
 			player.y = data.y;
-		}else{
-			speed += this.math.max((data.x - player.x)*2,(player.y - data.y));
+		} else {
+			speed += this.math.max((data.x - player.x) * 2, (player.y - data.y));
 		}
-		
+
 		if (data.dir === Phaser.LEFT || data.dir === Phaser.RIGHT) {
 			player.body.velocity.x = speed;
 		} else {
@@ -177,8 +226,8 @@ var defaultState = {
 	},
 	updateScores: function(scores) {
 		this.scores = scores;
-		this.scoresDisplay.setText(('000'+scores[0]).slice(-3)+" | "+('000'+scores[1]).slice(-3));
-		('0000'+scores[0]).slice(-4);
+		this.scoresDisplay.setText(('000' + scores[0]).slice(-3) + " | " + ('000' + scores[1]).slice(-3));
+		('0000' + scores[0]).slice(-4);
 	},
 	//create player movable with keys
 	createLocalPlayer: function(data) {
@@ -202,7 +251,7 @@ var defaultState = {
 		this.pacman.anchor.set(0.5);
 		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
-		this.pacman.body.setSize(16, 16, 8, 8);
+		this.pacman.body.setSize(16, 16, 0, 0);
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
 		this.move(Phaser.LEFT); //initial movement
@@ -219,7 +268,7 @@ var defaultState = {
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
 		this.physics.arcade.enable(newPlayer);
-		newPlayer.body.setSize(16, 16, 8, 8);
+		newPlayer.body.setSize(16, 16, 0, 0);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
 	},
@@ -300,7 +349,7 @@ var defaultState = {
 		//  Reset the scale and angle (Pacman is facing to the right in the sprite sheet)
 		//  Only update sprite when change direction (not at EVERY frame)
 		//	Send update to server (reduce rubberbanding effect caused by lag)
-		if(this.current != direction){
+		if (this.current != direction) {
 			this.pacman.scale.x = 1;
 			this.pacman.angle = 0;
 			if (direction === Phaser.LEFT) {
@@ -311,13 +360,15 @@ var defaultState = {
 				this.pacman.angle = 90;
 			}
 			this.current = direction;
-			this.positionUpdate();
+			//this.positionUpdate();
 		}
-		
+
 	},
 
-	positionUpdate: function(){
-		if(this.pacman===null){return;}
+	positionUpdate: function() {
+		if (this.pacman === null) {
+			return;
+		}
 		socket.emit('positionUpdate', {
 			x: this.pacman.x,
 			y: this.pacman.y,
@@ -343,6 +394,8 @@ var defaultState = {
 	//kill local player
 	destroyPlayer: function() {
 		this.pacman.kill();
+		closeDefaultPacmanSockets();
+		game.state.start('titleMenuState');
 		//socket.emit('playerIsDead');
 		/*game.state.callbackContext.createLocalPlayer({
 			skin: 'pacman'
@@ -405,6 +458,14 @@ var defaultState = {
 	}
 }
 
+function closeDefaultPacmanSockets() {
+	socket.off('disconnectedUser');
+	socket.off('dotEated');
+	socket.off('users');
+	socket.off('user');
+	socket.off('dotInit');
+	socket.off('gameUpdate');
+}
 
 function defaultPacmanSockets() {
 
@@ -417,7 +478,6 @@ function defaultPacmanSockets() {
 	socket.on('dotEated', function(dot, scores) {
 		game.state.callbackContext.eatedDot(dot);
 		game.state.callbackContext.updateScores(scores);
-		
 	});
 
 	//Getting all currently connected player
@@ -469,4 +529,4 @@ function defaultPacmanSockets() {
 		y: game.state.callbackContext.pacman.y,
 		dir: game.state.callbackContext.current
 	});
-}
+};

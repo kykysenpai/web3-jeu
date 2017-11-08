@@ -37,15 +37,15 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-app.get('/lobby', function(req,res){
+app.get('/lobby', function(req, res) {
 	res.send("Lobby goes here");
 });
 
-app.get('/game', function(req,res){
+app.get('/game', function(req, res) {
 	res.send("Game hoes here");
 });
 
-app.post('/login', function(req,res){
+app.post('/login', function(req, res) {
 	res.send("Login logic goes here");
 });
 
@@ -86,11 +86,11 @@ io.on('connection', function(socket) {
 		});
 	});
 
-	socket.on('eatDot', function(dot)	{
-		if(game.grid[dot]!=0){
+	socket.on('eatDot', function(dot) {
+		if (game.grid[dot] != 0) {
 			//console.log("munch");
 			game.incScore(socket.player.playerId);
-			game.grid[dot]=0;
+			game.grid[dot] = 0;
 			io.emit('dotEated', dot, game.scores);
 		}
 	});

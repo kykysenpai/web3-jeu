@@ -11,7 +11,9 @@ var howManyInfoPerSecond = 10;
 var theoreticalFps = 60;
 
 //add all states
-game.state.add('DefaultGame', defaultState);
+game.state.add('bootState', bootState);
+game.state.add('titleMenuState', titleMenuState);
+game.state.add('defaultPacman', defaultPacman);
 
 
-game.state.start('DefaultGame');
+game.state.start('bootState');
