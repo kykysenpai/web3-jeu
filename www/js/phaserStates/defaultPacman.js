@@ -72,6 +72,8 @@ var defaultPacman = {
 	 */
 	create: function() {
 
+		socket = io('/defaultPacman');
+
 		//mobile button var
 		var buttonLeft = null;
 		var buttonRight = null;
@@ -392,6 +394,7 @@ var defaultPacman = {
 	destroyPlayer: function() {
 		this.pacman.kill();
 		closeDefaultPacmanSockets();
+		socket.close();
 		game.state.start('titleMenuState');
 		//socket.emit('playerIsDead');
 		/*game.state.callbackContext.createLocalPlayer({

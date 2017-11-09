@@ -5,8 +5,11 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
-//imports pac man game related
-var Game = require('./modules/Game.js').Game;
+
+//imports pac man game modes
+var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
+
+
 var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
 
@@ -50,70 +53,12 @@ app.post('/login', function(req, res) {
 });
 
 //var mongo = new Mongo();
-var game = new Game();
 
-//socket managing
-io.on('connection', function(socket) {
-	//generate a new uniquer playerId for the connecting socket
-	var playerId = uuid();
+//instanciate all game modes rooms
+var defaultPacman = new DefaultPacman();
 
-	//link the socket with the generating id to identify it
-	socket.player = {
-		playerId: playerId
-	}
-
-	//a socket is initialising and asks for current connected players
-	//and is sending his personal informations
-	socket.on('firstInit', function(data) {
-		data.playerId = socket.player.playerId;
-		var player = new Player(data);
-		game.addPlayer(player);
-		//envoie des joueurs déja présent au socket demandant
-		socket.emit('users', {
-			playerId: socket.player.playerId,
-			players: game.players
-		});
-		//envoie des infos du socket connectant a tout le monde
-		socket.broadcast.emit('user', game.players[socket.player.playerId]);
-		socket.emit('dotInit', game.grid, game.scores);
-	});
-
-	//on disconnection from websocket the player is removed from the game
-	socket.on('disconnect', function() {
-		game.removePlayer(socket.player.playerId);
-		io.emit('disconnectedUser', {
-			playerId: socket.player.playerId
-		});
-	});
-
-	socket.on('eatDot', function(dot) {
-		if (game.grid[dot] != 0) {
-			//console.log("munch");
-			game.incScore(socket.player.playerId);
-			game.grid[dot] = 0;
-			io.emit('dotEated', dot, game.scores);
-		}
-	});
-
-	//got position update from a socket
-	socket.on('positionUpdate', function(data) {
-		if (!game.players[socket.player.playerId]) {
-			//received position from a player that didn't make his first init yet
-			return; //return to avoid sending useless informations to clients
-		}
-		game.setPosition(socket.player.playerId, data);
-		//broadcasts information to everyone except itself
-		data.playerId = socket.player.playerId;
-		//socket.broadcast.emit('positionUpdate', data);
-	});
-});
-
-setInterval(function() {
-	io.emit('gameUpdate', game.players, game.scores);
-}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
-
-
-
+//intialisation of the sockets of all rooms
+defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
