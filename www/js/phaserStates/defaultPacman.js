@@ -1,16 +1,16 @@
-var map = "assets/pacman-map.json";
-var showDebug = false;
+var map = "assets/random-map.json";
+var showDebug = true;
 var randTeam = Math.floor(Math.random() * 2) + 1;
 alert("Vous êtes dans la team : " + randTeam);
 
 var spawn1 = {
-	x: 24,
-	y: 232
+	x: 40,
+	y: 24
 }
 
 var spawn2 = {
-	x: 424,
-	y: 232
+	x: 40,
+	y: 24
 }
 
 var leftMobile = false;
@@ -30,7 +30,7 @@ var defaultPacman = {
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
-		this.safetiles = [25,30,35,40];
+		this.safetile = [25, 30, 35, 40];
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
@@ -61,7 +61,7 @@ var defaultPacman = {
 			game.time.advancedTiming = true;
 		}
 		this.load.image('dot', 'assets/dot.png');
-		this.load.image('tiles', 'assets/pacman-tiles.png');
+		this.load.image('tiles', 'assets/tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
@@ -81,7 +81,7 @@ var defaultPacman = {
 		var buttonDown = null;
 
 		this.map = this.add.tilemap('map'); //pacman-map.json
-		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
+		this.map.addTilesetImage('tiles', 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
@@ -97,13 +97,13 @@ var defaultPacman = {
 		this.scoresDisplay.position.x = game.width / 2;
 		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
-		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
+		this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
 		//  Pacman should collide with everything except the safe tile
-		this.map.setCollisionByExclusion([this.safetile], true, this.layer);
+		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
 		this.team = randTeam;
 		this.createLocalPlayer({
@@ -253,7 +253,7 @@ var defaultPacman = {
 		this.pacman.body.setSize(16, 16, 0, 0);
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.pacman.play('munch'); //play animation
-		this.move(Phaser.LEFT); //initial movement
+		this.move(Phaser.DOWN); //initial movement
 		this.camera.follow(this.pacman); //follow pacman with camera
 	},
 	//instanciate external player
@@ -304,8 +304,19 @@ var defaultPacman = {
 	/*
 	 * Check if player can go in the requested direction (there is no tile in the way)
 	 */
+	checkSafeTiles: function(turnTo) {
+		var toReturn = false;
+		for (var toCheck in this.safetile) {
+			if (this.directions[turnTo].index === this.safetile[toCheck]) {
+				toReturn = true;
+			}
+		}
+		return toReturn;
+	},
 	checkDirection: function(turnTo) {
-		if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile) {
+		if (this.turning === turnTo || this.directions[turnTo] === null ||
+			!this.checkSafeTiles(turnTo)
+		) {
 			//  Invalid direction if they're already set to turn that way
 			//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
 			return;
@@ -454,6 +465,7 @@ var defaultPacman = {
 		if (this.updateNeeded == (theoreticalFps / howManyInfoPerSecond)) {
 			this.updateNeeded = 0;
 			this.positionUpdate();
+			console.log("x : " + this.pacman.x + " , y : " + this.pacman.y);
 		}
 	}
 }
