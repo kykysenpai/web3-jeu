@@ -1,3 +1,5 @@
+//gestion des connexions et inscriptions de la div formulaires
+
 $(function(){
     $('#seConnecter').on('click',function(e){
         console.log("formulaire.js -> on clic SeConnecter");
@@ -18,9 +20,7 @@ $(function(){
             console.log("success " + response.status);
             $("#formulaires").hide();
             $("#choix").show();
-            if (response.redirect) {
-              window.location.href = response.redirect;
-            }
+            $("#authName").html(localStorage.getItem("authName"));
           },
           error:function(response){
             console.log("success " + response.status);
@@ -29,7 +29,6 @@ $(function(){
           }
         });
       });
-
 
       $('#sInscrire').on('click',function(e){
         console.log("formulaire.js -> on clic Sinscrire");

@@ -12,16 +12,11 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 //gestion des sessions
-var session = require('express-session');
+var jwt = require('jsonwebtoken');
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-	secret: 'pacman web3',
-	saveUninitialized: false,
-	resave: false,
-	cookie: { name: null, playing : true, maxAge : 0 }
-}));
+
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
 var options = {index: "./index.js"};
 app.use('/', express.static('app', options));
@@ -38,26 +33,20 @@ var Mongo = Mongo.Mongo;
 
 var mongo = new Mongo();
 var game = new Game();
-var session = null;
 
 //--------------------------- Gestion des routes ------------------------------//
 
-//get at root
 app.get('/', function(req, res) {
-	//res.sendFile('index.html');
-	console.log("get / : name " + req.session.cookie.name);
-	if(req.session.cookie.name){
-		//si choix deja fait
-		if(req.session.cookie.playing){
-			res.status("200");
-			res.send("JEU");
-		}else{
-			res.status("200");
-			res.send("CHOIX");
-		}
+	res.sendFile('index.html');
+});
+
+app.get('/verifyLoggedIn', function(req,res){
+	if(localStorage.getItem("name")!==null && localStorage.getItem("token")!==null){
+		res.status(200);
+		req.send("CONNECTED");
 	}else{
-		res.status("200");
-		res.send("FORM");
+		res.status(401);
+		req.send("NEW");
 	}
 });
 
@@ -66,15 +55,14 @@ app.post('/seConnecter',(req,res) => {
 	console.log("req:" + req.body.login);
 	//promesse
 	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
-		console.log("resp of function connect : " + resp);
 		if(resp){
-			session = req.session;
-			req.session.cookie.name = req.body.login;
-			req.session.cookie.maxAge = 10 * 60 * 1000; //10min
-			console.log("Connexion succeded : name -> " + req.session.cookie.name + " & maxAge -> " + req.session.cookie.maxAge);
+			const payload = { user:req.body.login };
+			var timeout = 1440 // expires in 24 hours
+			var token = jwt.sign(payload, app.get('superSecret'), { expiresInMinutes: timeout });
+			localStorage.setItem("name", req.body.login);
+			localStorage.setItem("token", token);
+			console.log("Connexion succeded : name -> " + localStorage.getItem("name") + " & token -> " + localStorage.getItem("token"));
 			res.status(200);
-			res.redirect("/");
-			req.session.save();
 			res.send("OK");
 		}else{
 		
@@ -92,7 +80,6 @@ app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
 	mongo.insertPlayer(req.body.login,req.body.mdp).then(function(resp){
-		console.log("resp of function connect : " + resp);
 		if(resp){
 			console.log("Inscription succeded");
 			res.status(201);

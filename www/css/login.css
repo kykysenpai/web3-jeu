@@ -186,3 +186,20 @@ textarea {
   margin-top: -20px;
   text-align: right;
 }
+
+#accueil {
+  background: rgba(19, 35, 47, 0.9);
+  padding: 40px;
+  max-width: 600px;
+  margin: 40px auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px 4px rgba(19, 35, 47, 0.3);
+}
+
+#accueil img {
+  max-width: 100%;
+  height: auto;
+  padding-bottom: 10px;
+  position: absolute;
+  top: 25%;
+}

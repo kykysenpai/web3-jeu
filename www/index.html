@@ -13,7 +13,10 @@
 </head>
 
 <body>
-  <div id="formulaires">
+  <div id="accueil">
+      <img src="images/pacman.png" alt="loadingPacman" id="loading"/>
+  </div>
+  <div id="formulaires" style="display:none;">
     <div class="form">
       <img src="images/pacman.png" alt="pacman" id="pacman"/>
       <ul class="tab-group">
@@ -64,9 +67,11 @@
     </div> <!-- /form -->
   </div><!--/formulaires-->
 
-  <div id="choix"></div><!--/choix-->
+  <div id="choix" style="display:none;">
+    <p>Bienvenue <p class="authName"></p></p>
+  </div><!--/choix-->
   
-  <div id="jeu">
+  <div id="jeu" style="display:none;">
     <div class="container">
       <div class="col-md-2" id="left_pannel"></div>
       <div class="col-md-8" id="gameDiv" style="height : 600px;"></div>
@@ -92,6 +97,7 @@
 
   <script src="js/jquery-3.2.1.min.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/welcome.js"></script>
   <script src="js/login.js"></script>
   <script src="js/formulaire.js"></script>
 </body>
