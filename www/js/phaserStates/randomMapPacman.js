@@ -452,11 +452,11 @@ function randomMapPacmanSockets() {
 			}
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
-		game.state.callbackContext.mapDots = [];
+		game.state.callbackContext.mapDots = {};
 		for (var i in data.mapDots) {
 			var dot = data.mapDots[i];
 			var spriteDot = game.state.callbackContext.createDot(dot);
-			game.state.callbackContext.mapDots.push(spriteDot);
+			game.state.callbackContext.mapDots[[dot.x, dot.y]] = spriteDot;
 		}
 	});
 

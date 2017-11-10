@@ -31,7 +31,7 @@ var defaultPacman = {
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
-		this.safetile = [7];
+		this.safetile = [7, 14];
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
@@ -474,11 +474,11 @@ function defaultPacmanSockets() {
 			}
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
-		game.state.callbackContext.mapDots = [];
+		game.state.callbackContext.mapDots = {};
 		for (var i in data.mapDots) {
 			var dot = data.mapDots[i];
 			var spriteDot = game.state.callbackContext.createDot(dot);
-			game.state.callbackContext.mapDots.push(spriteDot);
+			game.state.callbackContext.mapDots[[dot.x, dot.y]] = spriteDot;
 		}
 	});
 

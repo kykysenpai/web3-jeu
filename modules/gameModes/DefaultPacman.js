@@ -6,7 +6,8 @@ exports.DefaultPacman = function() {
 	var Dot = require('../Dot.js').Dot;
 	var map = require('../../www/assets/pacman-map.json');
 
-	this.mapDots = [];
+	//this.mapDots = [];
+	this.mapDots = {};
 	//chopper les dots
 	var height = map.height;
 	var width = map.width;
@@ -14,7 +15,8 @@ exports.DefaultPacman = function() {
 		for (var j = 1; j < width - 1; j++) {
 			tile = map.layers[0].data[i * width + j];
 			if (tile === 7) {
-				this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
+				//this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
+				this.mapDots[[j * 16 + 8, i * 16 + 8]] = new Dot(j * 16 + 8, i * 16 + 8);
 			}
 		}
 	}
@@ -119,10 +121,28 @@ exports.DefaultPacman.prototype = {
 		}
 	},
 	setPosition: function(playerId, player) {
+
+
+		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
+		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
+
+		//player.x = ((Math.floor(player.x / 8)) * 8);
+		//player.y = ((Math.floor(player.y / 8)) * 8);
+
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
 
+		var currentDot;
+		//collision without iteration
+		if (this.mapDots[[player.x, player.y]]) {
+			if (this.mapDots[[player.x, player.y]].isAlive) {
+				this.incScore(playerId);
+				this.mapDots[[player.x, player.y]].isAlive = false;
+				this.mapDots[[player.x, player.y]].timeUntilAlive = this.respawnTime;
+			}
+		}
+		/*
 		//collision with a dot
 		for (var dotsIter in this.mapDots) {
 			if (!this.mapDots[dotsIter].isAlive) {
@@ -140,6 +160,7 @@ exports.DefaultPacman.prototype = {
 				}
 			}
 		}
+		*/
 		//collision between players
 		for (var playerIter in this.players) {
 			if (!this.players[playerIter].isAlive || playerIter === playerId) {
