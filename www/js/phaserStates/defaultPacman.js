@@ -27,6 +27,7 @@ var defaultPacman = {
 	 */
 	init: function() {
 		this.map = null;
+		this.mapDots = null;
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
@@ -502,6 +503,15 @@ function defaultPacmanSockets() {
 			}
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
+		this.mapDots = [];
+		for(var i in data.mapDots){
+			var dot = data.mapDots[i];
+			var spriteDot = new Sprite(game, dot.x, dot.y, 'dot', i);
+			if (!dot.isAlive){
+				spriteDot.visible = false;
+			}
+			this.mapDots.push(spriteDot);
+		}
 	});
 
 	//A new player connected
@@ -509,6 +519,7 @@ function defaultPacmanSockets() {
 		game.state.callbackContext.createPlayer(data);
 	});
 
+	// a virer
 	socket.on('dotInit', function(grid, scores) {
 		for (var i = 0; i < grid.length; i++) {
 			if (grid[i] == 0) {
@@ -519,7 +530,8 @@ function defaultPacmanSockets() {
 	})
 
 	//Server sent current state
-	socket.on('gameUpdate', function(players) {
+	socket.on('gameUpdate', function(infos) {
+		players = infos.players;
 		for (var player in players) {
 			if (players[player].playerId === game.state.callbackContext.playerId) {
 				//info sur sois même
@@ -529,6 +541,19 @@ function defaultPacmanSockets() {
 				continue;
 			}
 			game.state.callbackContext.updatePlayer(players[player]);
+		}
+
+		//update score
+		game.state.callbackContext.updateScores(infos.scores);
+
+		//info dots
+		dots = infos.dots;
+		for(var i in dots){
+			if (dots[i].isAlive){
+				this.mapDots[i].visible = true;
+			} else {
+				this.mapDots[i].visible = false;
+			}
 		}
 	});
 
