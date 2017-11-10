@@ -37,7 +37,7 @@ var game = new Game();
 //--------------------------- Gestion des routes ------------------------------//
 
 app.get('/', function(req, res) {
-	res.sendFile('./www/index.html', { root: __dirname });
+	res.sendFile('./www/index.html');
 });
 
 app.get('/verifyLoggedIn', function(req,res){
