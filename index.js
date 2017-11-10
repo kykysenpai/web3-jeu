@@ -19,7 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
 var options = {index: "./index.js"};
-app.use('/', express.static('app', options));
+//app.use('/', express.static('app', options));
+app.use(express.static(__dirname + '/www'))
 
 //imports pac man game related
 var Game = require('./modules/Game.js');
