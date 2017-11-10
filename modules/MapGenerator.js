@@ -219,7 +219,7 @@ console.log("pre flood")
 floodMap(randX, randY, data);
 console.log("post flood")
 
-
+/*
 var countCut = 0;
 cutLeft = false;
 cutRight = false;
@@ -308,7 +308,7 @@ height-=countCut;
 
 
 
-
+*/
 
 for (x = 1; x < width; x++) {
     for(y = 1; y < height; y++){
@@ -330,4 +330,4 @@ map.layers[0].width = width;
 
 var json = JSON.stringify(map);
 console.log("end");
-fs.writeFile('./www/assets/random-map.json', json, 'utf8');
+fs.writeFile('../www/assets/random-map.json', json, 'utf8');
