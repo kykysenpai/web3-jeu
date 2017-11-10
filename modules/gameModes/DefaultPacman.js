@@ -79,7 +79,7 @@ exports.DefaultPacman.prototype = {
 				});
 				//envoie des infos du socket connectant a tout le monde
 				socket.broadcast.emit('user', game.players[socket.player.playerId]);
-				socket.emit('dotInit', game.grid, game.scores);
+				//socket.emit('dotInit', game.grid, game.scores);
 			});
 
 			//on disconnection from websocket the player is removed from the game

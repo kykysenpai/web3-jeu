@@ -386,22 +386,17 @@ var defaultPacman = {
 			dir: this.current
 		})
 	},
+	/*
+		eatDot: function(pacman, dot) {
 
-	eatDot: function(pacman, dot) {
-		dot.kill();
-		if (this.dots.total === 0) {
-			this.dots.callAll('revive');
-		}
-	},
-	eatDot: function(pacman, dot) {
-		/*
-		dot.kill();
-		if (this.dots.total === 0) {
-			this.dots.callAll('revive');
-		}
-		*/
-		socket.emit('eatDot', this.dots.getChildIndex(dot));
-	},
+			dot.kill();
+			if (this.dots.total === 0) {
+				this.dots.callAll('revive');
+			}
+
+			socket.emit('eatDot', this.dots.getChildIndex(dot));
+
+	},*/
 	//kill local player
 	destroyPlayer: function() {
 		this.pacman.kill();
@@ -436,13 +431,9 @@ var defaultPacman = {
 	update: function() {
 		//check collides
 		this.physics.arcade.collide(this.pacman, this.layer);
-		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 
-		/* gérer coté serveur
-		//collision entre le joueur et les ennemis
-		this.physics.arcade.collide(this.pacman, this.enemies, this.destroyPlayer);
-		this.physics.arcade.collide(this.pacman, this.allies);
-		*/
+		//géré dans le serveur
+		//this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 
 		//collision entre les pacmans et le décor
 		this.physics.arcade.collide(this.enemies, this.layer);
@@ -466,7 +457,6 @@ var defaultPacman = {
 		if (this.updateNeeded == (theoreticalFps / howManyInfoPerSecond)) {
 			this.updateNeeded = 0;
 			this.positionUpdate();
-			console.log("x : " + this.pacman.x + " , y : " + this.pacman.y);
 		}
 	}
 }
@@ -504,10 +494,10 @@ function defaultPacmanSockets() {
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
 		this.mapDots = [];
-		for(var i in data.mapDots){
+		for (var i in data.mapDots) {
 			var dot = data.mapDots[i];
 			var spriteDot = new Sprite(game, dot.x, dot.y, 'dot', i);
-			if (!dot.isAlive){
+			if (!dot.isAlive) {
 				spriteDot.visible = false;
 			}
 			this.mapDots.push(spriteDot);
@@ -546,10 +536,14 @@ function defaultPacmanSockets() {
 		//update score
 		game.state.callbackContext.updateScores(infos.scores);
 
+
+		if (this.mapDots == null) {
+			return;
+		}
 		//info dots
 		dots = infos.dots;
-		for(var i in dots){
-			if (dots[i].isAlive){
+		for (var i in dots) {
+			if (dots[i].isAlive) {
 				this.mapDots[i].visible = true;
 			} else {
 				this.mapDots[i].visible = false;
