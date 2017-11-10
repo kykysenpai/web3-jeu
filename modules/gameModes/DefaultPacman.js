@@ -70,7 +70,8 @@ exports.DefaultPacman.prototype = {
 				//envoie des joueurs déja présent au socket demandant
 				socket.emit('users', {
 					playerId: socket.player.playerId,
-					players: game.players
+					players: game.players,
+					mapDots: game.mapDots
 				});
 				//envoie des infos du socket connectant a tout le monde
 				socket.broadcast.emit('user', game.players[socket.player.playerId]);
@@ -107,7 +108,11 @@ exports.DefaultPacman.prototype = {
 		});
 
 		setInterval(function() {
-			io.emit('gameUpdate', game.players, game.scores);
+			io.emit('gameUpdate', {
+				players : game.players,
+				scores : game.scores, // to do
+				dots : game.mapDots
+			});
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
 	},
