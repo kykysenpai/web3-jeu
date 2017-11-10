@@ -1,6 +1,7 @@
 exports.DefaultPacman = function() {
 	this.size = 256;
 	this.grid = [];
+	this.respawnTime = 300;
 	for (var i = 0; i < this.size; i++) {
 		this.grid.push(1);
 	}
@@ -10,20 +11,18 @@ exports.DefaultPacman = function() {
 	var Dot = require('../Dot.js').Dot;
 	var map = require('../../www/assets/random-map.json');
 
-	mapDots = [];
+	this.mapDots = [];
 	//chopper les dots
 	var height = map.height;
 	var width = map.width;
-	for (var i = 1; i<height-1; i++){
-		for (var j = 1; j < width-1; j++){
-			tile = map.layers[0].data[i*width+j];
-			if(tile == 40 || tile == 25 || tile == 30 || tile == 35){
-				mapDots.push(new Dot(i*16+8,j*16+8));
+	for (var i = 1; i < height - 1; i++) {
+		for (var j = 1; j < width - 1; j++) {
+			tile = map.layers[0].data[i * width + j];
+			if (tile === 40 || tile === 25 || tile === 30 || tile === 35) {
+				this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
 			}
 		}
 	}
-
-
 };
 exports.DefaultPacman.prototype = {
 	addPlayer: function(player) {
@@ -36,6 +35,11 @@ exports.DefaultPacman.prototype = {
 		console.log(this.players[playerId].name + ' was removed' +
 			' from the game with id : ' + this.players[playerId].playerId);
 		delete this.players[playerId];
+	},
+	repawnDots: function() {
+		for (var dot in this.mapDots) {
+			this.mapDots[dot].isAlive = true;
+		}
 	},
 	incScore: function(playerId) {
 		if (!this.players[playerId])
@@ -107,14 +111,41 @@ exports.DefaultPacman.prototype = {
 		});
 
 		setInterval(function() {
-			io.emit('gameUpdate', game.players, game.scores);
+			io.emit('gameUpdate', game.players);
+			game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
+	},
+	dotsLifeSpan: function() {
+		for (var dotsIter in this.mapDots) {
+			if (!this.mapDots[dotsIter].isAlive) {
+				//check if dot should respawn
+				if (this.mapDots[dotsIter].timeUntilAlive === 0) {
+					this.mapDots[dotsIter].isAlive = true;
+					console.log('dot respawned');
+				} else {
+					this.mapDots[dotsIter].timeUntilAlive--;
+				}
+			}
+		}
 	},
 	setPosition: function(playerId, player) {
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
+
+		//collision with a dot
+		for (var dotsIter in this.mapDots) {
+			if ((xDif = this.mapDots[dotsIter].x - player.x) > -16 &&
+				xDif < 16) {
+				if ((yDif = this.mapDots[dotsIter].y - player.y) > -16 &&
+					yDif < 16) {
+					this.mapDots[dotsIter].isAlive = false;
+					this.mapDots[dotsIter].timeUntilAlive = this.respawnTime;
+				}
+			}
+		}
+		//collision between players
 		for (var playerIter in this.players) {
 			if (!this.players[playerIter].isAlive || playerIter === playerId) {
 				continue;
