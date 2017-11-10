@@ -6,6 +6,13 @@ exports.DefaultPacman = function() {
 	}
 	this.players = {};
 	this.scores = [0, 0];
+
+	var Dot = require('../Dot.js').Dot;
+	var map = require('../../www/assets/pacman-map.json');
+
+	mapDots = [];
+	//chopper les dots
+
 };
 exports.DefaultPacman.prototype = {
 	addPlayer: function(player) {
