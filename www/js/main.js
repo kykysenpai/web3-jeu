@@ -17,7 +17,7 @@ var Pacman = function(game) {
 	this.map = null;
 	this.layer = null;
 	this.pacman = null;
-	this.safetile = 14;
+	this.safetiles = [25,30,35,40];
 	this.gridsize = 16;
 	this.speed = 150;
 	this.threshold = 3;
@@ -51,7 +51,7 @@ Pacman.prototype = {
 	 */
 	preload: function() {
 		this.load.image('dot', 'assets/dot.png');
-		this.load.image('tiles', 'assets/pacman-tiles.png');
+		this.load.image('tiles', 'assets/tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', map, null, Phaser.Tilemap.TILED_JSON);
 	},
@@ -60,16 +60,16 @@ Pacman.prototype = {
 	 */
 	create: function() {
 		this.map = this.add.tilemap('map'); //pacman-map.json
-		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
+		this.map.addTilesetImage( 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
-		this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
+		this.map.createFromTiles(this.safetiles, this.safetiles, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
 		//  Pacman should collide with everything except the safe tile
-		this.map.setCollisionByExclusion([this.safetile], true, this.layer);
+		this.map.setCollisionByExclusion(this.safetiles, true, this.layer);
 		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
 		this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'pacman', 0);
 		this.pacman.anchor.set(0.5);
@@ -115,7 +115,7 @@ Pacman.prototype = {
 	 * Check if player can go in the requested direction (there is no tile in the way)
 	 */
 	checkDirection: function(turnTo) {
-		if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.safetile) {
+		if (this.turning === turnTo || this.directions[turnTo] === null || !this.safetiles.includes(this.directions[turnTo].index)) {
 			//  Invalid direction if they're already set to turn that way
 			//  Or there is no tile there, or the tile isn't index 1 (a floor tile)
 			return;

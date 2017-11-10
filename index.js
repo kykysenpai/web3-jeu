@@ -9,12 +9,12 @@ var uuid = require('uuid/v1');
 //imports pac man game related
 var Game = require('./modules/Game.js');
 var Player = require('./modules/Player.js');
-var Mongo = require('./modules/Mongo.js');
+//var Mongo = require('./modules/Mongo.js');
 
 //class aliases
 var Game = Game.Game;
 var Player = Player.Player;
-var Mongo = Mongo.Mongo;
+//var Mongo = Mongo.Mongo;
 
 
 app.set('port', (process.env.PORT || 5000));
@@ -26,7 +26,7 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-var mongo = new Mongo();
+//var mongo = new Mongo();
 var game = new Game();
 
 
