@@ -21,9 +21,11 @@ var titleMenuState = {
 			thumb.events.onInputDown.add(function(clickedImage) {
 				switch (clickedImage.levelNumber) {
 					case 1:
-						this.startDefault();
+						this.startDefaultPacman();
 						break;
 					case 2:
+						this.startRandomMapPacman();
+						break;
 					case 3:
 						console.log('pas encore de jeu ici');
 						break;
@@ -32,12 +34,15 @@ var titleMenuState = {
 				}
 			}, this);
 		}
-		var startLabel = game.add.text(80, game.world.height - 80, 'click to start \n 1: default', {
+		var startLabel = game.add.text(80, game.world.height - 80, '1: default \n 2: Map random', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
 	},
-	startDefault: function() {
+	startDefaultPacman: function() {
 		game.state.start('defaultPacman');
+	},
+	startRandomMapPacman: function() {
+		game.state.start('randomMapPacman');
 	}
 };

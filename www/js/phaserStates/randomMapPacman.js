@@ -1,27 +1,4 @@
-//var map = "assets/pacman-map.json";
-var showDebug = false;
-var randTeam = Math.floor(Math.random() * 2) + 1;
-alert("Vous êtes dans la team : " + randTeam);
-
-var spawn1 = {
-	x: 24,
-	y: 24
-}
-
-var spawn2 = {
-	x: 24,
-	y: 24
-}
-
-var leftMobile = false;
-var rightMobile = false;
-var upMobile = false;
-var downMobile = false;
-
-/*
- Default Pacman game
-*/
-var defaultPacman = {
+var randomMapPacman = {
 	/*
 	 * Window auto adjust to client window size + start physics managing in phase
 	 */
@@ -31,7 +8,7 @@ var defaultPacman = {
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
-		this.safetile = [7];
+		this.safetile = [25, 30, 35, 40];
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
@@ -62,9 +39,10 @@ var defaultPacman = {
 			game.time.advancedTiming = true;
 		}
 		this.load.image('dot', 'assets/dot.png');
-		this.load.image('tiles', 'assets/pacman-tiles.png');
+		this.load.image('tiles', 'assets/tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', 'assets/random-map.json', null, Phaser.Tilemap.TILED_JSON);
+
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 	},
@@ -73,7 +51,7 @@ var defaultPacman = {
 	 */
 	create: function() {
 
-		socket = io('/defaultPacman');
+		socket = io('/randomMapPacman');
 
 		//mobile button var
 		var buttonLeft = null;
@@ -82,7 +60,7 @@ var defaultPacman = {
 		var buttonDown = null;
 
 		this.map = this.add.tilemap('map'); //pacman-map.json
-		this.map.addTilesetImage('pacman-tiles', 'tiles'); //pacman-tiles.png
+		this.map.addTilesetImage('tiles', 'tiles'); //pacman-tiles.png
 		this.layer = this.map.createLayer('Pacman');
 		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
 		this.enemies = this.add.physicsGroup();
@@ -177,7 +155,7 @@ var defaultPacman = {
 				rightMobile = false;
 			});
 		}
-		defaultPacmanSockets();
+		randomMapPacmanSockets();
 	},
 	render: function() {
 		if (showDebug) {
@@ -448,7 +426,7 @@ var defaultPacman = {
 	}
 }
 
-function closeDefaultPacmanSockets() {
+function closeRandomMapPacmanSockets() {
 	socket.off('disconnectedUser');
 	socket.off('dotEated');
 	socket.off('users');
@@ -457,7 +435,7 @@ function closeDefaultPacmanSockets() {
 	socket.off('gameUpdate');
 }
 
-function defaultPacmanSockets() {
+function randomMapPacmanSockets() {
 
 	//Another player disconnected
 	socket.on('disconnectedUser', function(data) {

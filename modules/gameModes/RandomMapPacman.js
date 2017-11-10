@@ -1,10 +1,10 @@
-exports.DefaultPacman = function() {
+exports.RandomMapPacman = function() {
 	this.respawnTime = 800;
 	this.players = {};
 	this.scores = [0, 0];
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/pacman-map.json');
+	var map = require('../../www/assets/random-map.json');
 
 	this.mapDots = [];
 	//chopper les dots
@@ -13,22 +13,22 @@ exports.DefaultPacman = function() {
 	for (var i = 1; i < height - 1; i++) {
 		for (var j = 1; j < width - 1; j++) {
 			tile = map.layers[0].data[i * width + j];
-			if (tile === 7) {
+			if (tile === 40 || tile === 25 || tile === 30 || tile === 35) {
 				this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
 			}
 		}
 	}
 };
-exports.DefaultPacman.prototype = {
+exports.RandomMapPacman.prototype = {
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
-		console.log("a new player connected to the game DefaultPacman");
+		console.log("a new player connected to the game");
 	},
 	removePlayer: function(playerId) {
 		if (!this.players[playerId])
 			return;
 		console.log(this.players[playerId].name + ' was removed' +
-			' from the game DefaultPacman with id : ' + this.players[playerId].playerId);
+			' from the game with id : ' + this.players[playerId].playerId);
 		delete this.players[playerId];
 	},
 	repawnDots: function() {
@@ -73,6 +73,7 @@ exports.DefaultPacman.prototype = {
 				});
 				//envoie des infos du socket connectant a tout le monde
 				socket.broadcast.emit('user', game.players[socket.player.playerId]);
+				//socket.emit('dotInit', game.grid, game.scores);
 			});
 
 			//on disconnection from websocket the player is removed from the game

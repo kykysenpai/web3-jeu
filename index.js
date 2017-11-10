@@ -5,10 +5,12 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 
+require('./modules/MapGenerator.js');
+
 
 //imports pac man game modes
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
-
+var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
 
 var Player = require('./modules/Player.js').Player;
 //var Mongo = require('./modules/Mongo.js').Mongo;
@@ -56,9 +58,11 @@ app.post('/login', function(req, res) {
 
 //instanciate all game modes rooms
 var defaultPacman = new DefaultPacman();
+var randomMapPacman = new RandomMapPacman();
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
