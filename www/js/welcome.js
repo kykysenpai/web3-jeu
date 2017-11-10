@@ -23,5 +23,4 @@ $(function(){
           }
         });
       });
-      $("#loading").trigger("click");
 });
