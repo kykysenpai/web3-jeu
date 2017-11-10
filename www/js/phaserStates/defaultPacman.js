@@ -1,5 +1,5 @@
 var map = "assets/random-map.json";
-var showDebug = true;
+var showDebug = false;
 var randTeam = Math.floor(Math.random() * 2) + 1;
 alert("Vous êtes dans la team : " + randTeam);
 

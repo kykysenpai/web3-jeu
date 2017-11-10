@@ -18,12 +18,11 @@ exports.DefaultPacman = function() {
 		for (var j = 1; j < width-1; j++){
 			tile = map.layers[0].data[i*width+j];
 			if(tile == 40 || tile == 25 || tile == 30 || tile == 35){
-				mapDots.push(new Dot(i*16,j*16));
+				mapDots.push(new Dot(i*16+8,j*16+8));
 			}
 		}
 	}
 
-	console.log(mapDots);
 
 };
 exports.DefaultPacman.prototype = {
