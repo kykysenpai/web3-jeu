@@ -98,7 +98,7 @@ var defaultPacman = {
 		this.scoresDisplay.position.x = game.width / 2;
 		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
-		this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
+		//this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
 		this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
@@ -271,6 +271,14 @@ var defaultPacman = {
 		newPlayer.body.setSize(16, 16, 0, 0);
 		newPlayer.play('munch');
 		this.players[data.playerId] = newPlayer;
+	},
+	//instanciate a dot
+	createDot: function(data) {
+		var newDot = this.add.sprite(data.x, data.y, 'dot');
+		if (!data.isAlive) {
+			newDot.visible = false;
+		}
+		return newDot;
 	},
 	checkKeys: function() {
 
@@ -485,6 +493,7 @@ function defaultPacmanSockets() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
+		console.log(data);
 		game.state.callbackContext.playerId = data.playerId;
 		for (var player in data.players) {
 			if (player === data.playerId) {
@@ -493,14 +502,11 @@ function defaultPacmanSockets() {
 			}
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
-		this.mapDots = [];
+		game.state.callbackContext.mapDots = [];
 		for (var i in data.mapDots) {
 			var dot = data.mapDots[i];
-			var spriteDot = new Sprite(game, dot.x, dot.y, 'dot', i);
-			if (!dot.isAlive) {
-				spriteDot.visible = false;
-			}
-			this.mapDots.push(spriteDot);
+			var spriteDot = game.state.callbackContext.createDot(dot);
+			game.state.callbackContext.mapDots.push(spriteDot);
 		}
 	});
 
@@ -541,12 +547,16 @@ function defaultPacmanSockets() {
 			return;
 		}
 		//info dots
-		dots = infos.dots;
-		for (var i in dots) {
-			if (dots[i].isAlive) {
-				this.mapDots[i].visible = true;
-			} else {
-				this.mapDots[i].visible = false;
+		if (game.state.callbackContext.mapDots != null) {
+			dots = infos.dots;
+
+			console.log(dots);
+			for (var i in dots) {
+				if (dots[i].isAlive) {
+					game.state.callbackContext.mapDots[i].visible = true;
+				} else {
+					game.state.callbackContext.mapDots[i].visible = false;
+				}
 			}
 		}
 	});
@@ -560,4 +570,5 @@ function defaultPacmanSockets() {
 		y: game.state.callbackContext.pacman.y,
 		dir: game.state.callbackContext.current
 	});
+	console.log("lel first emit");
 };

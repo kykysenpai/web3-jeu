@@ -68,6 +68,7 @@ exports.DefaultPacman.prototype = {
 			//a socket is initialising and asks for current connected players
 			//and is sending his personal informations
 			socket.on('firstInit', function(data) {
+				console.log("lel received");
 				data.playerId = socket.player.playerId;
 				var player = new Player(data);
 				game.addPlayer(player);
