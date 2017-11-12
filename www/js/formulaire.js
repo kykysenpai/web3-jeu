@@ -17,13 +17,15 @@ $(function(){
             mdp:$('#mdpConnexion').val()
           },
           success:function(response){
-            console.log("success " + response.status);
+            console.log("success " + response.body.status + "   " + response.body.authName + "   " + response.body.token);
+            //localStorage.setItem("authName", response.body.authName);
+            //localStorage.setItem("token", response.body.token);
             $("#formulaires").hide();
             $("#choix").show();
-            $("#authName").html(localStorage.getItem("authName"));
+            //$("#authName").html(localStorage.getItem("authName"));
           },
           error:function(response){
-            console.log("success " + response.status);
+            console.log("error " + response.body);
             $("#messageInscription").html("<p>La connexion a échoué.</>");
             $("#messageInscription").css("color:red");
           }

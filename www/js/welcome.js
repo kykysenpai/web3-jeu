@@ -7,7 +7,9 @@ $(function(){
           url:'/verifyLoggedIn',
           type:'GET',
           dataType: "json",
-          data:{},
+          data:{
+            token : localStorage.getItem("token")
+          },
           success:function(response){
             //localsession found
             console.log("session " + response.status);

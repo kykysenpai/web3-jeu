@@ -42,12 +42,12 @@ app.get('/', function(req, res) {
 });
 
 app.get('/verifyLoggedIn', function(req,res){
-	if(localStorage.getItem("name")!==null && localStorage.getItem("token")!==null){
+	if(req.body.token!=null){
 		res.status(200);
-		req.send("CONNECTED");
+		res.send("CONNECTED");
 	}else{
 		res.status(401);
-		req.send("NEW");
+		res.send("NEW");
 	}
 });
 
@@ -56,20 +56,17 @@ app.post('/seConnecter',(req,res) => {
 	console.log("req:" + req.body.login);
 	//promesse
 	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
+		console.log("response of connectPlayer in index.js " + resp + "type of : " + typeof(resp));
 		if(resp){
 			const payload = { user:req.body.login };
 			var timeout = 1440 // expires in 24 hours
 			var token = jwt.sign(payload, app.get('superSecret'), { expiresInMinutes: timeout });
-			localStorage.setItem("name", req.body.login);
-			localStorage.setItem("token", token);
-			console.log("Connexion succeded : name -> " + localStorage.getItem("name") + " & token -> " + localStorage.getItem("token"));
-			res.status(200);
+			console.log("Connexion succeded");
+			res.json({status: 200, "token": token, "authName" : req.body.login});
 			res.send("OK");
 		}else{
-		
 			console.log("Connexion failed");
-			res.status(400);
-			res.send("KO");
+			res.json({status: 400});
 		}
 	}).catch(function(err){
 		res.status(400);
