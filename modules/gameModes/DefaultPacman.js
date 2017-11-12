@@ -1,7 +1,13 @@
-exports.DefaultPacman = function() {
+exports.DefaultPacman = function(updateLobby) {
 	this.respawnTime = 800;
 	this.players = {};
 	this.scores = [0, 0];
+	this.state = 'Waiting for players';
+	this.reqPlayer = 2;
+	this.nPlayer = 0;
+	this.updateLobby = updateLobby;
+	this.startGameId;
+	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
 	var map = require('../../www/assets/pacman-map.json');
@@ -25,6 +31,31 @@ exports.DefaultPacman.prototype = {
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
 		console.log("a new player connected to the game DefaultPacman");
+		this.nPlayer++;
+		if (this.nPlayer >= this.reqPlayer) {
+			this.state = 'Starting the game ...';
+			var thisContext = this;
+			this.startGameId = setTimeout(function() {
+				thisContext.emitUpdateLobby('startGame', null);
+				thisContext.state = 'Game in progress';
+				thisContext.isRunning = true;
+			}, 10000);
+		}
+		this.emitUpdateLobby('updateWaiting', {
+			nPlayer: this.nPlayer,
+			reqPlayer: this.reqPlayer,
+			state: this.state
+		});
+	},
+	emitUpdateLobby: function(event, data) {
+		this.updateLobby({
+			room: 'defaultPacmanRoom',
+			event: event,
+			data: data
+		});
+	},
+	checkTeams: function() {
+		return true; //if all player of a team died
 	},
 	removePlayer: function(playerId) {
 		if (!this.players[playerId])
@@ -32,6 +63,16 @@ exports.DefaultPacman.prototype = {
 		console.log(this.players[playerId].name + ' was removed' +
 			' from the game DefaultPacman with id : ' + this.players[playerId].playerId);
 		delete this.players[playerId];
+		this.nPlayer--;
+		if (this.nPlayer < this.reqPlayer) {
+			this.state = 'Waiting for players';
+			clearTimeout(this.startGameId);
+		}
+		this.emitUpdateLobby('updateWaiting', {
+			nPlayer: this.nPlayer,
+			reqPlayer: this.reqPlayer,
+			state: this.state
+		});
 	},
 	repawnDots: function() {
 		for (var dot in this.mapDots) {
@@ -47,6 +88,12 @@ exports.DefaultPacman.prototype = {
 		} else if (team === 2) {
 			this.scores[1]++;
 		}
+	},
+	endGame: function() {
+		this.state = 'Waiting for players';
+		this.isRunning = false;
+		//remove all players
+		//save game replay
 	},
 	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
@@ -64,17 +111,24 @@ exports.DefaultPacman.prototype = {
 			//a socket is initialising and asks for current connected players
 			//and is sending his personal informations
 			socket.on('firstInit', function(data) {
+				if (this.isRunning) {
+					return;
+				}
 				data.playerId = socket.player.playerId;
 				var player = new Player(data);
 				game.addPlayer(player);
 				//envoie des joueurs déja présent au socket demandant
+
+				//envoie des infos du socket connectant a tout le monde
+				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
+			});
+
+			socket.on('gameStarted', function() {
 				socket.emit('users', {
 					playerId: socket.player.playerId,
 					players: game.players,
 					mapDots: game.mapDots
 				});
-				//envoie des infos du socket connectant a tout le monde
-				socket.broadcast.emit('user', game.players[socket.player.playerId]);
 			});
 
 			//on disconnection from websocket the player is removed from the game

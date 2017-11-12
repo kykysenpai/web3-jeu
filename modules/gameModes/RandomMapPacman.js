@@ -1,4 +1,4 @@
-exports.RandomMapPacman = function() {
+exports.RandomMapPacman = function(updateLobby) {
 	this.respawnTime = 800;
 	this.players = {};
 	this.scores = [0, 0];

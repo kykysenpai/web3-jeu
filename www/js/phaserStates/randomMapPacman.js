@@ -426,15 +426,6 @@ var randomMapPacman = {
 	}
 }
 
-function closeRandomMapPacmanSockets() {
-	socket.off('disconnectedUser');
-	socket.off('dotEated');
-	socket.off('users');
-	socket.off('user');
-	socket.off('dotInit');
-	socket.off('gameUpdate');
-}
-
 function randomMapPacmanSockets() {
 
 	//Another player disconnected

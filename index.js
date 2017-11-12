@@ -57,8 +57,8 @@ app.post('/login', function(req, res) {
 //var mongo = new Mongo();
 
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman();
-var randomMapPacman = new RandomMapPacman();
+var defaultPacman = new DefaultPacman(updateLobby);
+var randomMapPacman = new RandomMapPacman(updateLobby);
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
@@ -72,6 +72,30 @@ app.use(function(req, res, next) {
 	next();
 });
 */
+
+function updateLobby(data) {
+	console.log(data);
+	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
+}
+
+io.of('/lobbySocket').on('connection', function(socket) {
+	socket.on('joinLobby', function(chosenGameMode) {
+		console.log('A socket joined the gamemode ' + chosenGameMode + ' lobby room');
+		switch (chosenGameMode) {
+			case 1:
+				socket.join('defaultPacmanRoom');
+				break;
+			case 2:
+				socket.join('randomMapPacmanRoom');
+				break;
+			case 3:
+				console.log('pas encore de jeu ici');
+				break;
+			default:
+				console.log('erreur n* level');
+		}
+	});
+});
 
 server.listen(app.get('port'), function() {
 	console.log("Pacman is listening on port " + app.get('port'));

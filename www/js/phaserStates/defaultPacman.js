@@ -1,7 +1,5 @@
 //var map = "assets/pacman-map.json";
 var showDebug = false;
-var randTeam = Math.floor(Math.random() * 2) + 1;
-alert("Vous êtes dans la team : " + randTeam);
 
 var spawn1 = {
 	x: 24,
@@ -73,7 +71,7 @@ var defaultPacman = {
 	 */
 	create: function() {
 
-		socket = io('/defaultPacman');
+		//socket = io('/defaultPacman');
 
 		//mobile button var
 		var buttonLeft = null;
@@ -106,9 +104,9 @@ var defaultPacman = {
 		//  Pacman should collide with everything except the safe tile
 		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
-		this.team = randTeam;
+		this.team = playerInfos.team;
 		this.createLocalPlayer({
-			skin: 'pacman'
+			skin: playerInfos.skin
 		});
 
 		//Enabling gamepad
@@ -448,15 +446,6 @@ var defaultPacman = {
 	}
 }
 
-function closeDefaultPacmanSockets() {
-	socket.off('disconnectedUser');
-	socket.off('dotEated');
-	socket.off('users');
-	socket.off('user');
-	socket.off('dotInit');
-	socket.off('gameUpdate');
-}
-
 function defaultPacmanSockets() {
 
 	//Another player disconnected
@@ -518,7 +507,12 @@ function defaultPacmanSockets() {
 	});
 
 	//Ask servers for currently connected players
+	socket.emit('gameStarted');
+
+
+	//Ask servers for currently connected players
 	//And send personal informations
+	/*
 	socket.emit('firstInit', {
 		team: game.state.callbackContext.team,
 		skin: game.state.callbackContext.skin,
@@ -526,4 +520,5 @@ function defaultPacmanSockets() {
 		y: game.state.callbackContext.pacman.y,
 		dir: game.state.callbackContext.current
 	});
+	*/
 };
