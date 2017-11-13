@@ -74,7 +74,6 @@ app.use(function(req, res, next) {
 */
 
 function updateLobby(data) {
-	console.log(data);
 	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
 }
 

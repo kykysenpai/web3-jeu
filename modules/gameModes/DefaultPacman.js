@@ -1,6 +1,10 @@
+var TEAM_PACMAN = 0;
+var TEAM_GHOST = 1;
+
 exports.DefaultPacman = function(updateLobby) {
 	this.respawnTime = 800;
 	this.players = {};
+	this.waitingRoom = {};
 	this.scores = [0, 0];
 	this.state = 'Waiting for players';
 	this.reqPlayer = 2;
@@ -8,6 +12,7 @@ exports.DefaultPacman = function(updateLobby) {
 	this.updateLobby = updateLobby;
 	this.startGameId;
 	this.isRunning = false;
+	this.nPlayerTeam = [0, 0];
 
 	var Dot = require('../Dot.js').Dot;
 	var map = require('../../www/assets/pacman-map.json');
@@ -32,47 +37,70 @@ exports.DefaultPacman.prototype = {
 		this.players[player.playerId] = player;
 		console.log("a new player connected to the game DefaultPacman");
 		this.nPlayer++;
+		this.nPlayerTeam[player.team]++;
 		if (this.nPlayer >= this.reqPlayer) {
 			this.state = 'Starting the game ...';
 			var thisContext = this;
 			this.startGameId = setTimeout(function() {
-				thisContext.emitUpdateLobby('startGame', null);
+				thisContext.emitLobby('startGame', null);
 				thisContext.state = 'Game in progress';
 				thisContext.isRunning = true;
 			}, 10000);
 		}
-		this.emitUpdateLobby('updateWaiting', {
-			nPlayer: this.nPlayer,
-			reqPlayer: this.reqPlayer,
-			state: this.state
-		});
+		this.emitUpdateLobby();
 	},
-	emitUpdateLobby: function(event, data) {
+	addToWaitingRoom: function(player) {
+		this.waitingRoom[player.playerId] = player;
+		console.log("a new player was added to the game DefaultPacman\'s waiting room");
+	},
+	emitLobby: function(event, data) {
 		this.updateLobby({
 			room: 'defaultPacmanRoom',
 			event: event,
 			data: data
 		});
 	},
-	checkTeams: function() {
-		return true; //if all player of a team died
+	emitUpdateLobby: function() {
+		this.updateLobby({
+			room: 'defaultPacmanRoom',
+			event: 'updateWaiting',
+			data: {
+				nPlayer: this.nPlayer,
+				reqPlayer: this.reqPlayer,
+				state: this.state
+			}
+		});
+	},
+	checkTeams: function(io) {
+		if (!this.isRunning)
+			return;
+		if (this.nPlayerTeam[TEAM_GHOST] == 0) {
+			console.log('Victoire team pacman');
+			this.endGame(TEAM_PACMAN, io);
+		} else if (this.nPlayerTeam[TEAM_PACMAN] == 0) {
+			console.log('Victoire team ghost');
+			this.endGame(TEAM_GHOST, io);
+		}
 	},
 	removePlayer: function(playerId) {
-		if (!this.players[playerId])
+		if (this.players[playerId]) {
+			console.log(this.players[playerId].name + ' was removed' +
+				' from the game DefaultPacman with id : ' + this.players[playerId].playerId);
+			this.nPlayer--;
+			this.nPlayerTeam[this.players[playerId].team]--;
+			delete this.players[playerId];
+		} else if (this.waitingRoom[playerId]) {
+			console.log(this.waitingRoom[playerId].name + ' was removed' +
+				' from the game DefaultPacman\'s waiting Room with id : ' + this.waitingRoom[playerId].playerId);
+			delete this.waitingRoom[playerId];
+		} else {
 			return;
-		console.log(this.players[playerId].name + ' was removed' +
-			' from the game DefaultPacman with id : ' + this.players[playerId].playerId);
-		delete this.players[playerId];
-		this.nPlayer--;
+		}
 		if (this.nPlayer < this.reqPlayer) {
 			this.state = 'Waiting for players';
 			clearTimeout(this.startGameId);
 		}
-		this.emitUpdateLobby('updateWaiting', {
-			nPlayer: this.nPlayer,
-			reqPlayer: this.reqPlayer,
-			state: this.state
-		});
+		this.emitUpdateLobby();
 	},
 	repawnDots: function() {
 		for (var dot in this.mapDots) {
@@ -82,18 +110,25 @@ exports.DefaultPacman.prototype = {
 	incScore: function(playerId) {
 		if (!this.players[playerId])
 			return;
-		var team = this.players[playerId].team;
-		if (team === 1) {
-			this.scores[0]++;
-		} else if (team === 2) {
-			this.scores[1]++;
-		}
+		this.scores[this.players[playerId].team]++;
 	},
-	endGame: function() {
+	endGame: function(winner, io) {
+		//TODO add close replay
 		this.state = 'Waiting for players';
 		this.isRunning = false;
-		//remove all players
-		//save game replay
+		io.emit('endGame', winner);
+
+		for (var player in this.players) {
+			this.removePlayer(this.players[player].playerId);
+		}
+		this.nPlayer = 0;
+		this.scores = [0, 0];
+
+		for (var player in this.waitingRoom) {
+			this.addPlayer(this.waitingRoom(player));
+			delete this.waitingRoom[player];
+		}
+		this.emitUpdateLobby();
 	},
 	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
@@ -111,18 +146,20 @@ exports.DefaultPacman.prototype = {
 			//a socket is initialising and asks for current connected players
 			//and is sending his personal informations
 			socket.on('firstInit', function(data) {
-				if (this.isRunning) {
-					return;
-				}
+
 				data.playerId = socket.player.playerId;
 				var player = new Player(data);
-				game.addPlayer(player);
-				//envoie des joueurs déja présent au socket demandant
 
+				if (!this.isRunning) {
+					game.addPlayer(player);
+				} else {
+					game.addToWaitingRoom(player);
+				}
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
 			});
 
+			//envoie des joueurs déja présent au socket demandant
 			socket.on('gameStarted', function() {
 				socket.emit('users', {
 					playerId: socket.player.playerId,
@@ -133,7 +170,9 @@ exports.DefaultPacman.prototype = {
 
 			//on disconnection from websocket the player is removed from the game
 			socket.on('disconnect', function() {
+				console.log('a player socket disconnected');
 				game.removePlayer(socket.player.playerId);
+				game.checkTeams(io);
 				io.emit('disconnectedUser', {
 					playerId: socket.player.playerId
 				});
@@ -145,7 +184,7 @@ exports.DefaultPacman.prototype = {
 					//received position from a player that didn't make his first init yet
 					return; //return to avoid sending useless informations to clients
 				}
-				game.setPosition(socket.player.playerId, data);
+				game.setPosition(socket.player.playerId, data, io);
 				//broadcasts information to everyone except itself
 				data.playerId = socket.player.playerId;
 				//socket.broadcast.emit('positionUpdate', data);
@@ -174,7 +213,7 @@ exports.DefaultPacman.prototype = {
 			}
 		}
 	},
-	setPosition: function(playerId, player) {
+	setPosition: function(playerId, player, io) {
 
 
 		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
@@ -229,19 +268,24 @@ exports.DefaultPacman.prototype = {
 					} else {
 						//collision between two players of different teams
 						//Player with lowest team score is killed
-						if (this.scores[1] > this.scores[0]) {
-							if (this.players[playerId].team == 1) {
+						if (this.scores[TEAM_GHOST] > this.scores[TEAM_PACMAN]) {
+							if (this.players[playerId].team == TEAM_PACMAN) {
 								this.players[playerId].isAlive = false;
-							} else if (this.players[playerIter].team == 1) {
+								this.nPlayerTeam[TEAM_PACMAN]--;
+							} else if (this.players[playerIter].team == TEAM_PACMAN) {
 								this.players[playerIter].isAlive = false;
+								this.nPlayerTeam[TEAM_PACMAN]--;
 							}
-						} else if (this.scores[0] > this.scores[1]) {
-							if (this.players[playerId].team == 2) {
+						} else if (this.scores[TEAM_PACMAN] > this.scores[TEAM_GHOST]) {
+							if (this.players[playerId].team == TEAM_GHOST) {
 								this.players[playerId].isAlive = false;
-							} else if (this.players[playerIter].team == 2) {
+								this.nPlayerTeam[TEAM_GHOST]--;
+							} else if (this.players[playerIter].team == TEAM_GHOST) {
 								this.players[playerIter].isAlive = false;
+								this.nPlayerTeam[TEAM_GHOST]--;
 							}
 						}
+						this.checkTeams(io);
 					}
 				}
 			}

@@ -17,5 +17,7 @@ game.state.add('lobby', lobby);
 game.state.add('defaultPacman', defaultPacman);
 game.state.add('randomMapPacman', randomMapPacman);
 game.state.add('selectPlayer', selectPlayer);
+game.state.add('win', win);
+game.state.add('lose', lose);
 
 game.state.start('bootState');

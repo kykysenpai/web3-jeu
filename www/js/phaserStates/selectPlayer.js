@@ -26,8 +26,8 @@ var selectPlayer = {
 		});
 
 		var team1 = game.add.image(game.width / 3, game.height / 3, 'blankThumb');
-		team1.team = 1;
-		var teamText = game.add.text(0, 0, team1.team, {
+		team1.team = TEAM_PACMAN;
+		var teamText = game.add.text(0, 0, 'Pacman', {
 			font: "24px Atiat",
 			fill: "#000000"
 		});
@@ -38,8 +38,8 @@ var selectPlayer = {
 		}, this);
 
 		var team2 = game.add.image((game.width / 3) * 2, game.height / 3, 'blankThumb');
-		team2.team = 2;
-		var teamText = game.add.text(0, 0, team2.team, {
+		team2.team = TEAM_GHOST;
+		var teamText = game.add.text(0, 0, 'Ghost', {
 			font: "24px Atiat",
 			fill: "#000000"
 		});

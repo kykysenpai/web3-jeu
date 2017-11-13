@@ -56,14 +56,15 @@ function lobbySockets() {
 	switch (chosenGameMode) {
 		case 1:
 			socket = io('/defaultPacman');
-			socket.emit('firstInit', playerInfos);
 			break;
 		case 2:
+			socket = io('/randomMapPacman');
 			break;
 		case 3:
-			console.log('pas encore de jeu ici');
+			alert('pas encore de jeu ici');
 			break;
 		default:
 			console.log('erreur n* level');
 	}
+	socket.emit('firstInit', playerInfos);
 }

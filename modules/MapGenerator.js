@@ -210,9 +210,9 @@ while (data[randX + width * randY] % 5 != 0) {
 	randX = Math.floor((Math.random() * width));
 	randY = Math.floor((Math.random() * height));
 }
-console.log("pre flood")
+//console.log("pre flood")
 floodMap(randX, randY, data);
-console.log("post flood")
+//console.log("post flood")
 
 /*
 var countCut = 0;
@@ -324,6 +324,6 @@ map.layers[0].width = width;
 
 
 var json = JSON.stringify(map);
-console.log("end");
+//console.log("end");
 fs.writeFileSync('./www/assets/random-map.json', json, 'utf8');
-console.log("map file written");
+console.log("random-map file written");
