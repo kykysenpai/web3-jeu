@@ -97,7 +97,7 @@ var defaultPacman = {
 		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
 		//this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
-		this.world.setBounds(0, 0, 1920, 1920);
+		//this.world.setBounds(0, 0, 1920, 1920);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);

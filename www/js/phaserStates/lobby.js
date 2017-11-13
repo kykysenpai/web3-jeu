@@ -1,21 +1,35 @@
 var lobby = {
-	init: function() {
-		this.nPlayer = 0;
-		this.reqPlayer = 0;
+	/*init: function() {
 		this.titleLabel;
 		this.waitingForLabel;
 		this.gameStateLabel;
-	},
+	},*/
 	preload: function() {
 		game.load.image('blankThumb', 'assets/blankImage.png');
 	},
 	create: function() {
+		this.nPlayerPacman = 0;
+		this.nPlayerGhost = 0;
+		this.reqPlayer = 0;
+
 		lobbySocket = io('/lobbySocket');
 		this.gameStateLabel = game.add.text(80, 80, '', {
 			font: '30px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabel = game.add.text(80, game.world.height - 80, this.nPlayer + '/' + this.reqPlayer, {
+		game.add.text(60, game.world.height - 160, 'Pacmans', {
+			font: '25px Arial',
+			fill: '#ffffff'
+		});
+		game.add.text(game.world.width - 100, game.world.height - 160, 'Ghosts', {
+			font: '25px Arial',
+			fill: '#ffffff'
+		});
+		this.waitingForLabelPacman = game.add.text(80, game.world.height - 80, this.nPlayerPacman + '/' + this.reqPlayer, {
+			font: '25px Arial',
+			fill: '#ffffff'
+		});
+		this.waitingForLabelGhost = game.add.text(game.world.width - 80, game.world.height - 80, this.nPlayerGhost + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
@@ -38,10 +52,13 @@ var lobby = {
 		}
 	},
 	updateWaiting: function(data) {
-		this.nPlayer = data.nPlayer;
+		console.log(this.waitingForLabelPacman);
+		this.nPlayerPacman = data.nPlayerTeam[TEAM_PACMAN];
+		this.nPlayerGhost = data.nPlayerTeam[TEAM_GHOST];
 		this.reqPlayer = data.reqPlayer;
 		this.gameStateLabel.setText(data.state);
-		this.waitingForLabel.setText(this.nPlayer + '/' + this.reqPlayer);
+		this.waitingForLabelPacman.setText(this.nPlayerPacman + '/' + this.reqPlayer);
+		this.waitingForLabelGhost.setText(this.nPlayerGhost + '/' + this.reqPlayer);
 	}
 };
 
