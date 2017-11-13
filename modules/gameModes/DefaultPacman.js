@@ -94,9 +94,10 @@ exports.DefaultPacman.prototype = {
 				' from the game DefaultPacman\'s waiting Room with id : ' + this.waitingRoom[playerId].playerId);
 			delete this.waitingRoom[playerId];
 		} else {
+			console.log("DISGUSTANG");
 			return;
 		}
-		if (this.nPlayer < this.reqPlayer) {
+		if (!this.isRunning && this.nPlayer < this.reqPlayer) {
 			this.state = 'Waiting for players';
 			clearTimeout(this.startGameId);
 		}
