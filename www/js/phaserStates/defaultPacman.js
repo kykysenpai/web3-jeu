@@ -237,10 +237,10 @@ var defaultPacman = {
 		this.skin = data.skin;
 		var xSpawn;
 		var ySpawn;
-		if (this.team === 1) {
+		if (this.team === TEAM_PACMAN) {
 			xSpawn = spawn1.x;
 			ySpawn = spawn1.y;
-		} else if (this.team === 2) {
+		} else if (this.team === TEAM_GHOST) {
 			xSpawn = spawn2.x;
 			ySpawn = spawn2.y;
 		}
@@ -395,8 +395,8 @@ var defaultPacman = {
 	destroyPlayer: function() {
 		this.pacman.kill();
 		//closeDefaultPacmanSockets();
-		socket.close();
-		game.state.start('titleMenuState');
+		//socket.close();
+		//game.state.start('titleMenuState');
 	},
 	//kill not local player
 	killPlayer: function(data) {
@@ -408,6 +408,14 @@ var defaultPacman = {
 			delete this.enemies[data.playerId];
 		} else {
 			delete this.allies[data.playerId];
+		}
+	},
+	endGame: function(winner) {
+		socket.close();
+		if (this.team == winner) {
+			game.state.start('win');
+		} else {
+			game.state.start('lose');
 		}
 	},
 	/*
@@ -452,6 +460,10 @@ function defaultPacmanSockets() {
 	socket.on('disconnectedUser', function(data) {
 		game.state.callbackContext.killPlayer(data);
 	});
+
+	socket.on('endGame', function(winner) {
+		game.state.callbackContext.endGame(winner);
+	})
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
@@ -508,17 +520,4 @@ function defaultPacmanSockets() {
 
 	//Ask servers for currently connected players
 	socket.emit('gameStarted');
-
-
-	//Ask servers for currently connected players
-	//And send personal informations
-	/*
-	socket.emit('firstInit', {
-		team: game.state.callbackContext.team,
-		skin: game.state.callbackContext.skin,
-		x: game.state.callbackContext.pacman.x,
-		y: game.state.callbackContext.pacman.y,
-		dir: game.state.callbackContext.current
-	});
-	*/
 };

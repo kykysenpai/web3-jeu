@@ -51,7 +51,7 @@ var randomMapPacman = {
 	 */
 	create: function() {
 
-		socket = io('/randomMapPacman');
+		//socket = io('/randomMapPacman');
 
 		//mobile button var
 		var buttonLeft = null;
