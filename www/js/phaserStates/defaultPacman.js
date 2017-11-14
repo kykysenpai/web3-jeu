@@ -226,9 +226,6 @@ var defaultPacman = {
 		this.skin = data.skin;
 		var xSpawn = playerInfos.x;
 		var ySpawn = playerInfos.y;
-		console.log('spawn pos');
-		console.log('x : ' + xSpawn);
-		console.log('y : ' + ySpawn);
 		/*
 		if (this.team === TEAM_PACMAN) {
 			xSpawn = playerInfos.x;
@@ -384,7 +381,6 @@ var defaultPacman = {
 			y: this.pacman.y,
 			dir: this.current
 		});
-		console.log(this.pacman.x + ' ' + this.pacman.y);
 	},
 	//kill local player
 	destroyPlayer: function() {

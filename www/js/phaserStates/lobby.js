@@ -68,11 +68,6 @@ function lobbySockets() {
 	lobbySocket.on('startGame', function() {
 		game.state.callbackContext.startGame();
 	});
-	lobbySocket.on('initSpawn', function(data) {
-		console.log(data);
-		playerInfos.x = data.x;
-		playerInfos.y = data.y;
-	});
 	lobbySocket.emit('joinLobby', chosenGameMode);
 	switch (chosenGameMode) {
 		case 1:
@@ -87,5 +82,9 @@ function lobbySockets() {
 		default:
 			console.log('erreur n* level');
 	}
+	socket.on('initSpawn', function(data) {
+		playerInfos.x = data.x;
+		playerInfos.y = data.y;
+	});
 	socket.emit('firstInit', playerInfos);
 }

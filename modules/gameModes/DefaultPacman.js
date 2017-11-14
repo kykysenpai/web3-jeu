@@ -180,7 +180,7 @@ exports.DefaultPacman.prototype = {
 					console.log('added a new player to the defaultPacman\'s waitingRoom');
 				}
 				console.log(game.spawnPos[data.team]);
-				game.emitLobby('initSpawn', game.spawnPos[data.team]);
+				socket.emit('initSpawn', game.spawnPos[data.team]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
