@@ -52,7 +52,6 @@ var lobby = {
 		}
 	},
 	updateWaiting: function(data) {
-		console.log(this.waitingForLabelPacman);
 		this.nPlayerPacman = data.nPlayerTeam[TEAM_PACMAN];
 		this.nPlayerGhost = data.nPlayerTeam[TEAM_GHOST];
 		this.reqPlayer = data.reqPlayer;
@@ -68,6 +67,11 @@ function lobbySockets() {
 	});
 	lobbySocket.on('startGame', function() {
 		game.state.callbackContext.startGame();
+	});
+	lobbySocket.on('initSpawn', function(data) {
+		console.log(data);
+		playerInfos.x = data.x;
+		playerInfos.y = data.y;
 	});
 	lobbySocket.emit('joinLobby', chosenGameMode);
 	switch (chosenGameMode) {

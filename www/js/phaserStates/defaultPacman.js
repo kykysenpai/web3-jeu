@@ -1,16 +1,6 @@
 //var map = "assets/pacman-map.json";
 var showDebug = false;
 
-var spawn1 = {
-	x: 24,
-	y: 24
-}
-
-var spawn2 = {
-	x: 24,
-	y: 24
-}
-
 var leftMobile = false;
 var rightMobile = false;
 var upMobile = false;
@@ -70,7 +60,6 @@ var defaultPacman = {
 	 * Var initialisation of in game items
 	 */
 	create: function() {
-
 		//socket = io('/defaultPacman');
 
 		//mobile button var
@@ -97,7 +86,7 @@ var defaultPacman = {
 		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
 		//this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
-		//this.world.setBounds(0, 0, 1920, 1920);
+		this.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
@@ -235,15 +224,20 @@ var defaultPacman = {
 			}
 		}
 		this.skin = data.skin;
-		var xSpawn;
-		var ySpawn;
+		var xSpawn = playerInfos.x;
+		var ySpawn = playerInfos.y;
+		console.log('spawn pos');
+		console.log('x : ' + xSpawn);
+		console.log('y : ' + ySpawn);
+		/*
 		if (this.team === TEAM_PACMAN) {
-			xSpawn = spawn1.x;
-			ySpawn = spawn1.y;
+			xSpawn = playerInfos.x;
+			ySpawn = playerInfos.y;
 		} else if (this.team === TEAM_GHOST) {
-			xSpawn = spawn2.x;
-			ySpawn = spawn2.y;
+			xSpawn = playerInfos.x;
+			ySpawn = playerInfos.y;
 		}
+		*/
 		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
 		this.pacman = this.add.sprite(xSpawn, ySpawn, data.skin, 0);
 		this.pacman.anchor.set(0.5);
@@ -389,7 +383,8 @@ var defaultPacman = {
 			x: this.pacman.x,
 			y: this.pacman.y,
 			dir: this.current
-		})
+		});
+		console.log(this.pacman.x + ' ' + this.pacman.y);
 	},
 	//kill local player
 	destroyPlayer: function() {

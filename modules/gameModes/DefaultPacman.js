@@ -9,6 +9,14 @@ exports.DefaultPacman = function(updateLobby) {
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
+	//spawn postitions of team pacman and ghost
+	this.spawnPos = [{
+		x: 24,
+		y: 232
+	}, {
+		x: 424,
+		y: 232
+	}];
 
 	//players in game or ready for next game
 	this.players = {};
@@ -162,7 +170,6 @@ exports.DefaultPacman.prototype = {
 			//a socket is initialising and asks for current connected players
 			//and is sending his personal informations
 			socket.on('firstInit', function(data) {
-
 				data.playerId = socket.player.playerId;
 				var player = new Player(data);
 				if (!game.isRunning) {
@@ -172,6 +179,8 @@ exports.DefaultPacman.prototype = {
 					game.addToWaitingRoom(player);
 					console.log('added a new player to the defaultPacman\'s waitingRoom');
 				}
+				console.log(game.spawnPos[data.team]);
+				game.emitLobby('initSpawn', game.spawnPos[data.team]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
