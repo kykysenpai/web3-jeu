@@ -17,19 +17,20 @@ var lobby = {
 			font: '30px Arial',
 			fill: '#ffffff'
 		});
-		game.add.text(60, game.world.height - 160, 'Pacmans', {
+
+		game.add.text(60, 240, 'Pacmans', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		game.add.text(game.world.width - 100, game.world.height - 160, 'Ghosts', {
+		game.add.text(300, 240, 'Ghosts', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabelPacman = game.add.text(80, game.world.height - 80, this.nPlayerPacman + '/' + this.reqPlayer, {
+		this.waitingForLabelPacman = game.add.text(80, 320, this.nPlayerPacman + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabelGhost = game.add.text(game.world.width - 80, game.world.height - 80, this.nPlayerGhost + '/' + this.reqPlayer, {
+		this.waitingForLabelGhost = game.add.text(320, 320, this.nPlayerGhost + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
