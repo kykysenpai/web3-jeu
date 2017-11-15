@@ -17,45 +17,40 @@ $(function(){
             mdp:$('#mdpConnexion').val()
           },
           success:function(response){
-            console.log("success " + response.body.status + "   " + response.body.authName + "   " + response.body.token);
-            //localStorage.setItem("authName", response.body.authName);
-            //localStorage.setItem("token", response.body.token);
+            localStorage.setItem("authName", response.authName);
+            localStorage.setItem("token", response.token);
+            console.log("Contenu localStorage : " 
+            + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            /*$("#deconnexion").show();
             $("#formulaires").hide();
             $("#choix").show();
-            //$("#authName").html(localStorage.getItem("authName"));
+          */
           },
           error:function(response){
-            console.log("error " + response.body);
-            $("#messageInscription").html("<p>La connexion a échoué.</>");
-            $("#messageInscription").css("color:red");
+            console.log("Connexion error " + response.status);
+            $("#messages").append("<p class='error'>La connexion a échoué.</>").fadeIn("fast").fadeOut("slow");;
           }
         });
       });
 
       $('#sInscrire').on('click',function(e){
-        console.log("formulaire.js -> on clic Sinscrire");
         var login = $('#pseudoConnexion').val();
         var mdp = $('#mdpConnexion').val();
-        console.log("formulaire.js -> on clic value login : " + login);        
-        console.log("formulaire.js -> on clic value mdp : "+ mdp);
-        
-        $.ajax({
-          url:'/sInscrire',
-          type:'POST',
-          dataType: "json",
-          data:{
-            login:$('#pseudoInscription').val(),
-            mdp:$('#mdpInscription').val()
-          },
+          $.ajax({
+            url:'/sInscrire',
+            type:'POST',
+            dataType: "json",
+            data:{
+              login:$('#pseudoInscription').val(),
+              mdp:$('#mdpInscription').val()
+            },
           success:function(response){
             console.log("success " + response.status);
-            $("#messageLogin").html("<p>L'inscription a été prise en compte!</>");
-            $("#messageLogin").css("color:green");
+            $("#messages").append("<p class='success'>L'inscription a été prise en compte.</>");
           },
           error:function(response){
             console.log("success " + response.status);
-            $("#messageLogin").html("<p>L'inscription a échoué</>");
-            $("#messageLogin").css("color:red");
+            $("#messages").append("<p class='success'>L'inscription a échoué.</>").fadeIn("fast").fadeOut("slow");
           }          
         });
       });

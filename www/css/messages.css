@@ -1,0 +1,20 @@
+.error{
+    color: rgb(160, 21, 21);
+    font-style: italic;
+    font-weight: bold;
+  }
+
+.success{
+    color: green;
+    font-style: italic;
+    font-weight: bold;
+}
+
+#messages {
+    background: rgba(19, 35, 47, 0.9);
+    max-width: 80%;
+    margin: 3% auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px 4px rgba(19, 35, 47, 0.3);
+}
+

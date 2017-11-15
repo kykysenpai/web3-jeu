@@ -42,35 +42,42 @@ app.get('/', function(req, res) {
 });
 
 app.get('/verifyLoggedIn', function(req,res){
-	if(req.body.token!=null){
-		res.status(200);
-		res.send("CONNECTED");
+	if(req.query.token!=undefined){
+		res.status(200).send();
 	}else{
-		res.status(401);
-		res.send("NEW");
+		res.status(401).send();
+	}
+});
+
+app.get('/deconnecter', function(req,res){
+	if(req.query.token!=null){
+		res.status(200).send();
+	}else{
+		res.status(202).send();
 	}
 });
 
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
-	console.log("req:" + req.body.login);
 	//promesse
-	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(resp){
-		console.log("response of connectPlayer in index.js " + resp + "type of : " + typeof(resp));
-		if(resp){
-			const payload = { user:req.body.login };
-			var timeout = 1440 // expires in 24 hours
-			var token = jwt.sign(payload, app.get('superSecret'), { expiresInMinutes: timeout });
-			console.log("Connexion succeded");
-			res.json({status: 200, "token": token, "authName" : req.body.login});
-			res.send("OK");
-		}else{
-			console.log("Connexion failed");
-			res.json({status: 400});
-		}
+	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(succes){
+		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
+		//player ready to connect
+		const payload = { user:req.body.login };
+		var timeout = 1440 // expires in 24 hours
+		var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
+
+		console.log("Connexion succeded");
+		res.status(200).send({"token": token, "authName" : req.body.login});
+
+	},function(erreur){
+		//error occured
+		console.log("Connexion failed");
+		res.status(400).send({"err" : erreur.message});
+		
 	}).catch(function(err){
-		res.status(400);
-		res.send("KO");
+		console.log("Catched : " + err.message);
+		res.status(406).send();
 	});
 });
 
@@ -88,6 +95,7 @@ app.post('/sInscrire',(req,res) => {
 			res.send("KO");
 		}
 	}).catch(function(err){
+		console.log("Catched");
 		res.status(400);
 		res.send("KO");
 	});

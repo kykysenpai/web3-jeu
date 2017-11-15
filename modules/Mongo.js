@@ -64,37 +64,35 @@ exports.Mongo.prototype = {
             })
         }
     },
-    connectPlayer: function(login,password, callback){
-        console.log("Mongo.js / mongo proto / IN FUNCTION CONNECT");
+    connectPlayer: function(login,password){
         if(connectedDB){
-            var p = new Player({login:login, password : password});
-                     
-            //promise answer
-            return new Promise(function(resolve, reject) {   
+            return new Promise(function(resolve, reject) {  
                 //Check si le login name est present et si oui recupere le player correspondant
-                var gotPlayer = false;
-                Player.findOne({"login" : login}).exec(function (err,player) {
+                Player.findOne({"login" : login},function (err,player) {
                     if (err) {
-                        return reject(err);
-                    } else if (!player) {
-                        var err = new Error("Player not found.");
-                        gotPlayer = false;
-                        err.status = 400;
-                        return reject(false);
-                    }
-                    gotPlayer = true;
-                    //compare
-                    bcrypt.compare(p.password, player.password, function(err, res) {
-                        if (res) {
-                            console.log("Mongo.js / mongo proto / bon mdp");
-                            return resolve(true);
-                        } else {
-                            console.log("Mongo.js / mongo proto / pas bon mdp");
-                            return reject(false);
-                        }
-                    });  
+                        reject(new Error("Erreur findOne"));
+                    } else if (player==null) {
+                        reject(new Error("Not found"));
+                    }else{
+                        //compare
+                        console.log("player password findOne : " + player.password);
+                        bcrypt.compare(password, player.password, function(err, res) {
+                            if (res) {
+                                console.log("Mongo.js / bon mdp");
+                                resolve("Found");
+                            } else {
+                                console.log("Mongo.js / pas bon mdp");
+                                reject(new Error("MDP"));
+                            }
+                        }); 
+                    } 
                 });
             })
+        }else{
+            return new Promise(function(resolve,reject){
+                reject(new Error("Database is not accessible."));
+            }
+            );
         }
     },
 };

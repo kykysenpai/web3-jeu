@@ -31,50 +31,16 @@ a:hover {
   color: #179b77;
 }
 
-.form {
+p{
+  color: white;
+}
+
+#containerPrincipal {
   background: rgba(19, 35, 47, 0.9);
-  padding: 40px;
-  max-width: 600px;
-  margin: 40px auto;
+  max-width: 80%;
+  margin: 3% auto;
   border-radius: 4px;
   box-shadow: 0 4px 10px 4px rgba(19, 35, 47, 0.3);
-}
-
-.tab-group {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 40px 0;
-}
-.tab-group:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-.tab-group li a {
-  display: block;
-  text-decoration: none;
-  padding: 15px;
-  background: rgba(160, 179, 176, 0.25);
-  color: #a0b3b0;
-  font-size: 20px;
-  float: left;
-  width: 50%;
-  text-align: center;
-  cursor: pointer;
-  -webkit-transition: .5s ease;
-  transition: .5s ease;
-}
-.tab-group li a:hover {
-  background: #179b77;
-  color: #ffffff;
-}
-.tab-group .active a {
-  background: #1ab188;
-  color: #ffffff;
-}
-
-.tab-content > div:last-child {
-  display: none;
 }
 
 h1 {
@@ -139,30 +105,11 @@ textarea {
   resize: vertical;
 }
 
-.field-wrap {
-  position: relative;
-  margin-bottom: 40px;
-}
-
-.top-row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-.top-row > div {
-  float: left;
-  width: 48%;
-  margin-right: 4%;
-}
-.top-row > div:last-child {
-  margin: 0;
-}
-
 .button {
   border: 0;
   outline: none;
   border-radius: 0;
-  padding: 15px 0;
+  padding: 3% 3%;
   font-size: 2rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -178,28 +125,11 @@ textarea {
 }
 
 .button-block {
+  position: relative;
   display: block;
   width: 100%;
 }
 
-.forgot {
-  margin-top: -20px;
-  text-align: right;
-}
-
-#accueil {
-  background: rgba(19, 35, 47, 0.9);
-  padding: 40px;
-  max-width: 600px;
-  margin: 40px auto;
-  border-radius: 4px;
-  box-shadow: 0 4px 10px 4px rgba(19, 35, 47, 0.3);
-}
-
-#accueil img {
-  max-width: 100%;
-  height: auto;
-  padding-bottom: 10px;
-  position: absolute;
-  top: 25%;
+#gameDiv{
+  padding-left: 0;
 }

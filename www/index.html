@@ -8,78 +8,106 @@
   <link href="css/OPCSS.css" rel="stylesheet">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/menubar.css">
+  <link rel="stylesheet" href="css/formulaires.css">
+  <link rel="stylesheet" href="css/accueil.css">
+  <link rel="stylesheet" href="css/choix.css">
+  <link rel="stylesheet" href="css/messages.css">
   <title>Pacman</title>
 </head>
 
 <body>
-  <div id="accueil">
-      <img src="images/pacman.png" alt="loadingPacman"/>
-      <div class="button button-block" id="loading">Entrer</div>
-  </div>
-  <div id="formulaires" style="display:none;">
-    <div class="form">
-      <img src="images/pacman.png" alt="pacman" id="pacman"/>
-      <ul class="tab-group">
-        <li class="tab active"><a href="#signup">Inscription</a></li>
-        <li class="tab"><a href="#login">Connexion</a></li>
+  <div id="menubar">
+    <div id="floatright">
+      <ul>
+        <li id="gotostats"><p>Mes infos</p></li>
+        <li id="deconnexion"><p>Logout</p></li>
       </ul>
-        
-      <div class="tab-content">
-        <div id="signup">   
-          <h1>Prêt à jouer? Inscris toi !</h1>
-          <div id="messageInscription"></div>
-          <div id="form">
-
-            <div class="field-wrap">
-              <label>Pseudo<span class="req">*</span></label>
-              <input type="text" required autocomplete="off" id="pseudoInscription"/>
-            </div>
-            
-            <div class="field-wrap">
-              <label>Mot de passe<span class="req">*</span></label>
-              <input type="password"required autocomplete="off" id="mdpInscription"/>
-            </div>
-            
-            <button type="submit" class="button button-block" id="sInscrire"/>C'est parti!</button>
-            
-          </div>
-        </div>
-          
-        <div id="login">   
-        <h1>On joue?</h1>
-        <div id="messageLogin"></div>
-          <div id="form">
-            <div class="field-wrap">
-              <label>Pseudo<span class="req">*</span></label>
-              <input type="text"required autocomplete="off" id="pseudoConnexion"/>
-            </div>
-          
-            <div class="field-wrap">
-              <label>Mot de passe<span class="req">*</span></label>
-              <input type="password"required autocomplete="off" id="mdpConnexion"/>
-            </div>
-          
-            <p class="forgot"><a href="#">Mot de passe oublié?</a></p>
-            <button class="button button-block" id="seConnecter"/>Se connecter</button>  
-          </div>
-        </div><!--div login-->  
-      </div><!-- tab-content -->   
-    </div> <!-- /form -->
-  </div><!--/formulaires-->
-
-  <div id="choix" style="display:none;">
-    <p>Bienvenue <p class="authName"></p></p>
-  </div><!--/choix-->
-  
-  <div id="jeu" style="display:none;">
-    <div class="container">
-      <div class="col-md-2" id="left_pannel"></div>
-      <div class="col-md-8" id="gameDiv" style="height : 600px;"></div>
-      <div class="col-md-2" id="right_pannel"></div>
     </div>
-  </div><!--/jeu-->
+  </div>
+  <div id="messages">
+  </div>
+  <div id=containerPrincipal>
+      <div id="accueil">
+          <img src="images/pacman.png" alt="loadingPacman"/>
+          <div class="button button-block" id="loading">Entrer</div>
+      </div>
 
+      <div id="formulaires">
+          <img src="images/pacman.png" alt="pacman" id="pacman"/>
+          <ul class="tab-group">
+            <li class="tab active"><a href="#signup">Inscription</a></li>
+            <li class="tab"><a href="#login">Connexion</a></li>
+          </ul>
+            
+          <div class="tab-content">
+            <div id="signup">   
+              <h1>Prêt à jouer? Inscris toi !</h1>
+              <div id="messageInscription"></div>
+              <div id="form">
+
+                <div class="field-wrap">
+                  <label>Pseudo<span class="req">*</span></label>
+                  <input type="text" required autocomplete="off" id="pseudoInscription"/>
+                </div>
+                
+                <div class="field-wrap">
+                  <label>Mot de passe<span class="req">*</span></label>
+                  <input type="password"required autocomplete="off" id="mdpInscription"/>
+                </div>
+                <button type="submit" class="button button-block" id="sInscrire"/>C'est parti!</button>
+              </div>
+            </div>
+              
+            <div id="login">   
+            <h1>On joue?</h1>
+              <div id="form">
+                <div class="field-wrap">
+                  <label>Pseudo<span class="req">*</span></label>
+                  <input type="text"required autocomplete="off" id="pseudoConnexion"/>
+                </div>
+              
+                <div class="field-wrap">
+                  <label>Mot de passe<span class="req">*</span></label>
+                  <input type="password"required autocomplete="off" id="mdpConnexion"/>
+                </div>
+                <div id="remember">
+                    <input type="checkbox" name="remember" value="remember">
+                    <label for="remember"><p>Se souvenir de moi.</p></label>    
+                </div>
+              <button class="button button-block" id="seConnecter"/>Se connecter</button>  
+              </div>
+            </div><!--div login-->  
+          </div><!-- tab-content -->   
+      </div><!--/formulaires-->
+
+      <div id="choix">
+        <h2>Mes infos</h2>
+        <p class="labels">Meilleur score Pacman : </p><p class="statsvalues"></p>
+        <p class="labels">Meilleur score Ghost : </p><p class="statsvalues"></p>
+        <p class="labels">Nombre de parties jouées : </p><p class="statsvalues"></p>
+        <p class="labels">Nombre de parties gagnées: </p><p class="statsvalues"></p>
+        <p class="labels">Nombre de parties perdues : </p><p class="statsvalues"></p>
+        
+        <p class="labels">Skin Pacman courant  : </p><p class="statsvalues"></p>
+        <p>Sélectionnez un skin disponible pour changer l'actuel</p>
+        <p id="skinsPacman"></p>
+        <p class="labels">Skin Ghost courant : </p><p class="statsvalues"></p>
+        <p>Sélectionnez un skin disponible pour changer l'actuel</p>
+        <p id="skinsGhost"></p>
+
+        <button type="submit" class="button button-block" id="jouer"/>Jouer</button>
+      </div><!--/choix-->
+      
+      <div id="jeu">
+        <div class="container">
+          <div class="col-md-2" id="left_pannel"></div>
+          <div class="col-md-8" id="gameDiv" style="height : 600px;"></div>
+          <div class="col-md-2" id="right_pannel"></div>
+        </div>
+      </div><!--/jeu-->
+</div>
   <!-- libraries -->
   <script src="js/jquery-3.2.1.min.js"></script>
 
@@ -98,6 +126,7 @@
 
   <script src="js/jquery-3.2.1.min.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/disconnect.js"></script>
   <script src="js/welcome.js"></script>
   <script src="js/login.js"></script>
   <script src="js/formulaire.js"></script>

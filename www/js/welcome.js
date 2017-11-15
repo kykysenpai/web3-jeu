@@ -2,26 +2,27 @@
 
 $(function(){
     $('#loading').on('click',function(e){
-        console.log("welcome.js -> on clic auto");
+        console.log("welcome.js -> on clic accueil");
         $.ajax({
           url:'/verifyLoggedIn',
           type:'GET',
-          dataType: "json",
           data:{
             token : localStorage.getItem("token")
           },
           success:function(response){
             //localsession found
-            console.log("session " + response.status);
+            console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            /*$("deconnexion").show();
+            $("deconnexion").css("display","block");
             $("#accueil").hide();
             $("#choix").show();
-            $("#authName").html(localStorage.getItem("authName"));
+          */
           },
           error:function(response){
             //localsession not found
-            console.log("no session " + response.status);
-            $("#accueil").hide();
-            $("#formulaires").show();            
+            console.log("No active session");
+            /*$("#accueil").hide();
+            $("#formulaires").show();*/            
           }
         });
       });
