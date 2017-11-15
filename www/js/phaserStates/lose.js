@@ -1,7 +1,7 @@
 var lose = {
 	create: function() {
 		lobbySocket = io('/lobbySocket');
-		this.gameStateLabel = game.add.text(80, 80, 'Game lost !', {
+		this.gameStateLabel = game.add.text(40, 40, 'Game lost !', {
 			font: '60px Arial',
 			fill: '#ffffff'
 		});

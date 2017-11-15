@@ -1,7 +1,7 @@
 var win = {
 	create: function() {
 		lobbySocket = io('/lobbySocket');
-		this.gameStateLabel = game.add.text(80, 80, 'Game won !', {
+		this.gameStateLabel = game.add.text(40, 40, 'Game won !', {
 			font: '60px Arial',
 			fill: '#ffffff'
 		});

@@ -4,7 +4,7 @@ var selectPlayer = {
 		game.load.image('blankThumb', 'assets/blankImage.png');
 	},
 	create: function() {
-		var startThumb = game.add.image((game.width / 3) * 2, game.height - 80, 'blankThumb');
+		var startThumb = game.add.image(260, 320, 'blankThumb');
 		var startThumbText = game.add.text(0, 0, 'Start', {
 			font: "24px Atiat",
 			fill: "#000000"
@@ -15,17 +15,17 @@ var selectPlayer = {
 			game.state.start('lobby');
 		}, this);
 
-		game.add.text(20, game.width / 3, 'Team : ', {
+		game.add.text(20, 260, 'Team : ', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
 
-		game.add.text(20, (game.width / 3) * 2, 'Skin : ', {
+		game.add.text(20, 260, 'Skin : ', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
 
-		var team1 = game.add.image(game.width / 3, game.height / 3, 'blankThumb');
+		var team1 = game.add.image(130, 130, 'blankThumb');
 		team1.team = TEAM_PACMAN;
 		var teamText = game.add.text(0, 0, 'Pacman', {
 			font: "24px Atiat",
@@ -37,7 +37,7 @@ var selectPlayer = {
 			playerInfos.team = clickedTeam.team;
 		}, this);
 
-		var team2 = game.add.image((game.width / 3) * 2, game.height / 3, 'blankThumb');
+		var team2 = game.add.image(260, 130, 'blankThumb');
 		team2.team = TEAM_GHOST;
 		var teamText = game.add.text(0, 0, 'Ghost', {
 			font: "24px Atiat",
@@ -49,7 +49,7 @@ var selectPlayer = {
 			playerInfos.team = clickedTeam.team;
 		}, this);
 
-		var thumb = game.add.image(game.width / 2, game.height - (game.height / 3), 'pacman');
+		var thumb = game.add.image(200, 270, 'pacman');
 		thumb.skin = 'pacman';
 		thumb.inputEnabled = true;
 		thumb.events.onInputDown.add(function(clickedImage) {

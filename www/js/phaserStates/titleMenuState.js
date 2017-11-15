@@ -22,8 +22,9 @@ var titleMenuState = {
 		});
 
 		var j = 1;
-		for (var i = 0; i < 3; i++) {
-			var thumb = game.add.image((game.width / 3) * i + 20, game.height / 2, 'levelThumb');
+		var nbGame = 2;
+		for (var i = 0; i < nbGame; i++) {
+			var thumb = game.add.image((400 / nbGame) * i + 20, 200, 'levelThumb');
 			thumb.levelNumber = j++;
 			var levelText = game.add.text(0, 0, thumb.levelNumber, {
 				font: "24px Atiat",
@@ -36,7 +37,7 @@ var titleMenuState = {
 				game.state.start('selectPlayer');
 			}, this);
 		}
-		var startLabel = game.add.text(80, game.world.height - 80, '1: default \n 2: Map random', {
+		var startLabel = game.add.text(80, 320, '1: default \n 2: Map random', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
