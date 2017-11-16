@@ -1,2 +1,3 @@
 //init global variable socket
-var socket = io();
+var socket;
+var lobbySocket;

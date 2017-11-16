@@ -18,7 +18,20 @@
   },
   "homepage": "https://gitlab.com/SebbyBE/web3-jeu#README",
   "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "jquery": "^3.2.1",
+    "jsonwebtoken": "^8.1.0",
+    "lodash": "^4.17.4",
+    "mongodb": "^2.2.33",
+    "mongoose": "^4.10.8",
+    "newrelic": "^2.3.1",
+    "object-assign": "^4.1.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^3.0.1",
+    "path": "^0.12.7",
+    "serve-favicon": "^2.4.5",
     "socket.io": "^2.0.3",
     "uuid": "^3.1.0"
   }

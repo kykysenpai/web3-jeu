@@ -1,0 +1,17 @@
+.labels .statsvalues {
+    margin-left: 0;
+}
+
+.label{
+    font-size: 100%;
+    width: 10em;
+}
+
+.skin-defaut{
+    padding: 0 5%;
+    height: 4.5em;
+}
+
+.skins-gallery{
+    height: 3em;
+}
