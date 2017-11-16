@@ -25,11 +25,15 @@
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
     "mongodb": "^2.2.33",
+<<<<<<< HEAD
     "mongoose": "^4.10.8",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",
     "path": "^0.12.7",
     "serve-favicon": "^2.4.5",
+=======
+    "newrelic": "^2.3.1",
+>>>>>>> 4f733fbecb17d3d8455326f0621c603a8013c221
     "socket.io": "^2.0.3",
     "uuid": "^3.1.0"
   }

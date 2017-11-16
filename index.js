@@ -22,15 +22,36 @@ var options = {index: "./index.js"};
 //app.use('/', express.static('app', options));
 app.use(express.static(__dirname + '/www'))
 
-//imports pac man game related
-var Game = require('./modules/Game.js');
-var Player = require('./modules/Player.js');
-var Mongo = require('./modules/Mongo.js');
+require('./modules/MapGenerator.js');
 
-//class aliases
-var Game = Game.Game;
-var Player = Player.Player;
-var Mongo = Mongo.Mongo;
+app.set('port', process.env.PORT || 5000);
+server.listen(app.get('port'), function() {
+	console.log("Pacman is listening on port " + app.get('port'));
+});
+
+//imports pac man game modes
+var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
+var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
+
+var Player = require('./modules/Player.js').Player;
+var Mongo = require('./modules/Mongo.js').Mongo;
+
+//interval in milliseconds between information sending to clients
+var millisecondsBtwUpdates = 100;
+
+var https_redirect = function(req, res, next) {
+	if (process.env.NODE_ENV === 'production') {
+		if (req.headers['x-forwarded-proto'] != 'https') {
+			return res.redirect('https://' + req.headers.host + req.url);
+		} else {
+			return next();
+		}
+	} else {
+		return next();
+	}
+};
+
+app.use(https_redirect);
 
 var mongo = new Mongo();
 var game = new Game();
@@ -114,32 +135,51 @@ io.on('connection', function(socket) {
 		playerId: playerId
 	});
 
-	socket.on('users', function() {
-		socket.emit('users', {
-			//Sending playerId so he doesn't add himself to the game
-			playerId: socket.player.playerId,
-			players: game.players
-		});
-	});
 
-	//on disconnection from websocket the player is removed from the game
-	socket.on('disconnect', function() {
-		game.removePlayer(socket.player.playerId);
-		io.emit('disconnectedUser', {
-			playerId: socket.player.playerId
-		});
-	});
-
-	//got position update from a socket
-	socket.on('positionUpdate', function(data) {
-		game.setPosition(socket.player.playerId, data);
-		//broadcasts information to everyone except itself
-		data.playerId = socket.player.playerId;
-		socket.broadcast.emit('positionUpdate', data);
-	});
+app.get('/lobby', function(req, res) {
+	res.send("Lobby goes here");
 });
 
-app.set('port', process.env.PORT || 5000);
-server.listen(app.get('port'), function() {
-	console.log("Pacman is listening on port " + app.get('port'));
+app.get('/game', function(req, res) {
+	res.send("Game hoes here");
+});
+
+//instanciate all game modes rooms
+var defaultPacman = new DefaultPacman(updateLobby);
+var randomMapPacman = new RandomMapPacman(updateLobby);
+
+//intialisation of the sockets of all rooms
+defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, Player);
+/*
+//force secure connection with the client
+app.use(function(req, res, next) {
+	if(!req.secure) {
+	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	next();
+});
+*/
+
+function updateLobby(data) {
+	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
+}
+
+io.of('/lobbySocket').on('connection', function(socket) {
+	socket.on('joinLobby', function(chosenGameMode) {
+		console.log('A socket joined the gamemode ' + chosenGameMode + ' lobby room');
+		switch (chosenGameMode) {
+			case 1:
+				socket.join('defaultPacmanRoom');
+				break;
+			case 2:
+				socket.join('randomMapPacmanRoom');
+				break;
+			case 3:
+				console.log('pas encore de jeu ici');
+				break;
+			default:
+				console.log('erreur n* level');
+		}
+	});
 });

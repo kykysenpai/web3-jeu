@@ -1,15 +1,12 @@
-exports.Player = function(playerId) {
-	this.playerId = playerId;
-	this.name = null;
-	this.x = null;
-	this.y = null;
+exports.Player = function(data) {
+	this.playerId = data.playerId;
+	this.x = data.x;
+	this.y = data.y;
+	this.dir = data.dir;
+	this.team = data.team;
+	this.skin = data.skin;
+	this.isAlive = true;
 };
 exports.Player.prototype = {
-	movement: function(x, y) {
-		this.x = x;
-		this.y = y;
-	},
-	setName: function(name) {
-		this.name = name;
-	}
+
 };
