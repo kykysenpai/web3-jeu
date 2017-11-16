@@ -54,7 +54,7 @@ var https_redirect = function(req, res, next) {
 app.use(https_redirect);
 
 var mongo = new Mongo();
-var game = new Game();
+//var game = new Game();
 
 //--------------------------- Gestion des routes ------------------------------//
 
@@ -127,7 +127,7 @@ io.on('connection', function(socket) {
 	//adding a new Player on connection to a websocket
 	var playerId = uuid();
 	var player = new Player(playerId);
-	game.addPlayer(player);
+	//game.addPlayer(player);
 	socket.player = {
 		playerId: playerId
 	}
