@@ -134,6 +134,7 @@ io.on('connection', function(socket) {
 	socket.broadcast.emit('user', {
 		playerId: playerId
 	});
+});
 
 
 app.get('/lobby', function(req, res) {
@@ -180,6 +181,6 @@ io.of('/lobbySocket').on('connection', function(socket) {
 				break;
 			default:
 				console.log('erreur n* level');
-		}
+		};
 	});
 });
