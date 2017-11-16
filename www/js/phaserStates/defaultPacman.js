@@ -55,6 +55,8 @@ var defaultPacman = {
 		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
+
+		this.game.disableVisibilityChange = true;
 	},
 	/*
 	 * Var initialisation of in game items
