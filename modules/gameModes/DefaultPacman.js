@@ -59,6 +59,7 @@ exports.DefaultPacman.prototype = {
 			var thisContext = this;
 			this.startGameId = setTimeout(function() {
 				thisContext.emitLobby('startGame', null);
+				console.log("start game");
 				thisContext.state = 'Game in progress';
 				thisContext.isRunning = true;
 			}, 10000);
@@ -197,7 +198,6 @@ exports.DefaultPacman.prototype = {
 
 			//on disconnection from websocket the player is removed from the game
 			socket.on('disconnect', function() {
-				console.log('a player socket disconnected');
 				game.removePlayer(socket.player.playerId);
 				game.checkTeams(io);
 				io.emit('disconnectedUser', {
@@ -215,6 +215,7 @@ exports.DefaultPacman.prototype = {
 				//broadcasts information to everyone except itself
 				data.playerId = socket.player.playerId;
 				//socket.broadcast.emit('positionUpdate', data);
+				console.log("position update done");
 			});
 		});
 
