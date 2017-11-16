@@ -1,32 +1,8 @@
-#menubar {
-    top : 0;
-    background-color: #1ab188; 
-    width: 100%;
-    display: inline-block;
-    overflow: hidden;
-    padding: 1% 5%;
+.colorbar {
+    background-color: rgba(19, 35, 47, 0.9); 
+    border-color: rgba(19, 35, 47, 0.9);
 }
 
-#floatright{
-    float: right;
-    width: max-content;
-    text-align: right;
-}
-
-#menubar ul{
-    margin:0;
-    padding: 0;
-}
-
-#menubar li{
-    display: inline-block;
-    list-style-type:  none;
-    margin: 0;
-    padding: 0; 
-}
-
-#menubar p {
-    padding: 0 10%;
-    display: inline-block;
-    text-align: center;
+.navbar-inverse .navbar-brand{
+    color: #1ab188;;
 }
