@@ -325,5 +325,5 @@ map.layers[0].width = width;
 
 var json = JSON.stringify(map);
 //console.log("end");
-fs.writeFileSync('./www/assets/random-map.json', json, 'utf8');
+fs.writeFileSync(__dirname + '/../www/assets/random-map.json', json, 'utf8');
 console.log("random-map file written");
