@@ -266,7 +266,7 @@ var defaultPacman = {
 	},
 	//instanciate a dot
 	createDot: function(data) {
-		var newDot = this.add.sprite(data.x, data.y, 'dot');
+		var newDot = this.dots.create(data.x, data.y, 'dot');
 		if (!data.isAlive) {
 			newDot.visible = false;
 		}
@@ -412,6 +412,9 @@ var defaultPacman = {
 			game.state.start('lose');
 		}
 	},
+	eatDot: function(pacman, dot) {
+		dot.visible = false;
+	},
 	/*
 	 * Called at each frame
 	 */
@@ -420,7 +423,9 @@ var defaultPacman = {
 		this.physics.arcade.collide(this.pacman, this.layer);
 
 		//géré dans le serveur
-		//this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.enemies, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.allies, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 
 		//collision entre les pacmans et le décor
 		this.physics.arcade.collide(this.enemies, this.layer);
@@ -461,8 +466,6 @@ function defaultPacmanSockets() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
-		var time = new Date();
-		console.log(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' received initial informations dots, players');
 		game.state.callbackContext.playerId = data.playerId;
 		for (var player in data.players) {
 			if (player === data.playerId) {

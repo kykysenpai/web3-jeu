@@ -13,18 +13,27 @@ var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 //gestion des sessions
 var jwt = require('jsonwebtoken');
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook').Strategy;
+var config = require('./modules/oAuth.js');
 
 var enforce = require('express-sslify');
 
-if(process.env.NODE_ENV === 'production'){
-	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+if (process.env.NODE_ENV === 'production') {
+	app.use(enforce.HTTPS({
+		trustProtoHeader: true
+	}));
 }
 
-app.use(bodyParser.json()); 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
 
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
-var options = {index: "./index.js"};
+var options = {
+	index: "./index.js"
+};
 //app.use('/', express.static('app', options));
 app.use(express.static(__dirname + '/www'))
 
@@ -44,6 +53,7 @@ var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
 var millisecondsBtwUpdates = 25;
+var millisecondsBtwUpdatesDots = 1000;
 
 var mongo = new Mongo();
 //var game = new Game();
@@ -54,65 +64,129 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-app.get('/verifyLoggedIn', function(req,res){
-	if(req.query.token!=undefined){
+app.get('/verifyLoggedIn', function(req, res) {
+	if (req.query.token != undefined) {
 		res.status(200).send();
-	}else{
+	} else {
 		res.status(401).send();
 	}
 });
 
-app.get('/deconnecter', function(req,res){
-	if(req.query.token!=null){
+app.get('/deconnecter', function(req, res) {
+	if (req.query.token != null) {
 		res.status(200).send();
-	}else{
+	} else {
 		res.status(202).send();
 	}
 });
 
-app.post('/seConnecter',(req,res) => {
+app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
 	//promesse
-	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(succes){
+	mongo.connectPlayer(req.body.login, req.body.mdp).then(function(succes) {
 		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
 		//player ready to connect
-		const payload = { user:req.body.login };
+		const payload = {
+			user: req.body.login
+		};
 		var timeout = 1440 // expires in 24 hours
-		var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
+		var token = jwt.sign(payload, "secretpacman", {
+			expiresIn: '24h'
+		});
 
 		console.log("Connexion succeded");
-		res.status(200).send({"token": token, "authName" : req.body.login});
+		res.status(200).send({
+			"token": token,
+			"authName": req.body.login
+		});
 
-	},function(erreur){
+	}, function(erreur) {
 		//error occured
 		console.log("Connexion failed");
-		res.status(400).send({"err" : erreur.message});
-		
-	}).catch(function(err){
+		res.status(400).send({
+			"err": erreur.message
+		});
+
+	}).catch(function(err) {
 		console.log("Catched : " + err.message);
 		res.status(406).send();
 	});
 });
 
-app.post('/sInscrire',(req,res) => {
+app.post('/sInscrire', (req, res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	mongo.insertPlayer(req.body.login,req.body.mdp).then(function(resp){
-		if(resp){
+	mongo.insertPlayer(req.body.login, req.body.mdp).then(function(resp) {
+		if (resp) {
 			console.log("Inscription succeded");
 			res.status(201);
 			res.send("OK");
-		}else{
+		} else {
 			console.log("Inscription failed");
 			res.status(400);
 			res.send("KO");
 		}
-	}).catch(function(err){
+	}).catch(function(err) {
 		console.log("Catched");
 		res.status(400);
 		res.send("KO");
 	});
 });
+
+//get facebook path
+app.get('/auth/facebook', passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+	passport.authenticate('facebook', {
+		successRedirect: '/',
+		failureRedirect: '/'
+	}));
+
+//facebookManaging
+passport.use(new FacebookStrategy({
+		clientID: config.facebook.clientID,
+		clientSecret: config.facebook.clientSecret,
+		callbackURL: config.facebook.callbackURL,
+		profileFields: ['id', 'emails', 'name', 'link']
+	},
+	function(token, refreshToken, profile, done) {
+		process.nextTick(function() {
+			console.log(profile);
+			var login = profile.id + "-" + profile.name.givenName;
+			var mdp = profile.id;
+			console.log("NEXTTICK");
+			console.log("login fcbk : " + login);
+			console.log("mdp fcbk : " + mdp);
+			mongo.insertPlayer(login, mdp).then(function(resp) {
+				if (resp) {
+					console.log("Inscription succeded");
+					return done(null, login);
+				} else {
+					mongo.connectPlayer(login, mdp).then(function(response) {
+						console.log("CONNECT PLAYER IN INDEX.JS =>" + response);
+						if (response) {
+							//METTRE COoKIE;
+							console.log("CONNEXION SUCCEEDED");
+							return done(null, profile.id);
+						} else {
+							console.log("CONNEXION FAILED");
+							return done(err);
+						}
+					})
+				}
+			})
+		})
+	}
+));
+
+passport.serializeUser(function(user, done) {
+	done(null, user);
+});
+passport.deserializeUser(function(user, done) {
+	done(null, user);
+});
+
+//-------------------------Routes specifiques au Jeu---------------------------------//
 
 //socket managing
 io.on('connection', function(socket) {
@@ -142,8 +216,8 @@ var defaultPacman = new DefaultPacman(updateLobby);
 var randomMapPacman = new RandomMapPacman(updateLobby);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
-randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, Player);
+defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {

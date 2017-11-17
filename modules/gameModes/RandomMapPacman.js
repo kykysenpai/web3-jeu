@@ -161,7 +161,7 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
+	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;
@@ -232,6 +232,14 @@ exports.RandomMapPacman.prototype = {
 				scores: game.scores,
 				dots: game.mapDots
 			});
+		}, millisecondsBtwUpdatesDots);
+
+		setInterval(function() {
+			io.emit('gameUpdate', {
+				players: game.players,
+				scores: game.scores,
+				dots: {} //game.mapDots
+			});
 			game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
@@ -253,9 +261,6 @@ exports.RandomMapPacman.prototype = {
 
 		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
 		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
-
-		//player.x = ((Math.floor(player.x / 8)) * 8);
-		//player.y = ((Math.floor(player.y / 8)) * 8);
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
