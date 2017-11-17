@@ -9,7 +9,8 @@ exports.DefaultPacman = function(updateLobby) {
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
-	//spawn postitions of team pacman and ghost
+
+	//spawn postitions of team pacman and ghost on default map
 	this.spawnPos = [{
 		x: 24,
 		y: 232
@@ -28,27 +29,30 @@ exports.DefaultPacman = function(updateLobby) {
 
 	this.updateLobby = updateLobby;
 	this.startGameId;
+
+	//is the game running or waiting for players
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
 	var map = require('../../www/assets/pacman-map.json');
 
-	//this.mapDots = [];
 	this.mapDots = {};
-	//chopper les dots
+
+	//fetch dots
 	var height = map.height;
 	var width = map.width;
 	for (var i = 1; i < height - 1; i++) {
 		for (var j = 1; j < width - 1; j++) {
 			tile = map.layers[0].data[i * width + j];
 			if (tile === 7) {
-				//this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
 				this.mapDots[[j * 16 + 8, i * 16 + 8]] = new Dot(j * 16 + 8, i * 16 + 8);
 			}
 		}
 	}
 };
+
 exports.DefaultPacman.prototype = {
+	//add a player to the active game
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
 		console.log("a new player connected to the game DefaultPacman");
@@ -66,12 +70,14 @@ exports.DefaultPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
+	//add a player to the waiting room for the next game
 	addToWaitingRoom: function(player) {
 		this.waitingRoom[player.playerId] = player;
 		console.log("a new player was added to the game DefaultPacman\'s waiting room");
 		this.nPlayerWaitingRoom++;
 		this.emitUpdateLobby();
 	},
+	//send custom infos to the lobby websocket
 	emitLobby: function(event, data) {
 		this.updateLobby({
 			room: 'defaultPacmanRoom',
@@ -79,6 +85,7 @@ exports.DefaultPacman.prototype = {
 			data: data
 		});
 	},
+	//send current lobby infos to the lobby websocket
 	emitUpdateLobby: function() {
 		this.updateLobby({
 			room: 'defaultPacmanRoom',
@@ -90,6 +97,7 @@ exports.DefaultPacman.prototype = {
 			}
 		});
 	},
+	//check if a team lost
 	checkTeams: function(io) {
 		if (!this.isRunning)
 			return;
@@ -101,6 +109,7 @@ exports.DefaultPacman.prototype = {
 			this.endGame(TEAM_GHOST, io);
 		}
 	},
+	//hard remove a player from current game
 	removePlayer: function(playerId) {
 		if (this.players[playerId]) {
 			console.log(this.players[playerId].name + ' was removed' +
@@ -118,7 +127,7 @@ exports.DefaultPacman.prototype = {
 			this.nPlayerWaitingRoom--;
 			delete this.waitingRoom[playerId];
 		} else {
-			console.log("DISGUSTANG");
+			console.log("removed a player that was nor in the active players nor in the waiting room");
 			return;
 		}
 		if (!this.isRunning && (this.nPlayerTeam[TEAM_GHOST] < this.reqPlayer || this.nPlayerTeam[TEAM_PACMAN] < this.reqPlayer)) {
@@ -180,17 +189,12 @@ exports.DefaultPacman.prototype = {
 					game.addToWaitingRoom(player);
 					console.log('added a new player to the defaultPacman\'s waitingRoom');
 				}
-				console.log(game.spawnPos[data.team]);
 				socket.emit('initSpawn', game.spawnPos[data.team]);
 				game.emitUpdateLobby();
-				//envoie des infos du socket connectant a tout le monde
-				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
 			});
 
 			//envoie des joueurs déja présent au socket demandant
 			socket.on('gameStarted', function() {
-				var time = new Date();
-				console.log(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' received initial informations dots, players');
 				socket.emit('users', {
 					playerId: socket.player.playerId,
 					players: game.players,
@@ -214,12 +218,16 @@ exports.DefaultPacman.prototype = {
 					return; //return to avoid sending useless informations to clients
 				}
 				game.setPosition(socket.player.playerId, data, io);
+
 				//broadcasts information to everyone except itself
 				data.playerId = socket.player.playerId;
-				//socket.broadcast.emit('positionUpdate', data);
 
 			});
 		});
+
+		setInterval(function() {
+			game.repawnDots();
+		}, 30000);
 
 		setInterval(function() {
 			io.emit('gameUpdate', {
@@ -227,7 +235,7 @@ exports.DefaultPacman.prototype = {
 				scores: game.scores,
 				dots: game.mapDots
 			});
-			game.dotsLifeSpan();
+			//game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
 	},
@@ -245,12 +253,8 @@ exports.DefaultPacman.prototype = {
 	},
 	setPosition: function(playerId, player, io) {
 
-
 		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
 		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
-
-		//player.x = ((Math.floor(player.x / 8)) * 8);
-		//player.y = ((Math.floor(player.y / 8)) * 8);
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
@@ -265,25 +269,7 @@ exports.DefaultPacman.prototype = {
 				this.mapDots[[player.x, player.y]].timeUntilAlive = this.respawnTime;
 			}
 		}
-		/*
-		//collision with a dot
-		for (var dotsIter in this.mapDots) {
-			if (!this.mapDots[dotsIter].isAlive) {
-				continue;
-			}
-			if ((xDif = this.mapDots[dotsIter].x - player.x) > -16 &&
-				xDif < 16) {
-				if ((yDif = this.mapDots[dotsIter].y - player.y) > -16 &&
-					yDif < 16) {
-					if (this.mapDots[dotsIter].isAlive) {
-						this.incScore(playerId);
-					}
-					this.mapDots[dotsIter].isAlive = false;
-					this.mapDots[dotsIter].timeUntilAlive = this.respawnTime;
-				}
-			}
-		}
-		*/
+
 		//collision between players
 		for (var playerIter in this.players) {
 			if (!this.players[playerIter].isAlive || playerIter === playerId) {
