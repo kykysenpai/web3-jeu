@@ -2,33 +2,32 @@
 
 $(function(){
     $('#seConnecter').on('click',function(e){
-        console.log("formulaire.js -> on clic SeConnecter");
-        var login = $('#pseudoConnexion').val();
+        var loginConnexion = $('#pseudoConnexion').val();
         var mdp = $('#mdpConnexion').val();
-        console.log("formulaire.js -> on clic value login : "+ login);        
-        console.log("formulaire.js -> on clic value mdp "+ mdp);
+        console.log("formulaire.js -> on clic value login : "+ login + " mdp "+ mdp);        
         
         $.ajax({
           url:'/seConnecter',
           type:'POST',
           dataType: "json",
           data:{
-            login:$('#pseudoConnexion').val(),
-            mdp:$('#mdpConnexion').val()
+            login:loginConnexion,
+            passwd:mdp
           },
           success:function(response){
             localStorage.setItem("authName", response.authName);
             localStorage.setItem("token", response.token);
             console.log("Contenu localStorage : " 
             + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            $("#messages").append("<p class='alert-success'>Vous êtes connecté!</p>").fadeIn("fast").fadeOut("slow");
             /*$("#deconnexion").show();
             $("#formulaires").hide();
             $("#choix").show();
           */
           },
           error:function(response){
-            console.log("Connexion error " + response.status);
-            $("#messages").append("<p class='error'>La connexion a échoué.</>").fadeIn("fast").fadeOut("slow");;
+            console.log("Connexion error " + response.status + " message : " + response.err);
+            $("#messages").append("<p class='alert-danger'>La connexion a échoué.</p>").fadeIn("fast").fadeOut("slow");;
           }
         });
       });
@@ -45,12 +44,12 @@ $(function(){
               mdp:$('#mdpInscription').val()
             },
           success:function(response){
-            console.log("success " + response.status);
-            $("#messages").append("<p class='success'>L'inscription a été prise en compte.</>");
+            console.log("success " + response.status + " " + response.message);
+            $("#messages").append("<p class='alert-success'>L'inscription a été prise en compte.</p>").fadeIn("fast").fadeOut("slow");
           },
           error:function(response){
-            console.log("success " + response.status);
-            $("#messages").append("<p class='success'>L'inscription a échoué.</>").fadeIn("fast").fadeOut("slow");
+            console.log("error " + response.status + " " + response.message);
+            $("#messages").append("<p class='alert-danger'>L'inscription a échoué.</p>").fadeIn("fast").fadeOut("slow");
           }          
         });
       });

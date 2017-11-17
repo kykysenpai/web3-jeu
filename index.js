@@ -75,45 +75,52 @@ app.get('/deconnecter', function(req,res){
 
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
-	//promesse
-	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(succes){
-		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
-		//player ready to connect
-		const payload = { user:req.body.login };
-		var timeout = 1440 // expires in 24 hours
-		var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
-
-		console.log("Connexion succeded");
-		res.status(200).send({"token": token, "authName" : req.body.login});
-
-	},function(erreur){
-		//error occured
-		console.log("Connexion failed");
-		res.status(400).send({"err" : erreur.message});
+	//find
+	mongo.findPlayer(req.body.login, function(playerAuth){
+		if(!playerAuth){
+			var err = new Error("Joueur inconnu, veuillez vous inscrire.");
+			res.status(400).send({"err" : err.message});
+		}else{
+			console.log("playerAuth before connect  " + playerAuth + "   "+ req.passwd);
+			mongo.connectPlayer(playerAuth,req.body.passwd, function(ok){
+				if(typeof(ok) === Error ){
+					res.status(400).send({"err" : ok.message});
+				}else if(!ok){
+					res.status(400).send({"err" : new Error("La connexion a échoué.").message});
+				}else{
+					console.log("response of connectPlayer in index.js " + ok);
+					//player ready to connect
+					const payload = { user:req.body.login };
+					var timeout = 1440 // expires in 24 hours
+					var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
 		
-	}).catch(function(err){
-		console.log("Catched : " + err.message);
-		res.status(406).send();
+					console.log("Connexion succeded");
+					res.status(200).send({"token": token, "authName" : req.body.login});
+				}
+			});
+		}
 	});
 });
 
 app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
-	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	mongo.insertPlayer(req.body.login,req.body.mdp).then(function(resp){
-		if(resp){
-			console.log("Inscription succeded");
-			res.status(201);
-			res.send("OK");
+
+	mongo.findPlayer(req.body.login, function(playerAuth){
+		if(playerAuth){
+			res.status(400).send({"err" : new Error("Ce login est deja présent, connectez vous, veuillez vous inscrire.").message});
 		}else{
-			console.log("Inscription failed");
-			res.status(400);
-			res.send("KO");
+			console.log("Before sign in  " + req.login + "   "+ req.passwd);
+			mongo.insertPlayer(req.body.login,req.body.mdp, function(ok){
+				if(typeof(ok) === Error ){
+					res.status(400).send({"err" : ok.message});
+				}else if(!ok){
+					res.status(400).send({"err" : new Error("Inscription failed").message});
+				}else{
+					console.log("Inscription succeded : " + ok);
+					res.status(201).res.send({"message" : "Inscription succeded"});
+				}
+			});
 		}
-	}).catch(function(err){
-		console.log("Catched");
-		res.status(400);
-		res.send("KO");
 	});
 });
 
@@ -158,9 +165,15 @@ function(token, refreshToken, profile, done) {
 						console.log("CONNEXION FAILED");
 						return done(err);
 					}
-				})
+				}).catch(function(err){
+					console.log("Catched : " + err.message);
+					res.status(406).send();
+				});
 			}
-		})
+		}).catch(function(err){
+			console.log("Catched : " + err.message);
+			res.status(406).send();
+		});
 	})
 }
 ));
