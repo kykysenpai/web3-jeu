@@ -17,6 +17,12 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
+var enforce = require('express-sslify');
+
+if(process.env.NODE_ENV === 'production'){
+	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
+
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -40,21 +46,7 @@ var Player = require('./modules/Player.js').Player;
 var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
-var millisecondsBtwUpdates = 100;
-
-var https_redirect = function(req, res, next) {
-	if (process.env.NODE_ENV === 'production') {
-		if (req.headers['x-forwarded-proto'] != 'https') {
-			return res.redirect('https://' + req.headers.host + req.url);
-		} else {
-			return next();
-		}
-	} else {
-		return next();
-	}
-};
-
-app.use(https_redirect);
+var millisecondsBtwUpdates = 25;
 
 var mongo = new Mongo();
 //var game = new Game();
