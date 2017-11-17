@@ -14,6 +14,7 @@ var theoreticalFps = 60;
 game.state.add('bootState', bootState);
 game.state.add('titleMenuState', titleMenuState);
 game.state.add('defaultPacman', defaultPacman);
+game.state.add('randomMapPacman', randomMapPacman);
 
 
 game.state.start('bootState');
