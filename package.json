@@ -30,6 +30,7 @@
     "mongoose": "^4.10.8",
     "object-assign": "^4.1.1",
     "passport": "^0.4.0",
+    "passport-facebook": "^2.1.1",
     "passport-jwt": "^3.0.1",
     "path": "^0.12.7",
     "serve-favicon": "^2.4.5",

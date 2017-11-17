@@ -13,6 +13,9 @@ var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
 //gestion des sessions
 var jwt = require('jsonwebtoken');
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook').Strategy;
+var config = require('./modules/oAuth.js');
 
 var enforce = require('express-sslify');
 
@@ -113,6 +116,63 @@ app.post('/sInscrire',(req,res) => {
 		res.send("KO");
 	});
 });
+
+//get facebook path
+app.get('/auth/facebook', passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', { 
+      successRedirect : '/', 
+      failureRedirect: '/' 
+}));
+
+//facebookManaging
+passport.use(new FacebookStrategy({
+	clientID        : config.facebook.clientID,
+	clientSecret    : config.facebook.clientSecret,
+	callbackURL     : config.facebook.callbackURL,
+	profileFields: ['id', 'emails', 'name','link']
+},
+function(token, refreshToken, profile, done) {
+	process.nextTick(function() {
+		console.log(profile);
+		var login = profile.id+"-"+profile.name.givenName;
+		var mdp = profile.id;
+		console.log("NEXTTICK");
+		console.log("login fcbk : " + login);
+		console.log("mdp fcbk : " + mdp);
+		mongo.insertPlayer(login,mdp).then(function(resp){
+			if(resp){
+				console.log("Inscription succeded");
+				return done(null, login);
+			}
+			else{
+				mongo.connectPlayer(login,mdp).then(function(response){
+					console.log("CONNECT PLAYER IN INDEX.JS =>" + response);
+					if(response){
+						//METTRE COoKIE;
+						console.log("CONNEXION SUCCEEDED");
+						return done(null, profile.id);
+					}
+					else{
+						console.log("CONNEXION FAILED");
+						return done(err);
+					}
+				})
+			}
+		})
+	})
+}
+));
+
+passport.serializeUser(function(user, done) {
+	done(null, user);
+});
+passport.deserializeUser(function(user, done) {
+	done(null, user);
+});
+
+//-------------------------Routes specifiques au Jeu---------------------------------//
 
 //socket managing
 io.on('connection', function(socket) {
