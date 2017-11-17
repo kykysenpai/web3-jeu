@@ -217,7 +217,7 @@ exports.DefaultPacman.prototype = {
 				//broadcasts information to everyone except itself
 				data.playerId = socket.player.playerId;
 				//socket.broadcast.emit('positionUpdate', data);
-				console.log("position update done");
+
 			});
 		});
 
