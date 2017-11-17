@@ -1,17 +1,5 @@
 //var map = "assets/pacman-map.json";
 var showDebug = false;
-var randTeam = Math.floor(Math.random() * 2) + 1;
-alert("Vous êtes dans la team : " + randTeam);
-
-var spawn1 = {
-	x: 24,
-	y: 24
-}
-
-var spawn2 = {
-	x: 24,
-	y: 24
-}
 
 var leftMobile = false;
 var rightMobile = false;
@@ -31,7 +19,7 @@ var defaultPacman = {
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
-		this.safetile = [7];
+		this.safetile = [7, 14];
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
@@ -67,13 +55,14 @@ var defaultPacman = {
 		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
+
+		this.game.disableVisibilityChange = true;
 	},
 	/*
 	 * Var initialisation of in game items
 	 */
 	create: function() {
-
-		socket = io('/defaultPacman');
+		//socket = io('/defaultPacman');
 
 		//mobile button var
 		var buttonLeft = null;
@@ -95,20 +84,21 @@ var defaultPacman = {
 			boundsAlignH: "center",
 			boundsAlignV: "top"
 		});
-		this.scoresDisplay.position.x = game.width / 2;
+		this.scoresDisplay.position.x = 200;
 		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
 		//this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
-		this.world.setBounds(0, 0, 1920, 1920);
+		//change bounds to actual map size to allow camera follow out of the 400x400 window created initially
+		this.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
 		this.dots.setAll('x', 6, false, false, 1);
 		this.dots.setAll('y', 6, false, false, 1);
 		//  Pacman should collide with everything except the safe tile
 		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
-		this.team = randTeam;
+		this.team = playerInfos.team;
 		this.createLocalPlayer({
-			skin: 'pacman'
+			skin: playerInfos.skin
 		});
 
 		//Enabling gamepad
@@ -237,15 +227,17 @@ var defaultPacman = {
 			}
 		}
 		this.skin = data.skin;
-		var xSpawn;
-		var ySpawn;
-		if (this.team === 1) {
-			xSpawn = spawn1.x;
-			ySpawn = spawn1.y;
-		} else if (this.team === 2) {
-			xSpawn = spawn2.x;
-			ySpawn = spawn2.y;
+		var xSpawn = playerInfos.x;
+		var ySpawn = playerInfos.y;
+		/*
+		if (this.team === TEAM_PACMAN) {
+			xSpawn = playerInfos.x;
+			ySpawn = playerInfos.y;
+		} else if (this.team === TEAM_GHOST) {
+			xSpawn = playerInfos.x;
+			ySpawn = playerInfos.y;
 		}
+		*/
 		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
 		this.pacman = this.add.sprite(xSpawn, ySpawn, data.skin, 0);
 		this.pacman.anchor.set(0.5);
@@ -391,14 +383,14 @@ var defaultPacman = {
 			x: this.pacman.x,
 			y: this.pacman.y,
 			dir: this.current
-		})
+		});
 	},
 	//kill local player
 	destroyPlayer: function() {
 		this.pacman.kill();
 		//closeDefaultPacmanSockets();
-		socket.close();
-		game.state.start('titleMenuState');
+		//socket.close();
+		//game.state.start('titleMenuState');
 	},
 	//kill not local player
 	killPlayer: function(data) {
@@ -410,6 +402,14 @@ var defaultPacman = {
 			delete this.enemies[data.playerId];
 		} else {
 			delete this.allies[data.playerId];
+		}
+	},
+	endGame: function(winner) {
+		socket.close();
+		if (this.team == winner) {
+			game.state.start('win');
+		} else {
+			game.state.start('lose');
 		}
 	},
 	/*
@@ -448,15 +448,6 @@ var defaultPacman = {
 	}
 }
 
-function closeDefaultPacmanSockets() {
-	socket.off('disconnectedUser');
-	socket.off('dotEated');
-	socket.off('users');
-	socket.off('user');
-	socket.off('dotInit');
-	socket.off('gameUpdate');
-}
-
 function defaultPacmanSockets() {
 
 	//Another player disconnected
@@ -464,8 +455,14 @@ function defaultPacmanSockets() {
 		game.state.callbackContext.killPlayer(data);
 	});
 
+	socket.on('endGame', function(winner) {
+		game.state.callbackContext.endGame(winner);
+	})
+
 	//Getting all currently connected player
 	socket.on('users', function(data) {
+		var time = new Date();
+		console.log(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' received initial informations dots, players');
 		game.state.callbackContext.playerId = data.playerId;
 		for (var player in data.players) {
 			if (player === data.playerId) {
@@ -474,11 +471,11 @@ function defaultPacmanSockets() {
 			}
 			game.state.callbackContext.createPlayer(data.players[player]);
 		}
-		game.state.callbackContext.mapDots = [];
+		game.state.callbackContext.mapDots = {};
 		for (var i in data.mapDots) {
 			var dot = data.mapDots[i];
 			var spriteDot = game.state.callbackContext.createDot(dot);
-			game.state.callbackContext.mapDots.push(spriteDot);
+			game.state.callbackContext.mapDots[[dot.x, dot.y]] = spriteDot;
 		}
 	});
 
@@ -518,12 +515,5 @@ function defaultPacmanSockets() {
 	});
 
 	//Ask servers for currently connected players
-	//And send personal informations
-	socket.emit('firstInit', {
-		team: game.state.callbackContext.team,
-		skin: game.state.callbackContext.skin,
-		x: game.state.callbackContext.pacman.x,
-		y: game.state.callbackContext.pacman.y,
-		dir: game.state.callbackContext.current
-	});
+	socket.emit('gameStarted');
 };

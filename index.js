@@ -1,46 +1,133 @@
-require('newrelic');
+//---------- Variables declarations ----------------//
 var express = require('express');
 var app = express();
+//parser pour requetes ajax
+var bodyParser = require('body-parser');
+//favicon
+var favicon = require('serve-favicon');
+var path = require('path');
+
+var $ = require("jquery");
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
+//gestion des sessions
+var jwt = require('jsonwebtoken');
+
+var enforce = require('express-sslify');
+
+if(process.env.NODE_ENV === 'production'){
+	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
+
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
+var options = {index: "./index.js"};
+//app.use('/', express.static('app', options));
+app.use(express.static(__dirname + '/www'))
 
 require('./modules/MapGenerator.js');
 
+app.set('port', process.env.PORT || 5000);
+server.listen(app.get('port'), function() {
+	console.log("Pacman is listening on port " + app.get('port'));
+});
 
 //imports pac man game modes
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
 
 var Player = require('./modules/Player.js').Player;
-//var Mongo = require('./modules/Mongo.js').Mongo;
+var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
 var millisecondsBtwUpdates = 25;
 
-var https_redirect = function(req, res, next) {
-	if (process.env.NODE_ENV === 'production') {
-		if (req.headers['x-forwarded-proto'] != 'https') {
-			return res.redirect('https://' + req.headers.host + req.url);
-		} else {
-			return next();
-		}
-	} else {
-		return next();
-	}
-};
+var mongo = new Mongo();
+//var game = new Game();
 
-app.use(https_redirect);
+//--------------------------- Gestion des routes ------------------------------//
 
-app.set('port', (process.env.PORT || 5000));
-
-//www is the public directory served to clients
-app.use(express.static(__dirname + '/www'));
-
-//get at root
 app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
+
+app.get('/verifyLoggedIn', function(req,res){
+	if(req.query.token!=undefined){
+		res.status(200).send();
+	}else{
+		res.status(401).send();
+	}
+});
+
+app.get('/deconnecter', function(req,res){
+	if(req.query.token!=null){
+		res.status(200).send();
+	}else{
+		res.status(202).send();
+	}
+});
+
+app.post('/seConnecter',(req,res) => {
+	console.log("Index.js seConnecter-> app.post");
+	//promesse
+	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(succes){
+		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
+		//player ready to connect
+		const payload = { user:req.body.login };
+		var timeout = 1440 // expires in 24 hours
+		var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
+
+		console.log("Connexion succeded");
+		res.status(200).send({"token": token, "authName" : req.body.login});
+
+	},function(erreur){
+		//error occured
+		console.log("Connexion failed");
+		res.status(400).send({"err" : erreur.message});
+		
+	}).catch(function(err){
+		console.log("Catched : " + err.message);
+		res.status(406).send();
+	});
+});
+
+app.post('/sInscrire',(req,res) => {
+	console.log("Index.js sInscrire-> app.post");
+	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
+	mongo.insertPlayer(req.body.login,req.body.mdp).then(function(resp){
+		if(resp){
+			console.log("Inscription succeded");
+			res.status(201);
+			res.send("OK");
+		}else{
+			console.log("Inscription failed");
+			res.status(400);
+			res.send("KO");
+		}
+	}).catch(function(err){
+		console.log("Catched");
+		res.status(400);
+		res.send("KO");
+	});
+});
+
+//socket managing
+io.on('connection', function(socket) {
+	//adding a new Player on connection to a websocket
+	var playerId = uuid();
+	var player = new Player(playerId);
+	//game.addPlayer(player);
+	socket.player = {
+		playerId: playerId
+	}
+	socket.broadcast.emit('user', {
+		playerId: playerId
+	});
+});
+
 
 app.get('/lobby', function(req, res) {
 	res.send("Lobby goes here");
@@ -50,15 +137,9 @@ app.get('/game', function(req, res) {
 	res.send("Game hoes here");
 });
 
-app.post('/login', function(req, res) {
-	res.send("Login logic goes here");
-});
-
-//var mongo = new Mongo();
-
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman();
-var randomMapPacman = new RandomMapPacman();
+var defaultPacman = new DefaultPacman(updateLobby);
+var randomMapPacman = new RandomMapPacman(updateLobby);
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
@@ -73,6 +154,25 @@ app.use(function(req, res, next) {
 });
 */
 
-server.listen(app.get('port'), function() {
-	console.log("Pacman is listening on port " + app.get('port'));
+function updateLobby(data) {
+	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
+}
+
+io.of('/lobbySocket').on('connection', function(socket) {
+	socket.on('joinLobby', function(chosenGameMode) {
+		console.log('A socket joined the gamemode ' + chosenGameMode + ' lobby room');
+		switch (chosenGameMode) {
+			case 1:
+				socket.join('defaultPacmanRoom');
+				break;
+			case 2:
+				socket.join('randomMapPacmanRoom');
+				break;
+			case 3:
+				console.log('pas encore de jeu ici');
+				break;
+			default:
+				console.log('erreur n* level');
+		};
+	});
 });
