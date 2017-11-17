@@ -123,7 +123,7 @@ var cutHeight = function(map, width, height){
 }
 
 //remplace la tuile en i par une brique
-var fill = function (map, i) {
+var fill = function (map, i, width) {
     value = map[i];
     if (value < 25) {
         map[i] = 1 + 2 * (map[i - 1] % 5 != 0) + (map[i - width] % 5 != 0);
@@ -187,17 +187,14 @@ for (var i = 1; i < height * width; i++) {
     }
     else if (i % width === width - 1) {
         data.push(brique);
-        //pushBrique(data, i);
     }
     else if (i > width * (height - 1)) {
         data.push(brique);
-        //pushBrique(data, i);
     }
     else {
         var randDalle = Math.floor((Math.random() * 10)) + 3 * (data[i - 1] % 5 != 0) + 3 * (data[i - width] % 5 != 0) - 7 * (data[i - 1] % 5 != 0 && data[i - width] % 5 != 0);
         if (randDalle > 7) {
             data.push(brique);
-            //pushBrique(data, i);
         }
         else {
             data.push(dalle)
@@ -211,108 +208,90 @@ for (var i = 1; i < height * width; i++) {
 var randX = 0;
 var randY = 0;
 while (data[randX + width * randY] % 5 != 0) {
-    //console.log(data[randX + width * randY] + ";" + randX + ";" + randY);
     randX = Math.floor((Math.random() * width));
     randY = Math.floor((Math.random() * height));
 }
-console.log("pre flood")
-floodMap(randX, randY, data);
-console.log("post flood")
 
-/*
-var countCut = 0;
+floodMap(randX, randY, data);
+
+var left = 0;
+var right = 0;
+var top = 0;
+var bottom = 0;
 cutLeft = false;
 cutRight = false;
-console.log("left")
+
 while(!cutLeft){
-    //console.log("left "+countCut);
     for(i = 0; i<height && !cutLeft; i++){
-        if(countCut<3 && i < 4){
-            console.log((i*width+1+countCut) +" : " +data[i*width+1+countCut]);
-        }
-        if(data[i*width+1+countCut] == 25){
+        
+        if(data[i*width+1+left] === 25){
             cutLeft = true;
         }
     }
     if(!cutLeft){
-        countCut++;
+        left++;
     }
 }
 
-console.log(data[58]);
-for(i = height; i>-1; i--){
-    data.splice(i*width+1,countCut);
-} 
-width-=countCut;
-countCut = 0;
-console.log("right " +width);
 while(!cutRight){
-    //console.log("right "+countCut);
     for(i = 0; i<height && !cutRight; i++){
-        if(countCut<3 && i < 4){
-            console.log((i*width+width-2-countCut)+" : "+data[i*width+width-2-countCut]);
-        }
-        if(data[i*width+width-2-countCut] == 25){
+        
+        if(data[i*width+width-2-right] === 25){
             cutRight = true;
         }
     }
     if(!cutRight){
-        countCut++;
+        right++;
     }
 }
-
-for(i = height; i>-1; i--){
-    data.splice(i*width+width-2,1);
-} 
-width-=countCut;
 
 
 
 
 cutBottom = false;
 cutTop = false;
-countCut = 0;
 while(!cutBottom){
-    //console.log("bottom "+countCut);
     for(i = 0; i < width && !cutBottom; i++){
-        if(data[width+i] == 25){
+        if(data[bottom*width+width+i] === 25){
             cutBottom = true;
         }
     }
     if(!cutBottom){
-        countCut++;        
+        bottom++;        
     }
 }
-data.splice(width, countCut*width);
-height-=countCut;
-countCut = 0;
 while(!cutTop){
-    //console.log("top "+countCut);
     for(i = 0; i < width && !cutTop; i++){
-        if(data[((height - 2-countCut) * width) + i] == 25){
+        if(data[((height - 2 - top) * width) + i] === 25){
             cutTop = true;
         }
     }
     if(!cutTop){
-        countCut++;
+        top++;
     }
 }
 
-data.splice((height - 1) * width, width*countCut);
-height-=countCut;
+var data2 =[];
 
 
+var bottomLimit = bottom*width;
+var topLimit = (height-top)*width;
+var leftLimit = left;
+var rightLimit = width-right;
+for(var i in data){
+    if(i<bottomLimit){}
+    else if(i>=topLimit){}
+    else if (i%width<leftLimit){}
+    else if (i%width>=rightLimit){}
+    else{data2.push(data[i]);}   
+}
 
-//width = cutWidth(map, width, height);
-//height = cutHeight(map, width, height);
-
-
-
-*/
+var height2 = height-top-bottom
+var width2 = width-left-right;
 
 for (x = 1; x < width; x++) {
     for(y = 1; y < height; y++){
-        fill(data, x+y*width);
+        fill(data, x+y*width, width);
     }
 }
 
@@ -324,10 +303,31 @@ map.layers[0].data = data;
 map.layers[0].height = height;
 map.layers[0].width = width;
 
+var json = JSON.stringify(map);
+console.log("end");
+fs.writeFile('./www/assets/random-map.json', json, 'utf8');
+
+
+for (x = 0; x < width2; x++) {
+    for(y = 0; y < height2; y++){
+        fill(data2, x+y*width2, width2);
+    }
+}
+
+console.log("totalsize2 = "+data2.length);
+
+
+map.height = height2;
+map.width = width2;
+
+map.layers[0].data = data2;
+map.layers[0].height = height2;
+map.layers[0].width = width2;
+
 
 
 
 
 var json = JSON.stringify(map);
 console.log("end");
-fs.writeFile('../www/assets/random-map.json', json, 'utf8');
+fs.writeFile('./www/assets/random-map2.json', json, 'utf8');
