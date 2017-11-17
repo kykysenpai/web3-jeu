@@ -233,7 +233,7 @@ exports.DefaultPacman.prototype = {
 			io.emit('gameUpdate', {
 				players: game.players,
 				scores: game.scores,
-				dots: game.mapDots
+				dots: {} //game.mapDots
 			});
 			//game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
