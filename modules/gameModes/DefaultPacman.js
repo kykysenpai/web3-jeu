@@ -189,6 +189,8 @@ exports.DefaultPacman.prototype = {
 
 			//envoie des joueurs déja présent au socket demandant
 			socket.on('gameStarted', function() {
+				var time = new Date();
+				console.log(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' received initial informations dots, players');
 				socket.emit('users', {
 					playerId: socket.player.playerId,
 					players: game.players,

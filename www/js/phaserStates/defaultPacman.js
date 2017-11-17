@@ -461,6 +461,8 @@ function defaultPacmanSockets() {
 
 	//Getting all currently connected player
 	socket.on('users', function(data) {
+		var time = new Date();
+		console.log(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' received initial informations dots, players');
 		game.state.callbackContext.playerId = data.playerId;
 		for (var player in data.players) {
 			if (player === data.playerId) {
