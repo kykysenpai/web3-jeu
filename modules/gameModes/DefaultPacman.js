@@ -164,7 +164,7 @@ exports.DefaultPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
+	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;
@@ -238,7 +238,7 @@ exports.DefaultPacman.prototype = {
 				scores: game.scores,
 				dots: game.mapDots
 			});
-		}, 3000);
+		}, millisecondsBtwUpdatesDots);
 
 		//send player movement infos every millisecondsBtwUpdates milliseconds
 		setInterval(function() {
