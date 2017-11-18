@@ -9,14 +9,6 @@ exports.RandomMapPacman = function(updateLobby) {
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
-	//spawn postitions of team pacman and ghost
-	this.spawnPos = [{
-		x: 24,
-		y: 24
-	}, {
-		x: 24,
-		y: 24
-	}];
 
 	//players in game or ready for next game
 	this.players = {};
@@ -31,7 +23,22 @@ exports.RandomMapPacman = function(updateLobby) {
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map.json');
+	var map = require('../../www/assets/random-map-small.json');
+	this.height = map.height;
+	this.width = map.width
+	console.log(this.width+" "+this.height);
+	//spawn postitions of team pacman and ghost
+	this.spawnPos = [[
+		{x: 24, y: 24},
+		{x: 24, y: 40},
+		{x: 40, y: 24},
+		{x: 40, y: 40}
+	], [
+		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-2) +8},
+		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-3) +8},
+		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-2) +8},
+		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-3) +8}
+	]];
 
 	//this.mapDots = [];
 	this.mapDots = {};
@@ -154,7 +161,7 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
+	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;
@@ -179,8 +186,9 @@ exports.RandomMapPacman.prototype = {
 					game.addToWaitingRoom(player);
 					console.log('added a new player to the randomMapPacman\'s waitingRoom');
 				}
-				console.log(game.spawnPos[data.team]);
-				socket.emit('initSpawn', game.spawnPos[data.team]);
+				console.log(game.nPlayerTeam);
+				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
+				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
@@ -224,6 +232,14 @@ exports.RandomMapPacman.prototype = {
 				scores: game.scores,
 				dots: game.mapDots
 			});
+		}, millisecondsBtwUpdatesDots);
+
+		setInterval(function() {
+			io.emit('gameUpdate', {
+				players: game.players,
+				scores: game.scores,
+				dots: {} //game.mapDots
+			});
 			game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
 
@@ -245,9 +261,6 @@ exports.RandomMapPacman.prototype = {
 
 		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
 		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
-
-		//player.x = ((Math.floor(player.x / 8)) * 8);
-		//player.y = ((Math.floor(player.y / 8)) * 8);
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;

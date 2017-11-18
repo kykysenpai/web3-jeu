@@ -19,19 +19,25 @@ var config = require('./modules/oAuth.js');
 
 var enforce = require('express-sslify');
 
-if(process.env.NODE_ENV === 'production'){
-	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+if (process.env.NODE_ENV === 'production') {
+	app.use(enforce.HTTPS({
+		trustProtoHeader: true
+	}));
 }
 
-app.use(bodyParser.json()); 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
 
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
-var options = {index: "./index.js"};
+var options = {
+	index: "./index.js"
+};
 //app.use('/', express.static('app', options));
 app.use(express.static(__dirname + '/www'))
 
-require('./modules/MapGenerator.js');
+//require('./modules/MapGenerator.js');
 
 app.set('port', process.env.PORT || 5000);
 server.listen(app.get('port'), function() {
@@ -47,6 +53,7 @@ var Mongo = require('./modules/Mongo.js').Mongo;
 
 //interval in milliseconds between information sending to clients
 var millisecondsBtwUpdates = 25;
+var millisecondsBtwUpdatesDots = 1000;
 
 var mongo = new Mongo();
 //var game = new Game();
@@ -57,23 +64,23 @@ app.get('/', function(req, res) {
 	res.sendFile('www/index.html');
 });
 
-app.get('/verifyLoggedIn', function(req,res){
-	if(req.query.token!=undefined){
+app.get('/verifyLoggedIn', function(req, res) {
+	if (req.query.token != undefined) {
 		res.status(200).send();
-	}else{
+	} else {
 		res.status(401).send();
 	}
 });
 
-app.get('/deconnecter', function(req,res){
-	if(req.query.token!=null){
+app.get('/deconnecter', function(req, res) {
+	if (req.query.token != null) {
 		res.status(200).send();
-	}else{
+	} else {
 		res.status(202).send();
 	}
 });
 
-app.post('/seConnecter',(req,res) => {
+app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
 	//find
 	mongo.findPlayer(req.body.login, function(playerAuth){
@@ -102,7 +109,7 @@ app.post('/seConnecter',(req,res) => {
 	});
 });
 
-app.post('/sInscrire',(req,res) => {
+app.post('/sInscrire', (req, res) => {
 	console.log("Index.js sInscrire-> app.post");
 	console.log("Before findPlayer sign in  " + req.body.login + "   "+ req.body.passwd);
 	mongo.findPlayer(req.body.login, function(playerAuth){
@@ -126,10 +133,10 @@ app.post('/sInscrire',(req,res) => {
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { 
-      successRedirect : '/', 
-      failureRedirect: '/' 
-}));
+	passport.authenticate('facebook', {
+		successRedirect: '/',
+		failureRedirect: '/'
+	}));
 
 //facebookManaging
 passport.use(new FacebookStrategy({
@@ -213,8 +220,8 @@ var defaultPacman = new DefaultPacman(updateLobby);
 var randomMapPacman = new RandomMapPacman(updateLobby);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, Player);
-randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, Player);
+defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
