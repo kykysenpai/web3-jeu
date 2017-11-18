@@ -46,8 +46,8 @@ exports.Mongo.prototype = {
         if(connectedDB){
             var p = new Player({login:login, password : password});               
             Player.create(p, function(err,player){
-                if (err) {
-                    ret(err);
+                if (player) {
+                    ret(null);
                 } else {
                     ret(player);
                 }

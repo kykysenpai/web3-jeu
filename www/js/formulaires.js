@@ -33,15 +33,15 @@ $(function(){
       });
 
       $('#sInscrire').on('click',function(e){
-        var login = $('#pseudoConnexion').val();
-        var mdp = $('#mdpConnexion').val();
+        var loginInscription = $('#pseudoInscription').val();
+        var mdp = $('#mdpInscription').val();
           $.ajax({
             url:'/sInscrire',
             type:'POST',
             dataType: "json",
             data:{
-              login:$('#pseudoInscription').val(),
-              mdp:$('#mdpInscription').val()
+              login: loginInscription,
+              passwd: mdp
             },
           success:function(response){
             console.log("success " + response.status + " " + response.message);

@@ -104,17 +104,15 @@ app.post('/seConnecter',(req,res) => {
 
 app.post('/sInscrire',(req,res) => {
 	console.log("Index.js sInscrire-> app.post");
-
+	console.log("Before findPlayer sign in  " + req.body.login + "   "+ req.body.passwd);
 	mongo.findPlayer(req.body.login, function(playerAuth){
 		if(playerAuth){
 			res.status(400).send({"err" : new Error("Ce login est deja présent, connectez vous, veuillez vous inscrire.").message});
 		}else{
-			console.log("Before sign in  " + req.login + "   "+ req.passwd);
-			mongo.insertPlayer(req.body.login,req.body.mdp, function(ok){
-				if(typeof(ok) === Error ){
-					res.status(400).send({"err" : ok.message});
-				}else if(!ok){
-					res.status(400).send({"err" : new Error("Inscription failed").message});
+			console.log("Before sign in  " + req.body.ogin + "   "+ req.body.passwd);
+			mongo.insertPlayer(req.body.login,req.body.passwd, function(ok){
+				if(!ok){
+					res.status(418).send({"err" : new Error("Inscription failed").message});
 				}else{
 					console.log("Inscription succeded : " + ok);
 					res.status(201).res.send({"message" : "Inscription succeded"});
