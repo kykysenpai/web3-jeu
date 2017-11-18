@@ -25,6 +25,7 @@ exports.DefaultPacman = function(updateLobby) {
 	this.nPlayerTeam = [0, 0];
 
 	this.scores = [0, 0];
+	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
 
 	this.updateLobby = updateLobby;
@@ -231,6 +232,12 @@ exports.DefaultPacman.prototype = {
 		}, 30000);
 		*/
 
+		//set super dot randomly
+		setInterval(function() {
+			var keys = Object.keys(game.mapDots)
+			game.mapDots[keys[keys.length * Math.random() << 0]].isSuper = true;
+		}, 10000);
+
 		//send dot map
 		setInterval(function() {
 			io.emit('gameUpdate', {
@@ -245,6 +252,7 @@ exports.DefaultPacman.prototype = {
 			io.emit('gameUpdate', {
 				players: game.players,
 				scores: game.scores,
+				superState: game.isSuperState,
 				dots: {} //game.mapDots
 			});
 			game.dotsLifeSpan();
@@ -263,6 +271,12 @@ exports.DefaultPacman.prototype = {
 			}
 		}
 	},
+	timeOutSuper(playerTeam) {
+		var game = this;
+		setTimeout(function() {
+			game.isSuperState[playerTeam] = false;
+		}, 10000);
+	},
 	setPosition: function(playerId, player, io) {
 
 		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
@@ -272,10 +286,16 @@ exports.DefaultPacman.prototype = {
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
 
+		var playerTeam = this.players[playerId].team;
+
 		var currentDot;
 		//collision without iteration
 		if (this.mapDots[[player.x, player.y]]) {
 			if (this.mapDots[[player.x, player.y]].isAlive) {
+				if (this.mapDots[[player.x, player.y]].isSuper) {
+					this.isSuperState[playerTeam] = true;
+					this.timeOutSuper(playerTeam);
+				}
 				this.incScore(playerId);
 				this.mapDots[[player.x, player.y]].isAlive = false;
 				this.mapDots[[player.x, player.y]].timeUntilAlive = this.respawnTime;
