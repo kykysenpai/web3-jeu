@@ -264,7 +264,7 @@ var randomMapPacman = {
 	},
 	//instanciate a dot
 	createDot: function(data) {
-		var newDot = this.add.sprite(data.x, data.y, 'dot');
+		var newDot = this.dots.create(data.x, data.y, 'dot');
 		if (!data.isAlive) {
 			newDot.visible = false;
 		}
@@ -410,6 +410,9 @@ var randomMapPacman = {
 			game.state.start('lose');
 		}
 	},
+	eatDot: function(pacman, dot) {
+		dot.visible = false;
+	},
 	/*
 	 * Called at each frame
 	 */
@@ -418,7 +421,9 @@ var randomMapPacman = {
 		this.physics.arcade.collide(this.pacman, this.layer);
 
 		//géré dans le serveur
-		//this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.enemies, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.allies, this.dots, this.eatDot, null, this);
+		this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
 
 		//collision entre les pacmans et le décor
 		this.physics.arcade.collide(this.enemies, this.layer);

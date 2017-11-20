@@ -164,7 +164,7 @@ exports.DefaultPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
+	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;
@@ -225,18 +225,30 @@ exports.DefaultPacman.prototype = {
 			});
 		});
 
+		/* hard respawn of all dots every x millis
 		setInterval(function() {
 			game.repawnDots();
 		}, 30000);
+		*/
 
+		//send dot map
+		setInterval(function() {
+			io.emit('gameUpdate', {
+				players: game.players,
+				scores: game.scores,
+				dots: game.mapDots
+			});
+		}, millisecondsBtwUpdatesDots);
+
+		//send player movement infos every millisecondsBtwUpdates milliseconds
 		setInterval(function() {
 			io.emit('gameUpdate', {
 				players: game.players,
 				scores: game.scores,
 				dots: {} //game.mapDots
 			});
-			//game.dotsLifeSpan();
-		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
+			game.dotsLifeSpan();
+		}, millisecondsBtwUpdates);
 
 	},
 	dotsLifeSpan: function() {
