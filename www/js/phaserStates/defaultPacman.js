@@ -432,7 +432,7 @@ var defaultPacman = {
 		//TODO change all the loadTexture 'pacman' with load chosen texture
 		if (superState[this.team]) {
 			this.enemies.forEach(function(enemy) {
-				//TODO this.enemy.loadTexture('');
+				//TODO enemy.loadTexture('');
 			});
 		} else {
 			this.enemies.forEach(function(enemy) {
