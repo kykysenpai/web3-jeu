@@ -1,7 +1,7 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.DefaultPacman = function(updateLobby) {
+exports.DefaultPacman = function(updateLobby, properties) {
 	this.respawnTime = 800;
 	//nbPlayer in each team required
 	this.reqPlayer = 1;
@@ -33,8 +33,13 @@ exports.DefaultPacman = function(updateLobby) {
 	//is the game running or waiting for players
 	this.isRunning = false;
 
-	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/pacman-map.json');
+	var Dot = require(__dirname + '/../Dot.js').Dot;
+	var map = require(__dirname + '/../../www/assets/pacman-map.json');
+	var Player = require(__dirname + '/../Player.js').Player;
+	var uuid = require('uuid/v1');
+
+	var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
+	var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 
 	this.mapDots = {};
 
@@ -164,10 +169,13 @@ exports.DefaultPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
+	initSocket: function(io) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;
+		var uuid = uuid;
+		var millisecondsBtwUpdates = millisecondsBtwUpdates;
+		var millisecondsBtwUpdatesDots = millisecondsBtwUpdatesDots;
 		//socket managing
 		io.on('connection', function(socket) {
 			//generate a new uniquer playerId for the connecting socket
