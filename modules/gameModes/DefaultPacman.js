@@ -1,3 +1,4 @@
+
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
@@ -169,7 +170,7 @@ exports.DefaultPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io) {
+	initSocket: function(io,uuid,Player) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var game = this;

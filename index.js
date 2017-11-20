@@ -235,8 +235,8 @@ var defaultPacman = new DefaultPacman(updateLobby, properties);
 var randomMapPacman = new RandomMapPacman(updateLobby, properties);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'));
-randomMapPacman.initSocket(io.of('/randomMapPacman'));
+defaultPacman.initSocket(io.of('/defaultPacman'),uuid,Player);
+randomMapPacman.initSocket(io.of('/randomMapPacman'),uuid,Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
