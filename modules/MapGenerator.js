@@ -320,7 +320,7 @@ var create = function(size) {
 
 	var json = JSON.stringify(map);
 	console.log("end");
-	fs.writeFileSync(__dirname + '/../www/assets/random-map.json', json, 'utf8');
+	fs.writeFileSync('./www/assets/random-map.json', json, 'utf8');
 
 
 
@@ -334,6 +334,9 @@ var create = function(size) {
 
 	console.log("totalsize2 = " + data2.length);
 
+	map.layers[0].data = data2;
+	map.layers[0].height = height2;
+	map.layers[0].width = width2;
 
 	map.height = height2;
 	map.width = width2;
@@ -349,6 +352,7 @@ var create = function(size) {
 	var json = JSON.stringify(map);
 	console.log("end");
 	var nameFile = __dirname + '/../www/assets/random-map-' + size + '.json';
+
 	fs.writeFileSync(nameFile, json, 'utf8');
 }
 

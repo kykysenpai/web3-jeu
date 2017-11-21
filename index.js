@@ -17,9 +17,7 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
-var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader(__dirname + '/modules/config.properties');
-
+var properties = require('properties-reader')(__dirname + '/config.properties');
 
 var enforce = require('express-sslify');
 
@@ -231,12 +229,12 @@ app.get('/game', function(req, res) {
 });
 
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman(updateLobby, properties);
-var randomMapPacman = new RandomMapPacman(updateLobby, properties);
+var defaultPacman = new DefaultPacman(properties, updateLobby);
+var randomMapPacman = new RandomMapPacman(properties, updateLobby);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'),uuid,Player);
-randomMapPacman.initSocket(io.of('/randomMapPacman'),uuid,Player);
+defaultPacman.initSocket(io.of('/defaultPacman'), properties);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
