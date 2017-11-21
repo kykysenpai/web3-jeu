@@ -37,7 +37,7 @@ var options = {
 //app.use('/', express.static('app', options));
 app.use(express.static(__dirname + '/www'))
 
-//require('./modules/MapGenerator.js');
+require('./modules/MapGenerator.js');
 
 app.set('port', process.env.PORT || 5000);
 server.listen(app.get('port'), function() {
