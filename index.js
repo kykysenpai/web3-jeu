@@ -17,6 +17,8 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
+var properties = require('properties-reader')(__dirname + '/config.properties');
+
 var enforce = require('express-sslify');
 
 if (process.env.NODE_ENV === 'production') {
@@ -51,12 +53,7 @@ var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMa
 var Player = require('./modules/Player.js').Player;
 var Mongo = require('./modules/Mongo.js').Mongo;
 
-//interval in milliseconds between information sending to clients
-var millisecondsBtwUpdates = 25;
-var millisecondsBtwUpdatesDots = 1000;
-
 var mongo = new Mongo();
-//var game = new Game();
 
 //--------------------------- Gestion des routes ------------------------------//
 
@@ -233,12 +230,12 @@ app.get('/game', function(req, res) {
 });
 
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman(updateLobby);
-var randomMapPacman = new RandomMapPacman(updateLobby);
+var defaultPacman = new DefaultPacman(properties, updateLobby);
+var randomMapPacman = new RandomMapPacman(properties, updateLobby);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
-randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+defaultPacman.initSocket(io.of('/defaultPacman'), properties);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {

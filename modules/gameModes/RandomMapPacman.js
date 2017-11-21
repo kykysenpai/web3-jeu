@@ -1,22 +1,14 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacman = function(updateLobby) {
-	this.respawnTime = 800;
+exports.RandomMapPacman = function(properties, updateLobby) {
+	this.respawnTime = properties.get('respawnTime');
 	//nbPlayer in each team required
-	this.reqPlayer = 1;
+	this.reqPlayer = properties.get('reqPlayerMedium');
 
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
-	//spawn postitions of team pacman and ghost
-	this.spawnPos = [{
-		x: 24,
-		y: 24
-	}, {
-		x: 24,
-		y: 24
-	}];
 
 	//players in game or ready for next game
 	this.players = {};
@@ -31,7 +23,47 @@ exports.RandomMapPacman = function(updateLobby) {
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map.json');
+	var map = require(__dirname + '/../../www/assets/random-map-small.json');
+	this.height = map.height;
+	this.width = map.width
+	console.log(this.width + " " + this.height);
+	//spawn postitions of team pacman and ghost
+	this.spawnPos = [
+		[{
+				x: 24,
+				y: 24
+			},
+			{
+				x: 24,
+				y: 40
+			},
+			{
+				x: 40,
+				y: 24
+			},
+			{
+				x: 40,
+				y: 40
+			}
+		],
+		[{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 3) + 8
+			}
+		]
+	];
 
 	//this.mapDots = [];
 	this.mapDots = {};
@@ -154,10 +186,14 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
+	initSocket: function(io, properties) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
+		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
+		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var game = this;
+		var Player = require(__dirname + '/../Player.js').Player;
+		var uuid = require('uuid/v1');
 		//socket managing
 		io.on('connection', function(socket) {
 			//generate a new uniquer playerId for the connecting socket
@@ -179,8 +215,9 @@ exports.RandomMapPacman.prototype = {
 					game.addToWaitingRoom(player);
 					console.log('added a new player to the randomMapPacman\'s waitingRoom');
 				}
-				console.log(game.spawnPos[data.team]);
-				socket.emit('initSpawn', game.spawnPos[data.team]);
+				console.log(game.nPlayerTeam);
+				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
+				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
