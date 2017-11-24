@@ -126,6 +126,7 @@ app.post('/sInscrire', (req, res) => {
 	console.log("Before findPlayer sign in  " + req.body.login + "   " + req.body.passwd);
 	mongo.findPlayer(req.body.login, function(playerAuth) {
 		if (playerAuth) {
+			console.log("Attempt to create player with already used name, denying...");
 			res.status(400).send({
 				"err": new Error("Ce login est deja présent, connectez vous, veuillez vous inscrire.").message
 			});
