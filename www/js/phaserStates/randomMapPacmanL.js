@@ -9,7 +9,7 @@ var downMobile = false;
 /*
  Default Pacman game
 */
-var randomMapPacman = {
+var randomMapPacmanL = {
 	/*
 	 * Window auto adjust to client window size + start physics managing in phase
 	 */
@@ -54,7 +54,7 @@ var randomMapPacman = {
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
 		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/random-map-medium.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', 'assets/random-map-large.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 	},

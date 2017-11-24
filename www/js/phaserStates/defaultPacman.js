@@ -53,6 +53,8 @@ var defaultPacman = {
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
+		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
+		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
 		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
@@ -432,19 +434,24 @@ var defaultPacman = {
 		//TODO change all the loadTexture 'pacman' with load chosen texture
 		if (superState[this.team]) {
 			this.enemies.forEach(function(enemy) {
-				//TODO enemy.loadTexture('');
+				enemy.loadTexture('badPacman', 0, false);
 			});
+			this.allies.forEach(function(ally) {
+				ally.loadTexture('superPacman', 0, false);
+			});
+			this.pacman.loadTexture('superPacman', 0, false);
+		} else if (superState[this.enemyTeam]) {
+			this.enemies.forEach(function(enemy) {
+				enemy.loadTexture('superPacman', 0, false);
+			});
+			this.allies.forEach(function(ally) {
+				ally.loadTexture('badPacman', 0, false);
+			});
+			this.pacman.loadTexture('badPacman', 0, false);
 		} else {
 			this.enemies.forEach(function(enemy) {
 				enemy.loadTexture('pacman', 0, false);
 			});
-		}
-		if (superState[this.enemyTeam]) {
-			this.allies.forEach(function(ally) {
-				//TODO ally.loadTexture('');
-			});
-			//TODO this.pacman.loadTexture('');
-		} else {
 			this.allies.forEach(function(ally) {
 				ally.loadTexture('pacman', 0, false);
 			});
