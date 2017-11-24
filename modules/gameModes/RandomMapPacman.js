@@ -60,7 +60,7 @@ exports.RandomMapPacman = function(updateLobby) {
 			tile = map.layers[0].data[i * width + j];
 			if (tile === 25 || tile === 30 || tile === 35 || tile === 40) {
 				//this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
-				this.mapDots[[j * 16 + 8, i * 16 + 8]] = new Dot(j * 16 + 8, i * 16 + 8);
+				this.mapDots[[j * 16, i * 16]] = new Dot(j * 16, i * 16);
 			}
 		}
 	}
