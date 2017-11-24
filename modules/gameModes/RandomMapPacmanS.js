@@ -1,10 +1,10 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacmanS = function(updateLobby) {
-	this.respawnTime = 800;
+exports.RandomMapPacmanS = function(properties, updateLobby) {
+	this.respawnTime = properties.get('respawnTime');
 	//nbPlayer in each team required
-	this.reqPlayer = 1;
+	this.reqPlayer = properties.get('reqPlayerSmall');
 
 	//players waiting
 	this.waitingRoom = {};
@@ -26,19 +26,44 @@ exports.RandomMapPacmanS = function(updateLobby) {
 	var map = require('../../www/assets/random-map-small.json');
 	this.height = map.height;
 	this.width = map.width
-	console.log(this.width+" "+this.height);
+	console.log(this.width + " " + this.height);
 	//spawn postitions of team pacman and ghost
-	this.spawnPos = [[
-		{x: 24, y: 24},
-		{x: 24, y: 40},
-		{x: 40, y: 24},
-        {x: 40, y: 40}
-	], [
-		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-2) +8},
-		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-3) +8},
-		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-2) +8},
-        {x: 16 * (this.width-3) + 8,y: 16 * (this.height-3) +8}
-	]];
+	this.spawnPos = [
+		[{
+				x: 24,
+				y: 24
+			},
+			{
+				x: 24,
+				y: 40
+			},
+			{
+				x: 40,
+				y: 24
+			},
+			{
+				x: 40,
+				y: 40
+			}
+		],
+		[{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 3) + 8
+			}
+		]
+	];
 
 	//this.mapDots = [];
 	this.mapDots = {};
@@ -55,7 +80,7 @@ exports.RandomMapPacmanS = function(updateLobby) {
 		}
 	}
 };
-exports.RandomMapPacman.prototype = {
+exports.RandomMapPacmanS.prototype = {
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
 		console.log("a new player connected to the game RandomMapPacman");
@@ -80,14 +105,14 @@ exports.RandomMapPacman.prototype = {
 	},
 	emitLobby: function(event, data) {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomS',
 			event: event,
 			data: data
 		});
 	},
 	emitUpdateLobby: function() {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomS',
 			event: 'updateWaiting',
 			data: {
 				nPlayerTeam: this.nPlayerTeam,
@@ -161,10 +186,14 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
+	initSocket: function(io, properties) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
+		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
+		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var game = this;
+		var Player = require(__dirname + '/../Player.js').Player;
+		var uuid = require('uuid/v1');
 		//socket managing
 		io.on('connection', function(socket) {
 			//generate a new uniquer playerId for the connecting socket
@@ -187,8 +216,8 @@ exports.RandomMapPacman.prototype = {
 					console.log('added a new player to the randomMapPacman\'s waitingRoom');
 				}
 				console.log(game.nPlayerTeam);
-				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
-				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
+				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
+				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
@@ -259,7 +288,7 @@ exports.RandomMapPacman.prototype = {
 	setPosition: function(playerId, player, io) {
 
 
-		player.x = Math.floor(player.x / 16)* 16;
+		player.x = Math.floor(player.x / 16) * 16;
 		player.y = Math.floor(player.y / 16) * 16;
 
 		this.players[playerId].x = player.x;

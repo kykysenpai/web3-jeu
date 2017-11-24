@@ -49,6 +49,8 @@ server.listen(app.get('port'), function() {
 //imports pac man game modes
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
+var RandomMapPacmanS = require('./modules/gameModes/RandomMapPacmanS.js').RandomMapPacmanS;
+var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').RandomMapPacmanL;
 
 var Player = require('./modules/Player.js').Player;
 var Mongo = require('./modules/Mongo.js').Mongo;
@@ -232,10 +234,15 @@ app.get('/game', function(req, res) {
 //instanciate all game modes rooms
 var defaultPacman = new DefaultPacman(properties, updateLobby);
 var randomMapPacman = new RandomMapPacman(properties, updateLobby);
+var randomMapPacmanS = new RandomMapPacmanS(properties,updateLobby);
+var randomMapPacmanL = new RandomMapPacmanL(properties,updateLobby);
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), properties);
 randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
+randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), properties);
+randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), properties);
+
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
@@ -258,10 +265,13 @@ io.of('/lobbySocket').on('connection', function(socket) {
 				socket.join('defaultPacmanRoom');
 				break;
 			case 2:
-				socket.join('randomMapPacmanRoom');
+				socket.join('randomMapPacmanRoomS');
 				break;
 			case 3:
-				console.log('pas encore de jeu ici');
+				socket.join('randomMapPacmanRoom');
+				break;
+			case 4:
+				socket.join('randomMapPacmanRoomL');
 				break;
 			default:
 				console.log('erreur n* level');
