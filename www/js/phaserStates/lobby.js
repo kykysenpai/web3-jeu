@@ -43,13 +43,13 @@ var lobby = {
 				game.state.start('defaultPacman');
 				break;
 			case 2:
-				game.state.start('randomMapPacman');
+				game.state.start('randomMapPacmanS');
 				break;
 			case 3:
-				game.state.start('');
+				game.state.start('randomMapPacman');
 				break;
 			case 4:
-				game.state.start('');
+				game.state.start('randomMapPacmanL');
 			default:
 				console.log('erreur n* level');
 		}
@@ -77,10 +77,13 @@ function lobbySockets() {
 			socket = io('/defaultPacman');
 			break;
 		case 2:
-			socket = io('/randomMapPacman');
+			socket = io('/randomMapPacmanS');
 			break;
 		case 3:
-			alert('pas encore de jeu ici');
+			socket = io('/randomMapPacman');
+			break;
+		case 4:
+			socket = io('/randomMapPacmanL');
 			break;
 		default:
 			console.log('erreur n* level');

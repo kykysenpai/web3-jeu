@@ -47,6 +47,8 @@ server.listen(app.get('port'), function() {
 //imports pac man game modes
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
+var RandomMapPacmanS = require('./modules/gameModes/RandomMapPacmanS.js').RandomMapPacmanS;
+var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').RandomMapPacmanL;
 
 var Player = require('./modules/Player.js').Player;
 var Mongo = require('./modules/Mongo.js').Mongo;
@@ -214,10 +216,15 @@ app.get('/game', function(req, res) {
 //instanciate all game modes rooms
 var defaultPacman = new DefaultPacman(updateLobby);
 var randomMapPacman = new RandomMapPacman(updateLobby);
+var randomMapPacmanS = new RandomMapPacmanS(updateLobby);
+var randomMapPacmanL = new RandomMapPacmanL(updateLobby);
+
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
 randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
