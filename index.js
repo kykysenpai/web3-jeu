@@ -17,6 +17,8 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
+var properties = require('properties-reader')(__dirname + '/config.properties');
+
 var enforce = require('express-sslify');
 
 if (process.env.NODE_ENV === 'production') {
@@ -37,7 +39,7 @@ var options = {
 //app.use('/', express.static('app', options));
 app.use(express.static(__dirname + '/www'))
 
-//require('./modules/MapGenerator.js');
+require('./modules/MapGenerator.js');
 
 app.set('port', process.env.PORT || 5000);
 server.listen(app.get('port'), function() {
@@ -53,12 +55,7 @@ var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').Random
 var Player = require('./modules/Player.js').Player;
 var Mongo = require('./modules/Mongo.js').Mongo;
 
-//interval in milliseconds between information sending to clients
-var millisecondsBtwUpdates = 25;
-var millisecondsBtwUpdatesDots = 1000;
-
 var mongo = new Mongo();
-//var game = new Game();
 
 //--------------------------- Gestion des routes ------------------------------//
 
@@ -84,54 +81,69 @@ app.get('/deconnecter', function(req, res) {
 
 app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
-	//promesse
-	mongo.connectPlayer(req.body.login, req.body.mdp).then(function(succes) {
-		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
-		//player ready to connect
-		const payload = {
-			user: req.body.login
-		};
-		var timeout = 1440 // expires in 24 hours
-		var token = jwt.sign(payload, "secretpacman", {
-			expiresIn: '24h'
-		});
+	//find
+	mongo.findPlayer(req.body.login, function(playerAuth) {
+		if (!playerAuth) {
+			var err = new Error("Joueur inconnu, veuillez vous inscrire.");
+			res.status(400).send({
+				"err": err.message
+			});
+		} else {
+			console.log("playerAuth before connect  " + playerAuth + "   " + req.passwd);
+			mongo.connectPlayer(playerAuth, req.body.passwd, function(ok) {
+				if (typeof(ok) === Error) {
+					res.status(400).send({
+						"err": ok.message
+					});
+				} else if (!ok) {
+					res.status(400).send({
+						"err": new Error("La connexion a échoué.").message
+					});
+				} else {
+					console.log("response of connectPlayer in index.js " + ok);
+					//player ready to connect
+					const payload = {
+						user: req.body.login
+					};
+					var timeout = 1440 // expires in 24 hours
+					var token = jwt.sign(payload, "secretpacman", {
+						expiresIn: '24h'
+					});
 
-		console.log("Connexion succeded");
-		res.status(200).send({
-			"token": token,
-			"authName": req.body.login
-		});
-
-	}, function(erreur) {
-		//error occured
-		console.log("Connexion failed");
-		res.status(400).send({
-			"err": erreur.message
-		});
-
-	}).catch(function(err) {
-		console.log("Catched : " + err.message);
-		res.status(406).send();
+					console.log("Connexion succeded");
+					res.status(200).send({
+						"token": token,
+						"authName": req.body.login
+					});
+				}
+			});
+		}
 	});
 });
 
 app.post('/sInscrire', (req, res) => {
 	console.log("Index.js sInscrire-> app.post");
-	console.log("Login :" + req.body.login + "\t Mdp : " + req.body.mdp);
-	mongo.insertPlayer(req.body.login, req.body.mdp).then(function(resp) {
-		if (resp) {
-			console.log("Inscription succeded");
-			res.status(201);
-			res.send("OK");
+	console.log("Before findPlayer sign in  " + req.body.login + "   " + req.body.passwd);
+	mongo.findPlayer(req.body.login, function(playerAuth) {
+		if (playerAuth) {
+			res.status(400).send({
+				"err": new Error("Ce login est deja présent, connectez vous, veuillez vous inscrire.").message
+			});
 		} else {
-			console.log("Inscription failed");
-			res.status(400);
-			res.send("KO");
+			console.log("Before sign in  " + req.body.ogin + "   " + req.body.passwd);
+			mongo.insertPlayer(req.body.login, req.body.passwd, function(ok) {
+				if (!ok) {
+					res.status(418).send({
+						"err": new Error("Inscription failed").message
+					});
+				} else {
+					console.log("Inscription succeded : " + ok);
+					res.status(201).res.send({
+						"message": "Inscription succeded"
+					});
+				}
+			});
 		}
-	}).catch(function(err) {
-		console.log("Catched");
-		res.status(400);
-		res.send("KO");
 	});
 });
 
@@ -174,9 +186,15 @@ passport.use(new FacebookStrategy({
 							console.log("CONNEXION FAILED");
 							return done(err);
 						}
-					})
+					}).catch(function(err) {
+						console.log("Catched : " + err.message);
+						res.status(406).send();
+					});
 				}
-			})
+			}).catch(function(err) {
+				console.log("Catched : " + err.message);
+				res.status(406).send();
+			});
 		})
 	}
 ));
@@ -214,17 +232,17 @@ app.get('/game', function(req, res) {
 });
 
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman(updateLobby);
-var randomMapPacman = new RandomMapPacman(updateLobby);
-var randomMapPacmanS = new RandomMapPacmanS(updateLobby);
-var randomMapPacmanL = new RandomMapPacmanL(updateLobby);
-
+var defaultPacman = new DefaultPacman(properties, updateLobby);
+var randomMapPacman = new RandomMapPacman(properties, updateLobby);
+var randomMapPacmanS = new RandomMapPacmanS(properties,updateLobby);
+var randomMapPacmanL = new RandomMapPacmanL(properties,updateLobby);
 
 //intialisation of the sockets of all rooms
-defaultPacman.initSocket(io.of('/defaultPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
-randomMapPacman.initSocket(io.of('/randomMapPacman'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
-randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
-randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player);
+defaultPacman.initSocket(io.of('/defaultPacman'), properties);
+randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
+randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), properties);
+randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), properties);
+
 /*
 //force secure connection with the client
 app.use(function(req, res, next) {
