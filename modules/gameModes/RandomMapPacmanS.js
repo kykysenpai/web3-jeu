@@ -1,7 +1,7 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacman = function(updateLobby) {
+exports.RandomMapPacmanS = function(updateLobby) {
 	this.respawnTime = 800;
 	//nbPlayer in each team required
 	this.reqPlayer = 1;
@@ -23,7 +23,7 @@ exports.RandomMapPacman = function(updateLobby) {
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map-medium.json');
+	var map = require('../../www/assets/random-map-small.json');
 	this.height = map.height;
 	this.width = map.width
 	console.log(this.width+" "+this.height);
@@ -32,22 +32,12 @@ exports.RandomMapPacman = function(updateLobby) {
 		{x: 24, y: 24},
 		{x: 24, y: 40},
 		{x: 40, y: 24},
-		{x: 40, y: 40},
-        {x: 24, y: 56},
-		{x: 40, y: 56},
-		{x: 56, y: 24},
-        {x: 56, y: 40},
-        {x: 56, y: 56}
+        {x: 40, y: 40}
 	], [
 		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-2) +8},
 		{x: 16 * (this.width-2) + 8,y: 16 * (this.height-3) +8},
 		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-2) +8},
-		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-3) +8},
-        {x: 16 * (this.width-2) + 8,y: 16 * (this.height-4) +8},
-		{x: 16 * (this.width-3) + 8,y: 16 * (this.height-4) +8},
-		{x: 16 * (this.width-4) + 8,y: 16 * (this.height-2) +8},
-        {x: 16 * (this.width-4) + 8,y: 16 * (this.height-3) +8},
-        {x: 16 * (this.width-4) + 8,y: 16 * (this.height-4) +8}
+        {x: 16 * (this.width-3) + 8,y: 16 * (this.height-3) +8}
 	]];
 
 	//this.mapDots = [];
