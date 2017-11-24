@@ -46,8 +46,10 @@ var lobby = {
 				game.state.start('randomMapPacman');
 				break;
 			case 3:
-				console.log('pas encore de jeu ici');
+				game.state.start('');
 				break;
+			case 4:
+				game.state.start('');
 			default:
 				console.log('erreur n* level');
 		}
