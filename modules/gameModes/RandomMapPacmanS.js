@@ -284,8 +284,8 @@ exports.RandomMapPacmanS.prototype = {
 	setPosition: function(playerId, player, io) {
 
 
-		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
-		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
+		player.x = Math.floor(player.x / 16)* 16;
+		player.y = Math.floor(player.y / 16) * 16;
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
