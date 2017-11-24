@@ -6,8 +6,17 @@ var lobby = {
 	},*/
 	preload: function() {
 		game.load.image('blankThumb', 'assets/blankImage.png');
+		game.load.image('teamGhost', 'assets/teamGhost.png');
+		game.load.image('teamPacman', 'assets/teamPacman.png');
+		game.load.image('frame', 'assets/teamFrame.png');
+		game.load.image('title', 'assets/title.png');
+		game.load.image('bg', 'assets/bg.png');
 	},
 	create: function() {
+		var teamHeight = 200;
+		var title = game.add.image(0, 0, 'bg');
+		var title = game.add.image(0, 10, 'title');
+		
 		this.nPlayerPacman = 0;
 		this.nPlayerGhost = 0;
 		this.reqPlayer = 0;
@@ -17,7 +26,11 @@ var lobby = {
 			font: '30px Arial',
 			fill: '#ffffff'
 		});
-
+		var frame1 = game.add.image(101, teamHeight, 'frame');
+		var team1 = game.add.image(101, teamHeight, 'teamPacman');
+		var frame2 = game.add.image(234, teamHeight, 'frame');
+		var team2 = game.add.image(234, teamHeight, 'teamGhost');
+		/*
 		game.add.text(60, 240, 'Pacmans', {
 			font: '25px Arial',
 			fill: '#ffffff'
@@ -26,11 +39,12 @@ var lobby = {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabelPacman = game.add.text(80, 320, this.nPlayerPacman + '/' + this.reqPlayer, {
+		*/
+		this.waitingForLabelPacman = game.add.text(115, teamHeight+64, this.nPlayerPacman + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabelGhost = game.add.text(320, 320, this.nPlayerGhost + '/' + this.reqPlayer, {
+		this.waitingForLabelGhost = game.add.text(250, teamHeight+64, this.nPlayerGhost + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
@@ -58,7 +72,7 @@ var lobby = {
 		this.nPlayerPacman = data.nPlayerTeam[TEAM_PACMAN];
 		this.nPlayerGhost = data.nPlayerTeam[TEAM_GHOST];
 		this.reqPlayer = data.reqPlayer;
-		this.gameStateLabel.setText(data.state);
+		//this.gameStateLabel.setText(data.state);
 		this.waitingForLabelPacman.setText(this.nPlayerPacman + '/' + this.reqPlayer);
 		this.waitingForLabelGhost.setText(this.nPlayerGhost + '/' + this.reqPlayer);
 	}
@@ -73,7 +87,8 @@ function lobbySockets() {
 	});
 	lobbySocket.emit('joinLobby', chosenGameMode);
 	switch (chosenGameMode) {
-		case 1:
+		case 1:game.load.image('title', 'assets/title.png');
+		game.load.image('bg', 'assets/bg.png');
 			socket = io('/defaultPacman');
 			break;
 		case 2:
@@ -82,7 +97,7 @@ function lobbySockets() {
 		case 3:
 			socket = io('/randomMapPacman');
 			break;
-		case 4:
+		case 4:320
 			socket = io('/randomMapPacmanL');
 			break;
 		default:
