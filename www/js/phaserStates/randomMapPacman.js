@@ -49,7 +49,7 @@ var randomMapPacman = {
 		if (showDebug) {
 			game.time.advancedTiming = true;
 		}
-		this.load.image('dot', 'assets/super-dot.png');
+		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.tilemap('map', 'assets/random-map-small.json', null, Phaser.Tilemap.TILED_JSON);
