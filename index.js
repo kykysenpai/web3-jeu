@@ -117,6 +117,11 @@ app.post('/sInscrire',(req,res) => {
 	});
 });
 
+app.get('/closePage', function(req, res) {
+	res.type('.html');
+	res.send('<script> window.opener.location.reload(); window.close(); </script>');
+});
+
 //get facebook path
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
@@ -141,13 +146,22 @@ function(token, refreshToken, profile, done) {
 		console.log("NEXTTICK");
 		console.log("login fcbk : " + login);
 		console.log("mdp fcbk : " + mdp);
-		mongo.insertPlayer(login,mdp).then(function(resp){
-			if(resp){
-				console.log("Inscription succeded");
-				return done(null, login);
-			}
-			else{
-				mongo.connectPlayer(login,mdp).then(function(response){
+
+		if(mongo.findPlayer(login)== null){
+			mongo.insertPlayer(login,mdp).then(function(resp){
+				console.log(resp);
+				if(resp){
+					console.log("Inscription succeded");
+					return done(null, login);
+				}
+			}).catch(function(err){
+				console.log("Catched");
+				res.status(400);
+				res.send("KO");
+			});
+		}
+		else{
+			mongo.connectPlayer(login,mdp).then(function(response){
 					console.log("CONNECT PLAYER IN INDEX.JS =>" + response);
 					if(response){
 						//METTRE COoKIE;
@@ -158,9 +172,13 @@ function(token, refreshToken, profile, done) {
 						console.log("CONNEXION FAILED");
 						return done(err);
 					}
-				})
-			}
-		})
+				}).catch(function(err){
+					console.log("Catched");
+					res.status(400);
+					res.send("KO");
+				});
+		}
+
 	})
 }
 ));

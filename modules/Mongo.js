@@ -44,10 +44,10 @@ exports.Mongo.prototype = {
                     if(player==null) {
                         found = false;
                     }
-                        else{
-                            console.log('%s exists already.', player.login);
-                            found = true;
-                        }
+                    else{
+                        console.log('%s exists already.', player.login);
+                        found = true;
+                    }
                 });
                 if(!found){
                     console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
