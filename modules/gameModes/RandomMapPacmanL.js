@@ -16,6 +16,7 @@ exports.RandomMapPacmanL = function(updateLobby) {
 	this.nPlayerTeam = [0, 0];
 
 	this.scores = [0, 0];
+	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
 
 	this.updateLobby = updateLobby;
@@ -347,6 +348,13 @@ exports.RandomMapPacmanL.prototype = {
 			});
 		});
 
+
+		//set super dot randomly
+		setInterval(function() {
+			var keys = Object.keys(game.mapDots)
+			game.mapDots[keys[keys.length * Math.random() << 0]].isSuper = true;
+		}, 10000);
+
 		setInterval(function() {
 			io.emit('gameUpdate', {
 				players: game.players,
@@ -359,6 +367,7 @@ exports.RandomMapPacmanL.prototype = {
 			io.emit('gameUpdate', {
 				players: game.players,
 				scores: game.scores,
+				superState: game.isSuperState,
 				dots: {} //game.mapDots
 			});
 			game.dotsLifeSpan();
@@ -377,6 +386,12 @@ exports.RandomMapPacmanL.prototype = {
 			}
 		}
 	},
+	timeOutSuper(playerTeam) {
+		var game = this;
+		setTimeout(function() {
+			game.isSuperState[playerTeam] = false;
+		}, 10000);
+	},
 	setPosition: function(playerId, player, io) {
 
 
@@ -387,34 +402,22 @@ exports.RandomMapPacmanL.prototype = {
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
 
+		var playerTeam = this.players[playerId].team;
+
 		var currentDot;
 		//collision without iteration
 		if (this.mapDots[[player.x, player.y]]) {
 			if (this.mapDots[[player.x, player.y]].isAlive) {
+				if (this.mapDots[[player.x, player.y]].isSuper) {
+					this.isSuperState[playerTeam] = true;
+					this.timeOutSuper(playerTeam);
+				}
 				this.incScore(playerId);
 				this.mapDots[[player.x, player.y]].isAlive = false;
 				this.mapDots[[player.x, player.y]].timeUntilAlive = this.respawnTime;
 			}
 		}
-		/*
-		//collision with a dot
-		for (var dotsIter in this.mapDots) {
-			if (!this.mapDots[dotsIter].isAlive) {
-				continue;
-			}
-			if ((xDif = this.mapDots[dotsIter].x - player.x) > -16 &&
-				xDif < 16) {
-				if ((yDif = this.mapDots[dotsIter].y - player.y) > -16 &&
-					yDif < 16) {
-					if (this.mapDots[dotsIter].isAlive) {
-						this.incScore(playerId);
-					}
-					this.mapDots[dotsIter].isAlive = false;
-					this.mapDots[dotsIter].timeUntilAlive = this.respawnTime;
-				}
-			}
-		}
-		*/
+
 		//collision between players
 		for (var playerIter in this.players) {
 			if (!this.players[playerIter].isAlive || playerIter === playerId) {
@@ -428,36 +431,34 @@ exports.RandomMapPacmanL.prototype = {
 						//collision between two players of the same team
 					} else {
 						//collision between two players of different teams
-						//Player with lowest team score is killed
-						if (this.scores[TEAM_GHOST] > this.scores[TEAM_PACMAN]) {
-							if (this.players[playerId].team == TEAM_PACMAN) {
-								this.players[playerId].isAlive = false;
-								if (this.nPlayerTeam[TEAM_PACMAN] > 0) {
-									this.nPlayerTeam[TEAM_PACMAN]--;
-								}
-							} else if (this.players[playerIter].team == TEAM_PACMAN) {
-								this.players[playerIter].isAlive = false;
-								if (this.nPlayerTeam[TEAM_PACMAN] > 0) {
-									this.nPlayerTeam[TEAM_PACMAN]--;
-								}
+						//if one team is in super state, the other is killed
+						if (this.isSuperState[this.players[playerId].team]) {
+							this.players[playerIter].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerIter].team] > 0) {
+								this.nPlayerTeam[this.players[playerIter].team]--;
 							}
-						} else if (this.scores[TEAM_PACMAN] > this.scores[TEAM_GHOST]) {
-							if (this.players[playerId].team == TEAM_GHOST) {
-								this.players[playerId].isAlive = false;
-								if (this.nPlayerTeam[TEAM_GHOST] > 0) {
-									this.nPlayerTeam[TEAM_GHOST]--;
-								}
-							} else if (this.players[playerIter].team == TEAM_GHOST) {
-								this.players[playerIter].isAlive = false;
-								if (this.nPlayerTeam[TEAM_GHOST] > 0) {
-									this.nPlayerTeam[TEAM_GHOST]--;
-								}
+						} else if (this.isSuperState[this.players[playerIter].team]) {
+							this.players[playerId].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerId].team] > 0) {
+								this.nPlayerTeam[this.players[playerId].team]--;
+							}
+						}
+						//Player with lowest team score is killed
+						else if (this.scores[this.players[playerIter].team] > this.scores[this.players[playerId].team]) {
+							this.players[playerId].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerId].team] > 0) {
+								this.nPlayerTeam[this.players[playerId].team]--;
+							}
+						} else if (this.scores[this.players[playerIter].team] < this.scores[this.players[playerId].team]) {
+							this.players[playerIter].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerIter].team] > 0) {
+								this.nPlayerTeam[this.players[playerIter].team]--;
 							}
 						}
 						this.checkTeams(io);
 					}
 				}
 			}
-		}
+		} // fin for
 	}
 };

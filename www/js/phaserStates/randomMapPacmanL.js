@@ -57,6 +57,7 @@ var randomMapPacmanL = {
 		this.load.tilemap('map', 'assets/random-map-large.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
+		this.load.image('superDot', 'assets/superDot.png');
 	},
 	/*
 	 * Var initialisation of in game items
@@ -269,6 +270,12 @@ var randomMapPacmanL = {
 		var newDot = this.dots.create(data.x, data.y, 'dot');
 		if (!data.isAlive) {
 			newDot.visible = false;
+		}
+		if (data.isSuper) {
+			newDot.loadTexture('superDot', 0, false);
+			newDot.isSuper = true;
+		} else {
+			newDot.isSuper = false;
 		}
 		return newDot;
 	},

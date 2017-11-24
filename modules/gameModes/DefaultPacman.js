@@ -317,13 +317,12 @@ exports.DefaultPacman.prototype = {
 					} else {
 						//collision between two players of different teams
 						//if one team is in super state, the other is killed
-						if(this.isSuperState[this.players[playerId].team]){
+						if (this.isSuperState[this.players[playerId].team]) {
 							this.players[playerIter].isAlive = false;
 							if (this.nPlayerTeam[this.players[playerIter].team] > 0) {
 								this.nPlayerTeam[this.players[playerIter].team]--;
 							}
-						}
-						else if (this.isSuperState[this.players[playerIter].team]){
+						} else if (this.isSuperState[this.players[playerIter].team]) {
 							this.players[playerId].isAlive = false;
 							if (this.nPlayerTeam[this.players[playerId].team] > 0) {
 								this.nPlayerTeam[this.players[playerId].team]--;
@@ -345,6 +344,6 @@ exports.DefaultPacman.prototype = {
 					}
 				}
 			}
-		}
+		} // fin for
 	}
 };
