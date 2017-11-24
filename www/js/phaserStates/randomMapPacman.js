@@ -98,6 +98,11 @@ var randomMapPacman = {
 		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
 		this.team = playerInfos.team;
+		if (this.team == TEAM_GHOST) {
+			this.enemyTeam = TEAM_PACMAN;
+		} else {
+			this.enemyTeam = TEAM_GHOST;
+		}
 		this.createLocalPlayer({
 			skin: playerInfos.skin
 		});
