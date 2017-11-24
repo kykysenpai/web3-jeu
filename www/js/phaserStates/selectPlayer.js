@@ -15,7 +15,7 @@ var selectPlayer = {
 			game.state.start('lobby');
 		}, this);
 
-		game.add.text(20, 260, 'Team : ', {
+		game.add.text(20, 130, 'Team : ', {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});

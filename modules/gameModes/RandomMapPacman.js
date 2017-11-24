@@ -1,10 +1,10 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacman = function(updateLobby) {
-	this.respawnTime = 800;
+exports.RandomMapPacman = function(properties, updateLobby) {
+	this.respawnTime = properties.get('respawnTime');
 	//nbPlayer in each team required
-	this.reqPlayer = 1;
+	this.reqPlayer = properties.get('reqPlayerMedium');
 
 	//players waiting
 	this.waitingRoom = {};
@@ -26,7 +26,7 @@ exports.RandomMapPacman = function(updateLobby) {
 	var map = require('../../www/assets/random-map-medium.json');
 	this.height = map.height;
 	this.width = map.width
-	console.log(this.width+" "+this.height);
+	console.log(this.width + " " + this.height);
 	//spawn postitions of team pacman and ghost
 	this.spawnPos = [[
 		{x: 24, y: 24},
@@ -171,10 +171,14 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, millisecondsBtwUpdatesDots, Player) {
+	initSocket: function(io, properties) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
+		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
+		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var game = this;
+		var Player = require(__dirname + '/../Player.js').Player;
+		var uuid = require('uuid/v1');
 		//socket managing
 		io.on('connection', function(socket) {
 			//generate a new uniquer playerId for the connecting socket
@@ -197,8 +201,8 @@ exports.RandomMapPacman.prototype = {
 					console.log('added a new player to the randomMapPacman\'s waitingRoom');
 				}
 				console.log(game.nPlayerTeam);
-				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
-				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team]-1]);
+				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
+				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);

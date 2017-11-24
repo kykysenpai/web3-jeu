@@ -28,71 +28,48 @@ db.once('open', function() {
 exports.Mongo = function(){};
 
 exports.Mongo.prototype = {
-    insertPlayer: function(login,password){
-        console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
+    findPlayer: function(login, ret){
         if(connectedDB){
-            //crypting before insert
-            password = bcrypt.hashSync(password, 10);   
-            
-            var p = new Player({login:login, password : password});
-            //promise answer
-            return new Promise(function(resolve, reject) {                
-                //Check si le login name est deja utilise
-                var found = false;
-                Player.findOne({ "login" : login},function (err, player) {
-                    if (err) return reject(err);
-                    if(player==null) {
-                        found = false;
-                    }
-                        else{
-                            console.log('%s exists already.', player.login);
-                            found = true;
-                        }
-                });
-                if(!found){
-                    console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
-                    //INSERT IN DB
-
-                    Player.create(p, function(err,player){
-                        if (err) {
-                            return reject(err);
-                        } else {
-                            return resolve(true);
-                        }
-                    });
+           Player.findOne({"login" : login},function (err,player){
+                if (err || !player) {
+                    return null;
+                }else{
+                    ret(player);
                 }
-            })
+            });
+        }else{
+            return new Error("Database is not accessible.");
         }
     },
-    connectPlayer: function(login,password){
+    insertPlayer: function(login,password, ret){
+        console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
         if(connectedDB){
-            return new Promise(function(resolve, reject) {  
-                //Check si le login name est present et si oui recupere le player correspondant
-                Player.findOne({"login" : login},function (err,player) {
-                    if (err) {
-                        reject(new Error("Erreur findOne"));
-                    } else if (player==null) {
-                        reject(new Error("Not found"));
-                    }else{
-                        //compare
-                        console.log("player password findOne : " + player.password);
-                        bcrypt.compare(password, player.password, function(err, res) {
-                            if (res) {
-                                console.log("Mongo.js / bon mdp");
-                                resolve("Found");
-                            } else {
-                                console.log("Mongo.js / pas bon mdp");
-                                reject(new Error("MDP"));
-                            }
-                        }); 
-                    } 
-                });
-            })
+            var p = new Player({login:login, password : password});               
+            Player.create(p, function(err,player){
+                if (player) {
+                    ret(null);
+                } else {
+                    ret(player);
+                }
+            });
+        };
+    },
+    connectPlayer: function(player, password, ret){
+        if(connectedDB){
+            //Check si le login name est present et si oui recupere le player correspondant
+            console.log("player password findOne : " + player.login + " passwd : " 
+                + player.password + " en clair "+ password);
+            bcrypt.compare(password, player.password, function(err, res) {
+                if (res) {
+                    console.log("Mongo.js / bon mdp");
+                    ret(res);
+                } else {
+                    console.log("Mongo.js / pas bon mdp");
+                    ret(null);
+                }
+            }); 
         }else{
-            return new Promise(function(resolve,reject){
-                reject(new Error("Database is not accessible."));
-            }
-            );
+            res(new Error("Database is not accessible."));
         }
     },
 };
