@@ -201,14 +201,14 @@ exports.RandomMapPacmanL.prototype = {
 	},
 	emitLobby: function(event, data) {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomL',
 			event: event,
 			data: data
 		});
 	},
 	emitUpdateLobby: function() {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomL',
 			event: 'updateWaiting',
 			data: {
 				nPlayerTeam: this.nPlayerTeam,
@@ -302,10 +302,10 @@ exports.RandomMapPacmanL.prototype = {
 				var player = new Player(data);
 				if (!game.isRunning) {
 					game.addPlayer(player);
-					console.log('added a new player to the randomMapPacman\'s game');
+					console.log('added a new player to the randomMapPacmanL\'s game');
 				} else {
 					game.addToWaitingRoom(player);
-					console.log('added a new player to the randomMapPacman\'s waitingRoom');
+					console.log('added a new player to the randomMapPacmanL\'s waitingRoom');
 				}
 				console.log(game.nPlayerTeam);
 				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
@@ -380,7 +380,7 @@ exports.RandomMapPacmanL.prototype = {
 	setPosition: function(playerId, player, io) {
 
 
-		player.x = Math.floor(player.x / 16)* 16;
+		player.x = Math.floor(player.x / 16) * 16;
 		player.y = Math.floor(player.y / 16) * 16;
 
 		this.players[playerId].x = player.x;

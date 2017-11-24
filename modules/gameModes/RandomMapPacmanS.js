@@ -105,14 +105,14 @@ exports.RandomMapPacmanS.prototype = {
 	},
 	emitLobby: function(event, data) {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomS',
 			event: event,
 			data: data
 		});
 	},
 	emitUpdateLobby: function() {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomS',
 			event: 'updateWaiting',
 			data: {
 				nPlayerTeam: this.nPlayerTeam,
@@ -284,7 +284,7 @@ exports.RandomMapPacmanS.prototype = {
 	setPosition: function(playerId, player, io) {
 
 
-		player.x = Math.floor(player.x / 16)* 16;
+		player.x = Math.floor(player.x / 16) * 16;
 		player.y = Math.floor(player.y / 16) * 16;
 
 		this.players[playerId].x = player.x;

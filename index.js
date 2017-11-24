@@ -247,10 +247,13 @@ io.of('/lobbySocket').on('connection', function(socket) {
 				socket.join('defaultPacmanRoom');
 				break;
 			case 2:
-				socket.join('randomMapPacmanRoom');
+				socket.join('randomMapPacmanRoomS');
 				break;
 			case 3:
-				console.log('pas encore de jeu ici');
+				socket.join('randomMapPacmanRoom');
+				break;
+			case 4:
+				socket.join('randomMapPacmanRoomL');
 				break;
 			default:
 				console.log('erreur n* level');
