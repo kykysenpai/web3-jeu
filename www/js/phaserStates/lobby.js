@@ -1,9 +1,4 @@
 var lobby = {
-	/*init: function() {
-		this.titleLabel;
-		this.waitingForLabel;
-		this.gameStateLabel;
-	},*/
 	preload: function() {
 		game.load.image('blankThumb', 'assets/blankImage.png');
 		game.load.image('teamGhost', 'assets/teamGhost.png');
@@ -14,8 +9,13 @@ var lobby = {
 	},
 	create: function() {
 		var teamHeight = 200;
-		var title = game.add.image(0, 0, 'bg');
+		var bg = game.add.image(0, 0, 'bg');
 		var title = game.add.image(0, 10, 'title');
+
+		title.inputEnabled = true;
+		title.events.onInputDown.add(function(clickedImage) {
+			game.state.start('bootState');
+		}, this);
 		
 		this.nPlayerPacman = 0;
 		this.nPlayerGhost = 0;
@@ -30,16 +30,7 @@ var lobby = {
 		var team1 = game.add.image(101, teamHeight, 'teamPacman');
 		var frame2 = game.add.image(234, teamHeight, 'frame');
 		var team2 = game.add.image(234, teamHeight, 'teamGhost');
-		/*
-		game.add.text(60, 240, 'Pacmans', {
-			font: '25px Arial',
-			fill: '#ffffff'
-		});
-		game.add.text(300, 240, 'Ghosts', {
-			font: '25px Arial',
-			fill: '#ffffff'
-		});
-		*/
+
 		this.waitingForLabelPacman = game.add.text(115, teamHeight+64, this.nPlayerPacman + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
@@ -72,7 +63,6 @@ var lobby = {
 		this.nPlayerPacman = data.nPlayerTeam[TEAM_PACMAN];
 		this.nPlayerGhost = data.nPlayerTeam[TEAM_GHOST];
 		this.reqPlayer = data.reqPlayer;
-		//this.gameStateLabel.setText(data.state);
 		this.waitingForLabelPacman.setText(this.nPlayerPacman + '/' + this.reqPlayer);
 		this.waitingForLabelGhost.setText(this.nPlayerGhost + '/' + this.reqPlayer);
 	}
