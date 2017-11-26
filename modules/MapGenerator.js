@@ -1,7 +1,5 @@
 const fs = require("fs");
 
-
-
 var create = function(size) {
 
 	//rajoute une brique dans la map
