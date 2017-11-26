@@ -10,7 +10,6 @@ $(function(){
             token : localStorage.getItem("token")
           },
           success:function(response){
-            //localsession found
             console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
             /*$("deconnexion").show();
             $("deconnexion").css("display","block");
@@ -19,7 +18,8 @@ $(function(){
           */
           },
           error:function(response){
-            //localsession not found
+            localStorage.removeItem("authName");
+            localStorage.removeItem("token");
             console.log("No active session");
             /*$("#accueil").hide();
             $("#formulaires").show();*/            
