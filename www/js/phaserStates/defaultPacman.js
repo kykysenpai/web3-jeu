@@ -38,6 +38,7 @@ var defaultPacman = {
 		this.scoresDisplay = null;
 		//Receives a random team, will be changed later
 		this.team = null;
+		this.enemyTeam = null;
 		this.playerId = null;
 
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
@@ -52,9 +53,12 @@ var defaultPacman = {
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', 'assets/pacman-tiles.png');
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
+		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
+		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
 		this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
+		this.load.image('superDot', 'assets/superDot.png');
 
 		this.game.disableVisibilityChange = true;
 	},
@@ -97,6 +101,11 @@ var defaultPacman = {
 		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
 		this.team = playerInfos.team;
+		if (this.team == TEAM_GHOST) {
+			this.enemyTeam = TEAM_PACMAN;
+		} else {
+			this.enemyTeam = TEAM_GHOST;
+		}
 		this.createLocalPlayer({
 			skin: playerInfos.skin
 		});
@@ -270,6 +279,12 @@ var defaultPacman = {
 		if (!data.isAlive) {
 			newDot.visible = false;
 		}
+		if (data.isSuper) {
+			newDot.loadTexture('superDot', 0, false);
+			newDot.isSuper = true;
+		} else {
+			newDot.isSuper = false;
+		}
 		return newDot;
 	},
 	checkKeys: function() {
@@ -415,6 +430,34 @@ var defaultPacman = {
 	eatDot: function(pacman, dot) {
 		dot.visible = false;
 	},
+	updateSuperState: function(superState) {
+		//TODO change all the loadTexture 'pacman' with load chosen texture
+		if (superState[this.team]) {
+			this.enemies.forEach(function(enemy) {
+				enemy.loadTexture('badPacman', 0, false);
+			});
+			this.allies.forEach(function(ally) {
+				ally.loadTexture('superPacman', 0, false);
+			});
+			this.pacman.loadTexture('superPacman', 0, false);
+		} else if (superState[this.enemyTeam]) {
+			this.enemies.forEach(function(enemy) {
+				enemy.loadTexture('superPacman', 0, false);
+			});
+			this.allies.forEach(function(ally) {
+				ally.loadTexture('badPacman', 0, false);
+			});
+			this.pacman.loadTexture('badPacman', 0, false);
+		} else {
+			this.enemies.forEach(function(enemy) {
+				enemy.loadTexture('pacman', 0, false);
+			});
+			this.allies.forEach(function(ally) {
+				ally.loadTexture('pacman', 0, false);
+			});
+			this.pacman.loadTexture('pacman', 0, false);
+		}
+	},
 	/*
 	 * Called at each frame
 	 */
@@ -513,7 +556,17 @@ function defaultPacmanSockets() {
 				} else {
 					context.mapDots[i].visible = false;
 				}
+				if (dots[i].isSuper) {
+					context.mapDots[i].loadTexture('superDot', 0, false);
+					context.mapDots[i].isSuper = true;
+				} else {
+					context.mapDots[i].loadTexture('dot', 0, false);
+					context.mapDots[i].isSuper = false;
+				}
 			}
+		}
+		if (infos.superState) {
+			context.updateSuperState(infos.superState);
 		}
 	});
 

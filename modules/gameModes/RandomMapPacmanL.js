@@ -1,10 +1,10 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacman = function(properties, updateLobby) {
+exports.RandomMapPacmanL = function(properties, updateLobby) {
 	this.respawnTime = properties.get('respawnTime');
 	//nbPlayer in each team required
-	this.reqPlayer = properties.get('reqPlayerMedium');
+	this.reqPlayer = properties.get('reqPlayerLarge');
 
 	//players waiting
 	this.waitingRoom = {};
@@ -24,7 +24,7 @@ exports.RandomMapPacman = function(properties, updateLobby) {
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map-medium.json');
+	var map = require('../../www/assets/random-map-large.json');
 	this.height = map.height;
 	this.width = map.width
 	console.log(this.width + " " + this.height);
@@ -65,6 +65,34 @@ exports.RandomMapPacman = function(properties, updateLobby) {
 			{
 				x: 56,
 				y: 56
+			},
+			{
+				x: 72,
+				y: 24
+			},
+			{
+				x: 72,
+				y: 40
+			},
+			{
+				x: 72,
+				y: 56
+			},
+			{
+				x: 72,
+				y: 72
+			},
+			{
+				x: 24,
+				y: 72
+			},
+			{
+				x: 40,
+				y: 72
+			},
+			{
+				x: 56,
+				y: 72
 			}
 		],
 		[{
@@ -102,6 +130,34 @@ exports.RandomMapPacman = function(properties, updateLobby) {
 			{
 				x: 16 * (this.width - 4) + 8,
 				y: 16 * (this.height - 4) + 8
+			},
+			{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 5) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 5) + 8
+			},
+			{
+				x: 16 * (this.width - 4) + 8,
+				y: 16 * (this.height - 5) + 8
+			},
+			{
+				x: 16 * (this.width - 5) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 5) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 5) + 8,
+				y: 16 * (this.height - 4) + 8
+			},
+			{
+				x: 16 * (this.width - 5) + 8,
+				y: 16 * (this.height - 5) + 8
 			}
 		]
 	];
@@ -121,7 +177,7 @@ exports.RandomMapPacman = function(properties, updateLobby) {
 		}
 	}
 };
-exports.RandomMapPacman.prototype = {
+exports.RandomMapPacmanL.prototype = {
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
 		console.log("a new player connected to the game RandomMapPacman");
@@ -146,14 +202,14 @@ exports.RandomMapPacman.prototype = {
 	},
 	emitLobby: function(event, data) {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomL',
 			event: event,
 			data: data
 		});
 	},
 	emitUpdateLobby: function() {
 		this.updateLobby({
-			room: 'randomMapPacmanRoom',
+			room: 'randomMapPacmanRoomL',
 			event: 'updateWaiting',
 			data: {
 				nPlayerTeam: this.nPlayerTeam,
@@ -251,10 +307,10 @@ exports.RandomMapPacman.prototype = {
 				var player = new Player(data);
 				if (!game.isRunning) {
 					game.addPlayer(player);
-					console.log('added a new player to the randomMapPacman\'s game');
+					console.log('added a new player to the randomMapPacmanL\'s game');
 				} else {
 					game.addToWaitingRoom(player);
-					console.log('added a new player to the randomMapPacman\'s waitingRoom');
+					console.log('added a new player to the randomMapPacmanL\'s waitingRoom');
 				}
 				console.log(game.nPlayerTeam);
 				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);

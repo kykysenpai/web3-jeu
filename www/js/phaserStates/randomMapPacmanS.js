@@ -9,7 +9,7 @@ var downMobile = false;
 /*
  Default Pacman game
 */
-var randomMapPacman = {
+var randomMapPacmanS = {
 	/*
 	 * Window auto adjust to client window size + start physics managing in phase
 	 */
@@ -54,7 +54,7 @@ var randomMapPacman = {
 		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
 		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
 		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/random-map-medium.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', 'assets/random-map-small.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 		this.load.image('superDot', 'assets/superDot.png');
@@ -430,6 +430,7 @@ var randomMapPacman = {
 	updateSuperState: function(superState) {
 		//TODO change all the loadTexture 'pacman' with load chosen texture
 		if (superState[this.team]) {
+
 			this.enemies.forEach(function(enemy) {
 				enemy.loadTexture('badPacman', 0, false);
 			});
@@ -438,6 +439,7 @@ var randomMapPacman = {
 			});
 			this.pacman.loadTexture('superPacman', 0, false);
 		} else if (superState[this.enemyTeam]) {
+
 			this.enemies.forEach(function(enemy) {
 				enemy.loadTexture('superPacman', 0, false);
 			});

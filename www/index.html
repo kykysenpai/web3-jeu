@@ -19,218 +19,217 @@
 
 <body>
   <div id="menubar">
-      <nav class="navbar navbar-inverse colorbar">
-          <div class="container-fluid">
-            <div class="navbar-header">
-              <a class="navbar-brand">Pacman Evolution</a>
-            </div>
+    <nav class="navbar navbar-inverse colorbar">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand">Pacman Evolution</a>
+        </div>
 
-            <ul class="nav navbar-nav navbar-right">
-              <li><a id="profil" href=""><span class="glyphicon glyphicon-user"></span>Profil</a></li>
-              <li><a id="deconnexion" href=""><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
-            </ul>
-          </div>
-        </nav>
-    </div>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a id="profil" href=""><span class="glyphicon glyphicon-user"></span>Profil</a></li>
+          <li><a id="deconnexion" href=""><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
   </div>
   <div id="messages">
   </div>
   <div class="container col-xs-8 col-xs-offset-2">
-      <div id="accueil center-block">
-          <div class="row">
-            <div>
-                <img src="images/pacman.png" alt="loadingPacman"/>
+    <div id="accueil center-block">
+      <div class="row">
+        <div>
+          <img src="images/pacman.png" alt="loadingPacman" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <h2>Pacman Evolution  <small>Multijoueurs</small></h2>
+          <p class="justify">Et si on repensait Pacman à la sauce multi? Un nouveau monde de possibilités où de vrais joueurs peuvent s'affronter dans divers modes de jeu. Par équipe, affrontez l'équipe adverse et exploitez au mieux votre force collective. Plutôt chacun
+            pour soi? Mesurez vous à d'autres joueurs et accumulez le plus de points afin de remporter la partie et qui sait, peut être débloquer quelque chose?</p>
+          <br>
+          <blockquote class="blockquote-reverse">
+            <p>Ce site est le fruit d'une collaboration de six étudiants de l'Institut Paul Lambin dans le cadre du cours de Web de 3ème année.</p>
+            <footer>
+              <p class="green">Authors :
+                <abbr title="Virginia Dabrowski">fireLegacy</abbr>,
+                <abbr title="Michel de Broux">dieBrouzouf</abbr>,
+                <abbr title="Alex Hardi">Primax</abbr>,
+                <abbr title="Sébastien Place">SebbyBE</abbr>,
+                <abbr title="Kyrill Tircher">kykysenpai</abbr>,
+                <abbr title="Anthony Vancampenhault">antho.vanc</abbr>
+              </p>
+            </footer>
+          </blockquote>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <div class="button button-block" id="loading">Entrer</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="formulaires">
+      <img src="images/pacman.png" alt="pacman" id="pacman" />
+      <ul class="tab-group">
+        <li class="tab active"><a href="#signup">Inscription</a></li>
+        <li class="tab"><a href="#login">Connexion</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="signup">
+          <h1>Prêt à jouer? Inscris toi !</h1>
+          <div id="messageInscription"></div>
+          <div id="form">
+
+            <div class="row">
+              <label>Pseudo<span class="req">*</span></label>
+              <input type="text" required autocomplete="off" id="pseudoInscription" />
+            </div>
+
+            <div class="row">
+              <label>Mot de passe<span class="req">*</span></label>
+              <input type="password" required autocomplete="off" id="mdpInscription" />
+            </div>
+            <div class="row">
+              <button type="submit" class="button button-block" id="sInscrire" />C'est parti!</button>
             </div>
           </div>
-          <div class="row">
-              <div>
-                <h2>Pacman Evolution  <small>Multijoueurs</small></h2>
-                <p class="justify">Et si on repensait Pacman à la sauce multi? 
-                  Un nouveau monde de possibilités où de vrais joueurs 
-                  peuvent s'affronter dans divers modes de jeu. 
-                  Par équipe, affrontez l'équipe adverse et exploitez au mieux votre force collective. 
-                  Plutôt chacun pour soi? Mesurez vous à d'autres joueurs 
-                  et accumulez le plus de points afin de remporter la partie et qui sait, 
-                  peut être débloquer quelque chose?</p>
-                  <br>
-                  <blockquote class="blockquote-reverse">
-                  <p>Ce site est le fruit d'une collaboration de six 
-                    étudiants de l'Institut Paul Lambin dans le cadre du cours de Web de 3ème année.</p>
-                    <footer>
-                      <p class="green">Authors : 
-                      <abbr title="Virginia Dabrowski">fireLegacy</abbr>,  
-                      <abbr title="Michel de Broux">dieBrouzouf</abbr>,  
-                      <abbr title="Alex Hardi">tongit</abbr>,  
-                      <abbr title="Sébastien Place">SebbyBE</abbr>,  
-                      <abbr title="Kyrill Tircher">kykysenpai</abbr>,  
-                      <abbr title="Anthony Vancampenhault">antho.vanc</abbr>
-                    </p>
-                  </footer>
-                  </blockquote>
-                </div>
+        </div>
+
+        <div id="login">
+          <h1>On joue?</h1>
+          <div id="form">
+            <div class="row">
+              <label>Pseudo<span class="req">*</span></label>
+              <input type="text" required autocomplete="off" id="pseudoConnexion" />
             </div>
-          <div class="row">
-              <div>
-                  <div class="button button-block" id="loading">Entrer</div>
+            <div class="row">
+              <label>Mot de passe<span class="req">*</span></label>
+              <input type="password" required autocomplete="off" id="mdpConnexion" />
+            </div>
+            <div class="row no-padding">
+              <div class="col-xs-6 col-sm-8 col-lg-9"></div>
+              <div class="col-xs-6 col-sm-4 col-lg-3">
+                <input class="col-xs-1" type="checkbox" value="remember">
+                <label class="col-xs-11 greenLabel" for="remember">
+                        Se souvenir de moi
+                      </label>
               </div>
+            </div>
+            <div class="row">
+              <button class="button button-block" id="seConnecter" />Se connecter</button>
+            </div>
+            <div class="row">
+              <button class="button button-block" id="facebookConnect" />Se connecter avec Facebook</button>
+            </div>
           </div>
+        </div>
+        <!--div login-->
+      </div>
+      <!-- tab-content -->
+    </div>
+    <!--/formulaires-->
+
+    <div id="profil">
+      <div class="row">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1">
+          <img src="images/nes.png" alt="nes" class="nes" />
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default"><span class="glyphicon glyphicon-star"></span> Meilleur score Pacman : </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="statsvalues"></p>
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default"><span class="glyphicon glyphicon-star-empty"></span> Meilleur score Ghost : </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="statsvalues"></p>
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default"><span class="glyphicon glyphicon-expand"></span> Nombre de parties jouées : </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="statsvalues"></p>
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default"><span class="glyphicon glyphicon-plus"></span> Nombre de parties gagnées: </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="statsvalues"></p>
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default"><span class="glyphicon glyphicon-minus"></span> Nombre de parties perdues : </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="statsvalues"></p>
+        </div>
       </div>
 
-      <div id="formulaires">
-          <img src="images/pacman.png" alt="pacman" id="pacman"/>
-          <ul class="tab-group">
-            <li class="tab active"><a href="#signup">Inscription</a></li>
-            <li class="tab"><a href="#login">Connexion</a></li>
-          </ul>
-            
-          <div class="tab-content">
-            <div id="signup">   
-              <h1>Prêt à jouer? Inscris toi !</h1>
-              <div id="messageInscription"></div>
-              <div id="form">
+      <div class="row no-padding no-padding-bottom">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default">Skin Pacman courant : </p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="skinCurrentPacman col-1">
+            <img alt="default" src="images/icone_pacman.ico" class="img-rounded img-responsive skin-defaut" />
+          </p>
+        </div>
+      </div>
+      <div class="row no-padding no-padding-bottom">
+        <div class="col-12">
+          <p>Sélectionnez un skin disponible pour changer l'actuel</p>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+          <p class="skinsPacman">
+            <img alt="default" src="images/icone_pacman.ico" class="col-1 img-rounded img-responsive skins-gallery" />
+          </p>
+        </div>
+      </div>
 
-                <div class="row">
-                  <label>Pseudo<span class="req">*</span></label>
-                  <input type="text" required autocomplete="off" id="pseudoInscription"/>
-                </div>
-                
-                <div class="row">
-                  <label>Mot de passe<span class="req">*</span></label>
-                  <input type="password"required autocomplete="off" id="mdpInscription"/>
-                </div>
-                <div class="row">
-                <button type="submit" class="button button-block" id="sInscrire"/>C'est parti!</button>
-              </div>
-              </div>
-            </div>
-              
-            <div id="login">   
-            <h1>On joue?</h1>
-              <div id="form">
-                <div class="row">
-                  <label>Pseudo<span class="req">*</span></label>
-                  <input type="text"required autocomplete="off" id="pseudoConnexion"/>
-                </div>
-                <div class="row">
-                  <label>Mot de passe<span class="req">*</span></label>
-                  <input type="password"required autocomplete="off" id="mdpConnexion"/>
-                </div>
-                <div class="row no-padding">
-                  <div class="col-xs-6 col-sm-8 col-lg-9"></div>
-                  <div class="col-xs-6 col-sm-4 col-lg-3">
-                      <input class="col-xs-1" type="checkbox" value="remember">
-                      <label class="col-xs-11 greenLabel" for="remember">
-                        Se souvenir de moi
-                      </label> 
-                  </div> 
-                </div>
-                <div class="row">
-                  <button class="button button-block" id="seConnecter"/>Se connecter</button>  
-                </div>
-                <div class="row">
-                    <button class="button button-block" id="facebookConnect"/>Se connecter avec Facebook</button>
-                </div>
-              </div>
-            </div><!--div login-->  
-          </div><!-- tab-content -->   
-      </div><!--/formulaires-->
+      <div class="row no-padding no-padding-bottom">
+        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
+          <p class="label label-default">Skin Ghost courant : </p>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+          <p class="skinCurrentGhost"></p>
+        </div>
+      </div>
+      <div class="row no-padding">
+        <div class="col-12">
+          <p>Sélectionnez un skin disponible pour changer l'actuel</p>
+        </div>
+        <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
+          <p class="skinsGhost"></p>
+        </div>
+      </div>
 
-      <div id="profil">
-        <div class="row">
-          <div class="col-xs-12 col-sm-10 col-sm-offset-1">
-              <img src="images/nes.png" alt="nes" class="nes"/>
-          </div>
-        </div>
-        <div class="row no-padding">
-          <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-              <p class="label label-default"><span class="glyphicon glyphicon-star"></span>  Meilleur score Pacman : </p>
-          </div>
-          <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-              <p class="statsvalues"></p>
-          </div>
-        </div>
-        <div class="row no-padding">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default"><span class="glyphicon glyphicon-star-empty"></span>  Meilleur score Ghost : </p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="statsvalues"></p>
-            </div>
-        </div>
-        <div class="row no-padding">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default"><span class="glyphicon glyphicon-expand"></span>  Nombre de parties jouées : </p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="statsvalues"></p>
-            </div>
-        </div>
-        <div class="row no-padding">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default"><span class="glyphicon glyphicon-plus"></span>  Nombre de parties gagnées: </p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="statsvalues"></p>
-            </div>
-        </div>
-        <div class="row no-padding">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default"><span class="glyphicon glyphicon-minus"></span>  Nombre de parties perdues : </p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="statsvalues"></p>
-            </div>
-        </div>
+      <div class="row">
+        <button type="submit" class="button button-block col-12" id="jouer" />Jouer</button>
+      </div>
+    </div>
+    <!--/profil-->
 
-        <div class="row no-padding no-padding-bottom">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default">Skin Pacman courant  : </p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="skinCurrentPacman col-1">
-                  <img alt="default" src="images/icone_pacman.ico" class="img-rounded img-responsive skin-defaut"/>
-                </p>
-            </div>
-        </div>
-        <div class="row no-padding no-padding-bottom">
-            <div class="col-12">
-                <p>Sélectionnez un skin disponible pour changer l'actuel</p>
-            </div>
-            <div class="col-xs-12 col-sm-12">
-                <p class="skinsPacman">
-                    <img alt="default" src="images/icone_pacman.ico" class="col-1 img-rounded img-responsive skins-gallery"/>
-                </p>
-            </div>
-        </div>
-
-        <div class="row no-padding no-padding-bottom">
-            <div class="col-xs-7 col-sm-6 col-md-4 col-lg-3">
-                <p class="label label-default">Skin Ghost courant  : </p>
-            </div>
-            <div class="col-xs-12 col-sm-12">
-                <p class="skinCurrentGhost"></p>
-            </div>
-        </div>
-        <div class="row no-padding">
-            <div class="col-12">
-                <p>Sélectionnez un skin disponible pour changer l'actuel</p>
-            </div>
-            <div class="col-xs-5 col-sm-7 col-md-8 col-lg-9">
-                <p class="skinsGhost"></p>
-            </div>
-        </div>
-        
-        <div class="row">
-            <button type="submit" class="button button-block col-12" id="jouer"/>Jouer</button>
-        </div>
-      </div><!--/profil-->
-      
-      <div id="jeu">
-          <div class="col-xs-0 col-sm-0 col-md-1" id="left_pannel"></div>
-          <div class="col-xs-12 col-sm-12 col-md-10" id="gameDiv" style="height : 600px;"></div>
-          <div class="col-xs-0 col-sm-0 col-md-1" id="right_pannel"></div>
-      </div><!--/jeu-->
-</div>
+    <div id="jeu">
+      <div class="col-xs-0 col-sm-0 col-md-1" id="left_pannel"></div>
+      <div class="col-xs-12 col-sm-12 col-md-10" id="gameDiv" style="height : 600px;"></div>
+      <div class="col-xs-0 col-sm-0 col-md-1" id="right_pannel"></div>
+    </div>
+    <!--/jeu-->
+  </div>
   <!-- libraries -->
   <script src="js/jquery-3.2.1.min.js"></script>
 
@@ -254,6 +253,8 @@
   <script src="js/phaserStates/titleMenuState.js"></script>
   <script src="js/phaserStates/defaultPacman.js"></script>
   <script src="js/phaserStates/randomMapPacman.js"></script>
+  <script src="js/phaserStates/randomMapPacmanS.js"></script>
+  <script src="js/phaserStates/randomMapPacmanL.js"></script>
   <script src="js/phaserStates/lobby.js"></script>
   <script src="js/phaserStates/selectPlayer.js"></script>
   <script src="js/phaserStates/win.js"></script>
