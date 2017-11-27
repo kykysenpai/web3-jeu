@@ -98,6 +98,11 @@ var randomMapPacmanS = {
 		this.map.setCollisionByExclusion(this.safetile, true, this.layer);
 		//skin is hardcoded, should be added to GUI later
 		this.team = playerInfos.team;
+		if (this.team == TEAM_GHOST) {
+			this.enemyTeam = TEAM_PACMAN;
+		} else {
+			this.enemyTeam = TEAM_GHOST;
+		}
 		this.createLocalPlayer({
 			skin: playerInfos.skin
 		});
@@ -425,6 +430,7 @@ var randomMapPacmanS = {
 	updateSuperState: function(superState) {
 		//TODO change all the loadTexture 'pacman' with load chosen texture
 		if (superState[this.team]) {
+
 			this.enemies.forEach(function(enemy) {
 				enemy.loadTexture('badPacman', 0, false);
 			});
@@ -433,6 +439,7 @@ var randomMapPacmanS = {
 			});
 			this.pacman.loadTexture('superPacman', 0, false);
 		} else if (superState[this.enemyTeam]) {
+
 			this.enemies.forEach(function(enemy) {
 				enemy.loadTexture('superPacman', 0, false);
 			});
