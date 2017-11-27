@@ -188,6 +188,7 @@ exports.RandomMapPacmanL.prototype = {
 		if (this.nPlayerTeam[TEAM_GHOST] >= this.reqPlayer && this.nPlayerTeam[TEAM_PACMAN] >= this.reqPlayer) {
 			this.state = 'Starting the game ...';
 			var thisContext = this;
+			clearTimeout(this.startGameId);
 			this.startGameId = setTimeout(function() {
 				thisContext.emitLobby('startGame', null);
 				thisContext.state = 'Game in progress';
