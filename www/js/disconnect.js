@@ -10,7 +10,6 @@ $(function(){
             token : localStorage.getItem("token")
           },
           success:function(response){
-            //session trouvee
               localStorage.removeItem("authName");
               localStorage.removeItem("token");
               console.log("Contenu après effacement : " 
