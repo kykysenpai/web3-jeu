@@ -1,4 +1,7 @@
 #Untracked files and directories :
 node_modules
 
+www/assets/random-map-large.json
+www/assets/random-map-medium.json
+www/assets/random-map-small.json
 www/assets/random-map.json

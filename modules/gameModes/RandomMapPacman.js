@@ -1,22 +1,14 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacman = function(updateLobby) {
-	this.respawnTime = 800;
+exports.RandomMapPacman = function(properties, updateLobby) {
+	this.respawnTime = properties.get('respawnTime');
 	//nbPlayer in each team required
-	this.reqPlayer = 1;
+	this.reqPlayer = properties.get('reqPlayerMedium');
 
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
-	//spawn postitions of team pacman and ghost
-	this.spawnPos = [{
-		x: 24,
-		y: 24
-	}, {
-		x: 24,
-		y: 24
-	}];
 
 	//players in game or ready for next game
 	this.players = {};
@@ -24,14 +16,97 @@ exports.RandomMapPacman = function(updateLobby) {
 	this.nPlayerTeam = [0, 0];
 
 	this.scores = [0, 0];
+	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
+	this.timeOutSuperID = null;
+	this.startOfTheGameTimeout = null;
 
 	this.updateLobby = updateLobby;
 	this.startGameId;
 	this.isRunning = false;
 
 	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map.json');
+	var map = require('../../www/assets/random-map-medium.json');
+	this.height = map.height;
+	this.width = map.width
+	console.log(this.width + " " + this.height);
+	//spawn postitions of team pacman and ghost
+	this.spawnPos = [
+		[{
+				x: 24,
+				y: 24
+			},
+			{
+				x: 24,
+				y: 40
+			},
+			{
+				x: 40,
+				y: 24
+			},
+			{
+				x: 40,
+				y: 40
+			},
+			{
+				x: 24,
+				y: 56
+			},
+			{
+				x: 40,
+				y: 56
+			},
+			{
+				x: 56,
+				y: 24
+			},
+			{
+				x: 56,
+				y: 40
+			},
+			{
+				x: 56,
+				y: 56
+			}
+		],
+		[{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 2) + 8,
+				y: 16 * (this.height - 4) + 8
+			},
+			{
+				x: 16 * (this.width - 3) + 8,
+				y: 16 * (this.height - 4) + 8
+			},
+			{
+				x: 16 * (this.width - 4) + 8,
+				y: 16 * (this.height - 2) + 8
+			},
+			{
+				x: 16 * (this.width - 4) + 8,
+				y: 16 * (this.height - 3) + 8
+			},
+			{
+				x: 16 * (this.width - 4) + 8,
+				y: 16 * (this.height - 4) + 8
+			}
+		]
+	];
 
 	//this.mapDots = [];
 	this.mapDots = {};
@@ -43,7 +118,7 @@ exports.RandomMapPacman = function(updateLobby) {
 			tile = map.layers[0].data[i * width + j];
 			if (tile === 25 || tile === 30 || tile === 35 || tile === 40) {
 				//this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
-				this.mapDots[[j * 16 + 8, i * 16 + 8]] = new Dot(j * 16 + 8, i * 16 + 8);
+				this.mapDots[[j * 16, i * 16]] = new Dot(j * 16, i * 16);
 			}
 		}
 	}
@@ -57,10 +132,15 @@ exports.RandomMapPacman.prototype = {
 		if (this.nPlayerTeam[TEAM_GHOST] >= this.reqPlayer && this.nPlayerTeam[TEAM_PACMAN] >= this.reqPlayer) {
 			this.state = 'Starting the game ...';
 			var thisContext = this;
+			clearTimeout(this.startGameId);
 			this.startGameId = setTimeout(function() {
 				thisContext.emitLobby('startGame', null);
 				thisContext.state = 'Game in progress';
 				thisContext.isRunning = true;
+				thisContext.startOfTheGameTimeout = setTimeout(function() {
+					clearTimeout(thisContext.startOfTheGameTimeout);
+					thisContext.startOfTheGameTimeout = null;
+				}, 3000);
 			}, 10000);
 		}
 		this.emitUpdateLobby();
@@ -90,7 +170,7 @@ exports.RandomMapPacman.prototype = {
 		});
 	},
 	checkTeams: function(io) {
-		if (!this.isRunning)
+		if (!this.isRunning || this.startOfTheGameTimeout != null)
 			return;
 		if (this.nPlayerTeam[TEAM_GHOST] == 0) {
 			console.log('Victoire team pacman');
@@ -154,10 +234,14 @@ exports.RandomMapPacman.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
-	initSocket: function(io, uuid, millisecondsBtwUpdates, Player) {
+	initSocket: function(io, properties) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
+		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
+		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var game = this;
+		var Player = require(__dirname + '/../Player.js').Player;
+		var uuid = require('uuid/v1');
 		//socket managing
 		io.on('connection', function(socket) {
 			//generate a new uniquer playerId for the connecting socket
@@ -179,8 +263,9 @@ exports.RandomMapPacman.prototype = {
 					game.addToWaitingRoom(player);
 					console.log('added a new player to the randomMapPacman\'s waitingRoom');
 				}
-				console.log(game.spawnPos[data.team]);
-				socket.emit('initSpawn', game.spawnPos[data.team]);
+				console.log(game.nPlayerTeam);
+				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
+				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				game.emitUpdateLobby();
 				//envoie des infos du socket connectant a tout le monde
 				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
@@ -218,11 +303,27 @@ exports.RandomMapPacman.prototype = {
 			});
 		});
 
+
+		//set super dot randomly
+		setInterval(function() {
+			var keys = Object.keys(game.mapDots)
+			game.mapDots[keys[keys.length * Math.random() << 0]].isSuper = true;
+		}, 10000);
+
 		setInterval(function() {
 			io.emit('gameUpdate', {
 				players: game.players,
 				scores: game.scores,
 				dots: game.mapDots
+			});
+		}, millisecondsBtwUpdatesDots);
+
+		setInterval(function() {
+			io.emit('gameUpdate', {
+				players: game.players,
+				scores: game.scores,
+				superState: game.isSuperState,
+				dots: {} //game.mapDots
 			});
 			game.dotsLifeSpan();
 		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
@@ -240,47 +341,44 @@ exports.RandomMapPacman.prototype = {
 			}
 		}
 	},
+	timeOutSuper(playerTeam) {
+		var game = this;
+		clearTimeout(game.timeOutSuperID);
+		game.timeOutSuperID = setTimeout(function() {
+			game.isSuperState[playerTeam] = false;
+		}, 10000);
+	},
 	setPosition: function(playerId, player, io) {
 
 
-		player.x = (((Math.floor(player.x / 16)) * 2) + 1) * 8;
-		player.y = (((Math.floor(player.y / 16)) * 2) + 1) * 8;
-
-		//player.x = ((Math.floor(player.x / 8)) * 8);
-		//player.y = ((Math.floor(player.y / 8)) * 8);
+		player.x = Math.floor(player.x / 16) * 16;
+		player.y = Math.floor(player.y / 16) * 16;
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
 		this.players[playerId].dir = player.dir;
 
+		var playerTeam = this.players[playerId].team;
+
 		var currentDot;
 		//collision without iteration
 		if (this.mapDots[[player.x, player.y]]) {
 			if (this.mapDots[[player.x, player.y]].isAlive) {
+				if (this.mapDots[[player.x, player.y]].isSuper) {
+					if (playerTeam == TEAM_GHOST) {
+						this.isSuperState[TEAM_PACMAN] = false;
+					} else {
+						this.isSuperState[TEAM_GHOST] = false;
+					}
+					this.isSuperState[playerTeam] = true;
+					this.timeOutSuper(playerTeam);
+				}
 				this.incScore(playerId);
 				this.mapDots[[player.x, player.y]].isAlive = false;
 				this.mapDots[[player.x, player.y]].timeUntilAlive = this.respawnTime;
 			}
 		}
-		/*
-		//collision with a dot
-		for (var dotsIter in this.mapDots) {
-			if (!this.mapDots[dotsIter].isAlive) {
-				continue;
-			}
-			if ((xDif = this.mapDots[dotsIter].x - player.x) > -16 &&
-				xDif < 16) {
-				if ((yDif = this.mapDots[dotsIter].y - player.y) > -16 &&
-					yDif < 16) {
-					if (this.mapDots[dotsIter].isAlive) {
-						this.incScore(playerId);
-					}
-					this.mapDots[dotsIter].isAlive = false;
-					this.mapDots[dotsIter].timeUntilAlive = this.respawnTime;
-				}
-			}
-		}
-		*/
+
 		//collision between players
 		for (var playerIter in this.players) {
 			if (!this.players[playerIter].isAlive || playerIter === playerId) {
@@ -294,36 +392,34 @@ exports.RandomMapPacman.prototype = {
 						//collision between two players of the same team
 					} else {
 						//collision between two players of different teams
-						//Player with lowest team score is killed
-						if (this.scores[TEAM_GHOST] > this.scores[TEAM_PACMAN]) {
-							if (this.players[playerId].team == TEAM_PACMAN) {
-								this.players[playerId].isAlive = false;
-								if (this.nPlayerTeam[TEAM_PACMAN] > 0) {
-									this.nPlayerTeam[TEAM_PACMAN]--;
-								}
-							} else if (this.players[playerIter].team == TEAM_PACMAN) {
-								this.players[playerIter].isAlive = false;
-								if (this.nPlayerTeam[TEAM_PACMAN] > 0) {
-									this.nPlayerTeam[TEAM_PACMAN]--;
-								}
+						//if one team is in super state, the other is killed
+						if (this.isSuperState[this.players[playerId].team]) {
+							this.players[playerIter].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerIter].team] > 0) {
+								this.nPlayerTeam[this.players[playerIter].team]--;
 							}
-						} else if (this.scores[TEAM_PACMAN] > this.scores[TEAM_GHOST]) {
-							if (this.players[playerId].team == TEAM_GHOST) {
-								this.players[playerId].isAlive = false;
-								if (this.nPlayerTeam[TEAM_GHOST] > 0) {
-									this.nPlayerTeam[TEAM_GHOST]--;
-								}
-							} else if (this.players[playerIter].team == TEAM_GHOST) {
-								this.players[playerIter].isAlive = false;
-								if (this.nPlayerTeam[TEAM_GHOST] > 0) {
-									this.nPlayerTeam[TEAM_GHOST]--;
-								}
+						} else if (this.isSuperState[this.players[playerIter].team]) {
+							this.players[playerId].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerId].team] > 0) {
+								this.nPlayerTeam[this.players[playerId].team]--;
+							}
+						}
+						//Player with lowest team score is killed
+						else if (this.scores[this.players[playerIter].team] > this.scores[this.players[playerId].team]) {
+							this.players[playerId].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerId].team] > 0) {
+								this.nPlayerTeam[this.players[playerId].team]--;
+							}
+						} else if (this.scores[this.players[playerIter].team] < this.scores[this.players[playerId].team]) {
+							this.players[playerIter].isAlive = false;
+							if (this.nPlayerTeam[this.players[playerIter].team] > 0) {
+								this.nPlayerTeam[this.players[playerIter].team]--;
 							}
 						}
 						this.checkTeams(io);
 					}
 				}
 			}
-		}
+		} // fin for
 	}
 };

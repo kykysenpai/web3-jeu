@@ -54,4 +54,6 @@ Rooms = mongoose.model('Rooms', roomSchema);
 
 exports.players = Players;
 exports.skins = Skins;
-exports.user = Rooms;
+exports.rooms = Rooms;
+
+//const {players, rooms} = require("../../MongoModels"); 

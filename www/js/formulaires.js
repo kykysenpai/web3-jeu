@@ -2,19 +2,16 @@
 
 $(function(){
     $('#seConnecter').on('click',function(e){
-        console.log("formulaire.js -> on clic SeConnecter");
-        var login = $('#pseudoConnexion').val();
-        var mdp = $('#mdpConnexion').val();
-        console.log("formulaire.js -> on clic value login : "+ login);        
-        console.log("formulaire.js -> on clic value mdp "+ mdp);
+        var loginConnexion = $('#pseudoConnexion').val();
+        var mdp = $('#mdpConnexion').val();        
         
         $.ajax({
           url:'/seConnecter',
           type:'POST',
           dataType: "json",
           data:{
-            login:$('#pseudoConnexion').val(),
-            mdp:$('#mdpConnexion').val()
+            login:loginConnexion,
+            passwd:mdp
           },
           success:function(response){
             localStorage.setItem("authName", response.authName);
@@ -34,36 +31,37 @@ $(function(){
             response.ghostSkins.forEach(function(element){
               $(".skinsGhost").append("<img alt=\"default\" src=\"images/"+element+"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
             });
+            $("#messages").append("<p class='alert-success'>" + response.message + "</p>").fadeIn("fast").fadeOut("slow");
             /*$("#deconnexion").show();
             $("#formulaires").hide();
             $("#choix").show();
           */
           },
           error:function(response){
-            console.log("Connexion error " + response.status);
-            $("#messages").append("<p class='error'>La connexion a échoué.</>").fadeIn("fast").fadeOut("slow");;
+            console.log(response.responseJSON.err);
+            $("#messages").append("<p class='alert-danger'>"+ response.responseJSON.err+"</p>").fadeIn("fast").fadeOut("slow");;
           }
         });
       });
 
       $('#sInscrire').on('click',function(e){
-        var login = $('#pseudoConnexion').val();
-        var mdp = $('#mdpConnexion').val();
+        var loginInscription = $('#pseudoInscription').val();
+        var mdp = $('#mdpInscription').val();
           $.ajax({
             url:'/sInscrire',
             type:'POST',
             dataType: "json",
             data:{
-              login:$('#pseudoInscription').val(),
-              mdp:$('#mdpInscription').val()
+              login: loginInscription,
+              passwd: mdp
             },
           success:function(response){
-            console.log("success " + response.status);
-            $("#messages").append("<p class='success'>L'inscription a été prise en compte.</>");
+            console.log(response.message);
+            $("#messages").append("<p class='alert-success'>"+ response.message + "</p>").fadeIn("fast").fadeOut("slow");
           },
           error:function(response){
-            console.log("success " + response.status);
-            $("#messages").append("<p class='success'>L'inscription a échoué.</>").fadeIn("fast").fadeOut("slow");
+            console.log(response.responseJSON.err);
+            $("#messages").append("<p class='alert-danger'>" + response.responseJSON.err + "</p>").fadeIn("fast").fadeOut("slow");
           }          
         });
       });
