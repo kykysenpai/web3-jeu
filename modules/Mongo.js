@@ -34,7 +34,7 @@ exports.Mongo.prototype = {
             //crypting before insert
             password = bcrypt.hashSync(password, 10);   
             
-            var p = new Player({login:login, password : password});
+            var p = new Player({login:login, password : password, pacmanSkins : ["pacman.png"], ghostSkins : ["pacman.png"]});
             //promise answer
             return new Promise(function(resolve, reject) {                
                 //Check si le login name est deja utilise
@@ -52,7 +52,6 @@ exports.Mongo.prototype = {
                 if(!found){
                     console.log("Mongo.js / mongo proto / after find -> ready to insert in db");
                     //INSERT IN DB
-
                     Player.create(p, function(err,player){
                         if (err) {
                             return reject(err);
@@ -79,7 +78,7 @@ exports.Mongo.prototype = {
                         bcrypt.compare(password, player.password, function(err, res) {
                             if (res) {
                                 console.log("Mongo.js / bon mdp");
-                                resolve("Found");
+                                resolve(player);
                             } else {
                                 console.log("Mongo.js / pas bon mdp");
                                 reject(new Error("MDP"));
@@ -95,4 +94,123 @@ exports.Mongo.prototype = {
             );
         }
     },
+    updateStat: function(login,resultat,equipe,score){
+        if(connectedDB){
+            var p = Player.findOne({"login" : login},function (err,player) {
+                if (err) {
+                    reject(new Error("Erreur findOne"));
+                } else if (player==null) {
+                    reject(new Error("Not found"));
+                }
+            });
+            if(resultat=="win"){
+                if(equipe=="pacman"){
+                    if(p.bestScorePacman){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 },
+                                "bestScorePacman" : score
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+                else{
+                    if(p.bestScoreGhost){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 },
+                                "bestScoreGhost" : score
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+            }
+            else{
+                if(equipe=="pacman"){
+                    if(p.bestScorePacman){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 },
+                                "bestScorePacman" : score
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+                else{
+                    if(p.bestScoreGhost){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 },
+                                "bestScoreGhost" : score
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        else{
+            return new Promise(function(resolve,reject){
+                reject(new Error("Database is not accessible."));
+            });
+        }
+    },
+    checkSkin: function(login,nbVictory,nbDefeat,nbPlayedGames,bestScoreGhost,bestScorePacman){
+        if(connectedDB){
+            return new Promise(function(resolve, reject) {  
+                //Check si le login name est present et si oui recupere le player correspondant
+                Skin.find({}).toArray(function(err, result) {
+                    result.array.forEach(function(element){
+                        console.log("CONDITION : "+ element.condition);
+                        if(element.condition){
+                            findOneAndUpdate(
+                                { "login" : login },
+                                { $push : { pacmanSkins : "pacman.png" } }
+                             )
+                        }
+                    });
+                  });;
+            })
+        }else{
+            return new Promise(function(resolve,reject){
+                reject(new Error("Database is not accessible."));
+            }
+            );
+        }
+    }
 };

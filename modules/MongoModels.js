@@ -15,8 +15,8 @@ playerSchema = mongoose.Schema({
     _id_player: { type : mongoose.Schema.Types.ObjectId, default : new mongoose.Types.ObjectId},
     login: { type:String, unique : true, trim:true},
     password : String,
-    currentGhost : {type : Number, ref : 'Skin'},
-    currentPacman : {type : Number, ref : 'Skin'},
+    currentGhost : {type:String,ref : 'Skin', default : "pacman.png"},
+    currentPacman : {type:String,ref : 'Skin', default : "pacman.png"},
     stats : {
         bestScorePacman : { type : Number, default : 0},
         bestScoreGhost :  { type : Number, default : 0},
@@ -24,10 +24,12 @@ playerSchema = mongoose.Schema({
         nbVictory :  { type : Number, default : 0},
         nbDefeat :  { type : Number, default : 0}
     },
-    ghostSkins : [{
-        type : Number, ref : 'Skin'}],
-    pacmanSkins : [{
-        type : Number, ref : 'Skin'}]
+    ghostSkins : [
+        {type : String, ref : 'Skin'}
+    ],
+    pacmanSkins : [
+        {type : String, ref : 'Skin'}
+    ]
 });
 //schema skins
 skinSchema = mongoose.Schema({

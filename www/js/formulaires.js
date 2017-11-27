@@ -21,6 +21,19 @@ $(function(){
             localStorage.setItem("token", response.token);
             console.log("Contenu localStorage : " 
             + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            $("#bestScorePacman").text(response.bestScorePacman + " ");
+            $("#bestScoreGhost").text(response.bestScoreGhost + " ");
+            $("#nbPlayedGames").text(response.nbPlayedGames + " ");
+            $("#nbVictory").text(response.nbVictory + " ");
+            $("#nbDefeat").text(response.nbDefeat + " ");
+            $(".skinCurrentPacman").append("<img alt=\"default\" src=\"images/"+ response.currentPacman +"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
+            $(".skinCurrentGhost").append("<img alt=\"default\" src=\"images/"+ response.currentGhost +"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
+            response.pacmanSkins.forEach(function(element){
+              $(".skinsPacman").append("<img alt=\"default\" src=\"images/"+element+"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
+            });
+            response.ghostSkins.forEach(function(element){
+              $(".skinsGhost").append("<img alt=\"default\" src=\"images/"+element+"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
+            });
             /*$("#deconnexion").show();
             $("#formulaires").hide();
             $("#choix").show();

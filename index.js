@@ -76,15 +76,19 @@ app.get('/deconnecter', function(req,res){
 app.post('/seConnecter',(req,res) => {
 	console.log("Index.js seConnecter-> app.post");
 	//promesse
-	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(succes){
-		console.log("response of connectPlayer in index.js " + succes + " type of : " + typeof(succes));
+	mongo.connectPlayer(req.body.login,req.body.mdp).then(function(success){
+		console.log("response of connectPlayer in index.js " + success + " type of : " + typeof(success));
 		//player ready to connect
 		const payload = { user:req.body.login };
 		var timeout = 1440 // expires in 24 hours
 		var token = jwt.sign(payload, "secretpacman", { expiresIn: '24h' });
 
 		console.log("Connexion succeded");
-		res.status(200).send({"token": token, "authName" : req.body.login});
+		res.status(200).send({"token": token, "authName" : req.body.login, "pacmanSkins" : success.pacmanSkins, 
+							  "ghostSkins" : success.ghostSkins, "nbDefeat" : success.stats.nbDefeat, 
+							  "nbVictory" : success.stats.nbVictory,"nbPlayedGames" : success.stats.nbPlayedGames,
+							  "bestScoreGhost" : success.stats.bestScoreGhost,"bestScorePacman" : success.stats.bestScorePacman,
+							"currentPacman" : success.currentPacman, "currentGhost" : success.currentGhost});
 
 	},function(erreur){
 		//error occured
