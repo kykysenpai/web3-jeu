@@ -64,7 +64,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/verifyLoggedIn', function(req, res) {
-	if (req.query.token == undefined) {
+	if (req.body.tokenLocal == undefined && req.body.tokenSession == undefined) {
 		res.status(401).send();
 	}
 	var decoded = jwt.verify(req.query.token, secretJWT, function(err,playload){
@@ -103,7 +103,7 @@ app.post('/seConnecter', (req, res) => {
 		var tokenJWT = jwt.sign(payload, secretJWT , { expiresIn: '24h' });
 
 		console.log("La connexion a réussi");
-		res.status(connexion.status).json({message : connexion.message, authName : connexion.player.login,
+		res.status(connexion.status).json({store : req.body.keep, message : connexion.message, authName : connexion.player.login,
 			token : tokenJWT});
 	}).catch(function(erreur){
 		console.log("Recupéré : " + JSON.stringify(erreur));
