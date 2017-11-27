@@ -47,6 +47,8 @@ server.listen(app.get('port'), function() {
 	console.log("Pacman is listening on port " + app.get('port'));
 });
 
+var Player = require('./modules/Player.js').Player;
+
 //imports pac man game modes
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
@@ -67,13 +69,15 @@ app.get('/verifyLoggedIn', function(req, res) {
 	if (req.body.tokenLocal == undefined && req.body.tokenSession == undefined) {
 		res.status(401).send();
 	}
-	var decoded = jwt.verify(req.query.token, secretJWT, function(err,playload){
-		if(err){
-			res.status(401).send();
-		}else{
-			res.status(200).send();
-		}
-	});
+	else{
+		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
+			if (err) {
+				res.status(401).send();
+			} else {
+				res.status(200).send();
+			}
+		});
+	}
 });
 
 app.get('/deconnecter', function(req, res) {
@@ -86,48 +90,62 @@ app.get('/deconnecter', function(req, res) {
 
 app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
-	var response = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion){
+	var response = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion) {
 		console.log("Recupéré : " + JSON.stringify(connexion));
 		const payload = {
-			"login" : connexion.player.login, 
-			"currentGhost" : connexion.player.currentGhost, 
-			"currentPacman" : connexion.player.currentPacman,
-			"bestScoreGhost" : connexion.player.stats.bestScoreGhost,
-			"bestScorePacman" : connexion.player.stats.bestScorePacman, 
-			"nbPlayedGames" : connexion.player.stats.nbPlayedGames,
-			"nbVictory" : connexion.player.stats.nbVictory, 
-			"nbDefeat" : connexion.player.stats.nbDefeat,
-			"ghostSkins" : connexion.player.ghostSkins, 
-			"pacmanSkins" : connexion.player.pacmanSkins};
-        var timeout = 1440 // expires in 24 hours
-		var tokenJWT = jwt.sign(payload, secretJWT , { expiresIn: '24h' });
+			"login": connexion.player.login,
+			"currentGhost": connexion.player.currentGhost,
+			"currentPacman": connexion.player.currentPacman,
+			"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+			"bestScorePacman": connexion.player.stats.bestScorePacman,
+			"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+			"nbVictory": connexion.player.stats.nbVictory,
+			"nbDefeat": connexion.player.stats.nbDefeat,
+			"ghostSkins": connexion.player.ghostSkins,
+			"pacmanSkins": connexion.player.pacmanSkins
+		};
+		var timeout = 1440 // expires in 24 hours
+		var tokenJWT = jwt.sign(payload, secretJWT, {
+			expiresIn: '24h'
+		});
 
 		console.log("La connexion a réussi");
-		res.status(connexion.status).json({store : req.body.keep, message : connexion.message, authName : connexion.player.login,
-			token : tokenJWT});
-	}).catch(function(erreur){
+		res.status(connexion.status).json({
+			message: connexion.message,
+			authName: connexion.player.login,
+			token: tokenJWT
+		});
+	}).catch(function(erreur) {
 		console.log("Recupéré : " + JSON.stringify(erreur));
 		console.log("La connexion a échoué");
-		res.status(erreur.status).json({err : erreur.message});
+		res.status(erreur.status).json({
+			err: erreur.message
+		});
 	});
 });
 
 app.post('/sInscrire', (req, res) => {
 	console.log("Index.js sInscrire-> app.post");
 	/*Verification si mot de passe correspond a la regex */
-	var mdpValide = inscription.validerMdp(req.body.passwd).then(function(valide){
-		inscription.inscriptionHandler(req.body.login,req.body.passwd).then(function(inscriptionOK){
+	var mdpValide = inscription.validerMdp(req.body.passwd).then(function(valide) {
+		inscription.inscriptionHandler(req.body.login, req.body.passwd).then(function(inscriptionOK) {
 			console.log("Recupéré : " + JSON.stringify(inscriptionOK));
 			console.log("L'inscription a réussi.");
-			res.status(inscriptionOK.status).json({message: inscriptionOK.message});
-		}).catch(function(pasInscrit){
+			res.status(inscriptionOK.status).json({
+				message: inscriptionOK.message
+			});
+		}).catch(function(pasInscrit) {
 			console.log("Recupéré fail : " + JSON.stringify(pasInscrit));
 			console.log("L'inscription a échoué : " + pasInscrit.message);
-			res.status(pasInscrit.status).json({err: pasInscrit.message});
+			res.status(pasInscrit.status).json({
+				err: pasInscrit.message
+			});
 		});
-	}).catch(function(invalide){
+	}).catch(function(invalide) {
 		console.log("Catch invalide password : Recupéré : " + JSON.stringify(invalide));
-		res.status(invalide.status).json({err: invalide.message});
+		res.status(invalide.status).json({
+			err: invalide.message
+		});
 	});
 });
 
@@ -218,8 +236,8 @@ app.get('/game', function(req, res) {
 //instanciate all game modes rooms
 var defaultPacman = new DefaultPacman(properties, updateLobby);
 var randomMapPacman = new RandomMapPacman(properties, updateLobby);
-var randomMapPacmanS = new RandomMapPacmanS(properties,updateLobby);
-var randomMapPacmanL = new RandomMapPacmanL(properties,updateLobby);
+var randomMapPacmanS = new RandomMapPacmanS(properties, updateLobby);
+var randomMapPacmanL = new RandomMapPacmanL(properties, updateLobby);
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), properties);

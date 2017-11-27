@@ -1,0 +1,15 @@
+#accueil {
+    padding: 5%;
+    margin: 5% auto;
+}
+  
+#accueil img {
+    max-width: 100%;
+    height: auto;
+    padding: 3%;
+    top: 25%;
+}
+
+#loading{
+    text-align: center
+}

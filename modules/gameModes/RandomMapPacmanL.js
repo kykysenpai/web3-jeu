@@ -19,6 +19,9 @@ exports.RandomMapPacmanL = function(properties, updateLobby) {
 	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
 
+	this.timeOutSuperID = null;
+	this.startOfTheGameTimeout = null;
+
 	this.updateLobby = updateLobby;
 	this.startGameId;
 	this.isRunning = false;
@@ -186,10 +189,15 @@ exports.RandomMapPacmanL.prototype = {
 		if (this.nPlayerTeam[TEAM_GHOST] >= this.reqPlayer && this.nPlayerTeam[TEAM_PACMAN] >= this.reqPlayer) {
 			this.state = 'Starting the game ...';
 			var thisContext = this;
+			clearTimeout(this.startGameId);
 			this.startGameId = setTimeout(function() {
 				thisContext.emitLobby('startGame', null);
 				thisContext.state = 'Game in progress';
 				thisContext.isRunning = true;
+				thisContext.startOfTheGameTimeout = setTimeout(function() {
+					clearTimeout(thisContext.startOfTheGameTimeout);
+					thisContext.startOfTheGameTimeout = null;
+				}, 3000);
 			}, 10000);
 		}
 		this.emitUpdateLobby();
@@ -219,7 +227,7 @@ exports.RandomMapPacmanL.prototype = {
 		});
 	},
 	checkTeams: function(io) {
-		if (!this.isRunning)
+		if (!this.isRunning || this.startOfTheGameTimeout != null)
 			return;
 		if (this.nPlayerTeam[TEAM_GHOST] == 0) {
 			console.log('Victoire team pacman');
@@ -392,7 +400,8 @@ exports.RandomMapPacmanL.prototype = {
 	},
 	timeOutSuper(playerTeam) {
 		var game = this;
-		setTimeout(function() {
+		clearTimeout(game.timeOutSuperID);
+		game.timeOutSuperID = setTimeout(function() {
 			game.isSuperState[playerTeam] = false;
 		}, 10000);
 	},
@@ -413,6 +422,11 @@ exports.RandomMapPacmanL.prototype = {
 		if (this.mapDots[[player.x, player.y]]) {
 			if (this.mapDots[[player.x, player.y]].isAlive) {
 				if (this.mapDots[[player.x, player.y]].isSuper) {
+					if (playerTeam == TEAM_GHOST) {
+						this.isSuperState[TEAM_PACMAN] = false;
+					} else {
+						this.isSuperState[TEAM_GHOST] = false;
+					}
 					this.isSuperState[playerTeam] = true;
 					this.timeOutSuper(playerTeam);
 				}
