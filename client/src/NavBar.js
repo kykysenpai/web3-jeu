@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import {connect} from 'react-redux';
+
 class ProfilLink extends Component{
     handleClick(){
         console.log("Afficher Profil")
@@ -36,8 +38,12 @@ class NavBar extends Component {
               </div>
   
               <ul className="nav navbar-nav navbar-right">
-                <ProfilLink />
-                <Deconnexion />
+                {this.props.stateApp === "CONNECTED" ? (
+                    <div>
+                    <ProfilLink />
+                    <Deconnexion />
+                    </div>
+                ):null}
               </ul>
             </div>
           </nav>
@@ -46,4 +52,10 @@ class NavBar extends Component {
   }
 }
 
-export default NavBar;
+function mapStateToProps(state, ownProps){
+    return{
+        stateApp: state.state
+    }
+}
+
+export default connect(mapStateToProps)(NavBar);

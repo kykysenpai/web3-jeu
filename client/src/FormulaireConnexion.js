@@ -8,17 +8,17 @@ class FormulaireConnexion extends Component {
             <div id="form">
             <div className="row">
               <label>Pseudo<span className="req">*</span></label>
-              <input type="text" required autocomplete="off" id="pseudoConnexion" />
+              <input type="text" required autoComplete="off" id="pseudoConnexion" />
             </div>
             <div className="row">
               <label>Mot de passe<span className="req">*</span></label>
-              <input type="password" required autocomplete="off" id="mdpConnexion" />
+              <input type="password" required autoComplete="off" id="mdpConnexion" />
             </div>
             <div className="row no-padding">
               <div className="col-xs-6 col-sm-8 col-lg-9"></div>
               <div className="col-xs-6 col-sm-4 col-lg-3">
                 <input className="col-xs-1" type="checkbox" value="remember"/>
-                <label className="col-xs-11 greenLabel" for="remember">
+                <label className="col-xs-11 greenLabel" htmlFor="remember">
                         Se souvenir de moi
                       </label>
               </div>

@@ -69,13 +69,15 @@ app.get('/verifyLoggedIn', function(req, res) {
 	if (req.query.token == undefined) {
 		res.status(401).send();
 	}
-	var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
-		if (err) {
-			res.status(401).send();
-		} else {
-			res.status(200).send();
-		}
-	});
+	else{
+		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
+			if (err) {
+				res.status(401).send();
+			} else {
+				res.status(200).send();
+			}
+		});
+	}
 });
 
 app.get('/deconnecter', function(req, res) {
