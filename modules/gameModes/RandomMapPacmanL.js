@@ -19,6 +19,8 @@ exports.RandomMapPacmanL = function(properties, updateLobby) {
 	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
 
+	this.timeOutSuperID = null;
+
 	this.updateLobby = updateLobby;
 	this.startGameId;
 	this.isRunning = false;
@@ -392,7 +394,8 @@ exports.RandomMapPacmanL.prototype = {
 	},
 	timeOutSuper(playerTeam) {
 		var game = this;
-		setTimeout(function() {
+		clearTimeout(game.timeOutSuperID);
+		game.timeOutSuperID = setTimeout(function() {
 			game.isSuperState[playerTeam] = false;
 		}, 10000);
 	},
