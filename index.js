@@ -50,11 +50,13 @@ server.listen(app.get('port'), function() {
 var Player = require('./modules/Player.js').Player;
 
 //imports pac man game modes
+var PacmanGame = require(__dirname + '/modules/gameModes/PacmanGame.js').PacmanGame;
+/*
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
 var RandomMapPacmanS = require('./modules/gameModes/RandomMapPacmanS.js').RandomMapPacmanS;
 var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').RandomMapPacmanL;
-
+*/
 /* Import les modules nécessaires a la connexion et inscription */
 var connexion = require("./modules/Connexion.js")
 var inscription = require("./modules/Inscription.js");
@@ -68,8 +70,7 @@ app.get('/', function(req, res) {
 app.get('/verifyLoggedIn', function(req, res) {
 	if (req.query.token == undefined) {
 		res.status(401).send();
-	}
-	else{
+	} else {
 		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
 			if (err) {
 				res.status(401).send();
@@ -234,10 +235,10 @@ app.get('/game', function(req, res) {
 });
 
 //instanciate all game modes rooms
-var defaultPacman = new DefaultPacman(properties, updateLobby);
-var randomMapPacman = new RandomMapPacman(properties, updateLobby);
-var randomMapPacmanS = new RandomMapPacmanS(properties, updateLobby);
-var randomMapPacmanL = new RandomMapPacmanL(properties, updateLobby);
+var defaultPacman = new PacmanGame(properties, updateLobby, 'Default');
+var randomMapPacman = new PacmanGame(properties, updateLobby, 'Medium');
+var randomMapPacmanS = new PacmanGame(properties, updateLobby, 'Small');
+var randomMapPacmanL = new PacmanGame(properties, updateLobby, 'Large');
 
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), properties);
@@ -261,7 +262,6 @@ function updateLobby(data) {
 
 io.of('/lobbySocket').on('connection', function(socket) {
 	socket.on('joinLobby', function(chosenGameMode) {
-		console.log('A socket joined the gamemode ' + chosenGameMode + ' lobby room');
 		switch (chosenGameMode) {
 			case 1:
 				socket.join('defaultPacmanRoom');
