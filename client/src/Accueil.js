@@ -19,14 +19,13 @@ class Acceuil extends Component{
         })
           .then(function (response) {
             console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
-            that.props.actions.modifyAppState(states.CONNECTED);
+            that.props.actions.modifyRenderNC(that.props.stateApp, states.CONNECTED);
           })
           .catch(function (error) {
             localStorage.removeItem("authName");
             localStorage.removeItem("token");
             console.log("No active session");
-            console.log(states.NO_CONNECTION);
-            that.props.actions.modifyAppState(states.NO_CONNECTION);
+            that.props.actions.modifyRenderNC(that.props.stateApp, states.NO_CONNECTION);
           });
     }
 
@@ -66,7 +65,7 @@ class Acceuil extends Component{
 
 function mapStateToProps(state, ownProps){
     return{
-        stateApp: state.state
+        stateApp: state
     };
 }
 

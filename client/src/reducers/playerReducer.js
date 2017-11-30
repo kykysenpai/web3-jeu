@@ -1,11 +1,11 @@
 import * as actions from '../Actions'
 
-export default function stateReducer(state = {}, action){
+export default function playerReducer(state = {}, action){
     switch(action.type){
-        case actions.MODIFY_STATE:
+        case actions.LOAD_PLAYER:
         console.log(action);
         console.log(state);
-        return Object.assign({},state,{state: action.stateApp});
+        return state;
         default:
             return state;
     }

@@ -8,7 +8,13 @@ import configureStore from './store/configureStore';
 import {Provider} from 'react-redux';
 import * as states from './AppState'
 
-const store = configureStore({state:states.HOME});
+
+const state = {
+    state:states.HOME,
+    afficher:states.HOME,
+    player: {}
+};
+const store = configureStore(state);
 
 render(
 <Provider store={store}>
