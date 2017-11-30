@@ -1,4 +1,9 @@
 var chosenGameMode;
+var chosenGameModeInfos = {
+	safeTiles: null,
+	mapAsset: null,
+	tilesAsset: null
+};
 
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
@@ -9,7 +14,7 @@ var playerInfos = { //default
 	x: 24,
 	y: 24,
 	dir: 4
-}
+};
 
 var titleMenuState = {
 	preload: function() {
@@ -31,7 +36,7 @@ var titleMenuState = {
 		var j = 1;
 		var nbGame = 4;
 		for (var i = 0; i < nbGame; i++) {
-			var thumb = game.add.image((400 / (nbGame+1)) * (i+1)-32, 200, modeThumbs[i]);
+			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 200, modeThumbs[i]);
 			thumb.levelNumber = j++;
 			thumb.inputEnabled = true;
 			thumb.useHandCursor = true;
@@ -39,21 +44,22 @@ var titleMenuState = {
 			thumb.input.useHandCursor = true;
 			thumb.events.onInputDown.add(function(clickedImage) {
 				chosenGameMode = clickedImage.levelNumber;
+
 				game.state.start('selectPlayer');
 			}, this);
 		}
 
-		this.blackScreen = game.add.image(0,0,'blackScreen');
-		var title = game.add.image(0, 10, 'title');		
+		this.blackScreen = game.add.image(0, 0, 'blackScreen');
+		var title = game.add.image(0, 10, 'title');
 		title.inputEnabled = true;
 		title.events.onInputDown.add(function(clickedImage) {
 			game.state.start('bootState');
 		}, this);
 		title.input.useHandCursor = true;
 	},
-	update: function(){
-		if(this.blackScreen.alpha>0){
-			this.blackScreen.alpha-=0.1;
+	update: function() {
+		if (this.blackScreen.alpha > 0) {
+			this.blackScreen.alpha -= 0.1;
 		}
 	}
 };

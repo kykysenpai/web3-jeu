@@ -9,7 +9,7 @@ var downMobile = false;
 /*
  Default Pacman game
 */
-var randomMapPacmanL = {
+var PacmanGameClient = {
 	/*
 	 * Window auto adjust to client window size + start physics managing in phase
 	 */
@@ -19,7 +19,7 @@ var randomMapPacmanL = {
 		this.layer = null;
 		this.pacman = null;
 		this.skin = null;
-		this.safetile = [25, 30, 35, 40];
+		this.safetile = chosenGameModeInfos.safeTiles;
 		this.gridsize = 16;
 		this.speed = 150;
 		this.threshold = 3;
@@ -38,6 +38,7 @@ var randomMapPacmanL = {
 		this.scoresDisplay = null;
 		//Receives a random team, will be changed later
 		this.team = null;
+		this.enemyTeam = null;
 		this.playerId = null;
 
 		Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
@@ -50,31 +51,32 @@ var randomMapPacmanL = {
 			game.time.advancedTiming = true;
 		}
 		this.load.image('dot', 'assets/dot.png');
-		this.load.image('tiles', 'assets/tiles.png');
-		this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
+		this.load.image('tiles', chosenGameModeInfos.tilesAsset);
+		this.load.spritesheet('pacman', 'assets/playerSkins/pacman.png', 32, 32);
+		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 32, 32);
+		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 32, 32);
 		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
 		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
-		this.load.tilemap('map', 'assets/random-map-large.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map', chosenGameModeInfos.mapAsset, null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 		this.load.image('superDot', 'assets/superDot.png');
+		this.game.disableVisibilityChange = true;
 	},
 	/*
 	 * Var initialisation of in game items
 	 */
 	create: function() {
-		//socket = io('/defaultPacman');
-
 		//mobile button var
 		var buttonLeft = null;
 		var buttonRight = null;
 		var buttonUp = null;
 		var buttonDown = null;
 
-		this.map = this.add.tilemap('map'); //pacman-map.json
-		this.map.addTilesetImage('tiles', 'tiles'); //pacman-tiles.png
+		this.map = this.add.tilemap('map');
+		this.map.addTilesetImage('pacman-tiles', 'tiles');
 		this.layer = this.map.createLayer('Pacman');
-		this.dots = this.add.physicsGroup(); //Group of dots (= things to catch could be removed later if we don't need for multiplayer aspect)
+		this.dots = this.add.physicsGroup();
 		this.enemies = this.add.physicsGroup();
 		this.allies = this.add.physicsGroup();
 		this.scoresDisplay = this.add.text(0, 0, "000 | 000", {
@@ -86,9 +88,7 @@ var randomMapPacmanL = {
 			boundsAlignV: "top"
 		});
 		this.scoresDisplay.position.x = 200;
-		//this.scoresDisplay.setTextBounds(0, 0, 400, 0);
 		this.scoresDisplay.fixedToCamera = true;
-		//this.map.createFromTiles(this.safetile, this.safetile, 'dot', this.layer, this.dots);
 		//change bounds to actual map size to allow camera follow out of the 400x400 window created initially
 		this.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 		//  The dots will need to be offset by 6px to put them back in the middle of the grid => I trust the dude from the tutorial lmao
@@ -173,7 +173,7 @@ var randomMapPacmanL = {
 				rightMobile = false;
 			});
 		}
-		randomMapPacmanSockets();
+		defaultPacmanSockets();
 	},
 	render: function() {
 		if (showDebug) {
@@ -235,16 +235,7 @@ var randomMapPacmanL = {
 		this.skin = data.skin;
 		var xSpawn = playerInfos.x;
 		var ySpawn = playerInfos.y;
-		/*
-		if (this.team === TEAM_PACMAN) {
-			xSpawn = playerInfos.x;
-			ySpawn = playerInfos.y;
-		} else if (this.team === TEAM_GHOST) {
-			xSpawn = playerInfos.x;
-			ySpawn = playerInfos.y;
-		}
-		*/
-		//  Position Pacman at grid location 14x17 (the +8 accounts for his anchor) => still trusting
+
 		this.pacman = this.add.sprite(xSpawn, ySpawn, data.skin, 0);
 		this.pacman.anchor.set(0.5);
 		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
@@ -278,10 +269,7 @@ var randomMapPacmanL = {
 		}
 		if (data.isSuper) {
 			newDot.loadTexture('superDot', 0, false);
-			newDot.isSuper = true;
-		} else {
-			newDot.isSuper = false;
-		}
+		} else {}
 		return newDot;
 	},
 	checkKeys: function() {
@@ -400,9 +388,6 @@ var randomMapPacmanL = {
 	//kill local player
 	destroyPlayer: function() {
 		this.pacman.kill();
-		//closeDefaultPacmanSockets();
-		//socket.close();
-		//game.state.start('titleMenuState');
 	},
 	//kill not local player
 	killPlayer: function(data) {
@@ -493,7 +478,7 @@ var randomMapPacmanL = {
 	}
 }
 
-function randomMapPacmanSockets() {
+function defaultPacmanSockets() {
 
 	//Another player disconnected
 	socket.on('disconnectedUser', function(data) {
@@ -553,9 +538,15 @@ function randomMapPacmanSockets() {
 				} else {
 					context.mapDots[i].visible = false;
 				}
+
+				if (dots[i].isSuper) {
+					context.mapDots[i].loadTexture('superDot', 0, false);
+				} else {
+					context.mapDots[i].loadTexture('dot', 0, false);
+				}
+
 			}
 		}
-		//info superstate
 		if (infos.superState) {
 			context.updateSuperState(infos.superState);
 		}

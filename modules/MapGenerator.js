@@ -172,7 +172,7 @@ var create = function(size) {
 			"imageheight": 137,
 			"imagewidth": 86,
 			"margin": 1,
-			"name": "tiles",
+			"name": "pacman-tiles",
 			"properties": {
 
 			},
