@@ -55,6 +55,7 @@ var PacmanGameClient = {
 		this.load.spritesheet('pacman', 'assets/playerSkins/pacman.png', 32, 32);
 		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 32, 32);
 		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 32, 32);
+		this.load.spritesheet('clone', 'assets/playerSkins/clone.png', 32, 32);
 		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
 		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
 		this.load.tilemap('map', chosenGameModeInfos.mapAsset, null, Phaser.Tilemap.TILED_JSON);
@@ -173,7 +174,7 @@ var PacmanGameClient = {
 				rightMobile = false;
 			});
 		}
-		defaultPacmanSockets();
+		PacmanClientSockets();
 	},
 	render: function() {
 		if (showDebug) {
@@ -256,6 +257,7 @@ var PacmanGameClient = {
 		}
 		newPlayer.anchor.set(0.5);
 		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
+		newPlayer.chosenSkin = data.skin;
 		this.physics.arcade.enable(newPlayer);
 		newPlayer.body.setSize(16, 16, 0, 0);
 		newPlayer.play('munch');
@@ -432,12 +434,12 @@ var PacmanGameClient = {
 			this.pacman.loadTexture('badPacman', 0, false);
 		} else {
 			this.enemies.forEach(function(enemy) {
-				enemy.loadTexture('pacman', 0, false);
+				enemy.loadTexture(enemy.chosenSkin, 0, false);
 			});
 			this.allies.forEach(function(ally) {
-				ally.loadTexture('pacman', 0, false);
+				ally.loadTexture(ally.chosenSkin, 0, false);
 			});
-			this.pacman.loadTexture('pacman', 0, false);
+			this.pacman.loadTexture(this.skin, 0, false);
 		}
 	},
 	/*
@@ -478,7 +480,7 @@ var PacmanGameClient = {
 	}
 }
 
-function defaultPacmanSockets() {
+function PacmanClientSockets() {
 
 	//Another player disconnected
 	socket.on('disconnectedUser', function(data) {

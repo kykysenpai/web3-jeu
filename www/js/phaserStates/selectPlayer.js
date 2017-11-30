@@ -9,8 +9,9 @@ var selectPlayer = {
 		game.load.image('teamFrame', 'assets/teamFrame.png');
 		game.load.image('skinFrame', 'assets/skinFrame.png');
 		game.load.image('start', 'assets/start.png');
-		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 65, 100);
-		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 140, 138);
+		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 32, 32);
+		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 32, 32);
+		this.load.spritesheet('clone', 'assets/playerSkins/clone.png', 32, 32);
 	},
 	create: function() {
 		var teamHeight = 160;
@@ -58,22 +59,29 @@ var selectPlayer = {
 		var skinFrame = game.add.image(72, 270, 'skinFrame');
 
 		//all skins
-		var thumb = game.add.sprite(90, 270, 'pacman', 0);
+		var thumb = game.add.sprite(80, 270, 'pacman', 0);
 		thumb.skin = 'pacman';
 		thumb.inputEnabled = true;
 		thumb.events.onInputDown.add(function(clickedImage) {
 			playerInfos.skin = clickedImage.skin;
 		}, this);
 
-		var thumb = game.add.sprite(140, 270, 'batman', 0);
+		var thumb = game.add.sprite(117, 270, 'batman', 0);
 		thumb.skin = 'batman';
 		thumb.inputEnabled = true;
 		thumb.events.onInputDown.add(function(clickedImage) {
 			playerInfos.skin = clickedImage.skin;
 		}, this);
 
-		var thumb = game.add.sprite(190, 270, 'darthVader', 0);
+		var thumb = game.add.sprite(154, 270, 'darthVader', 0);
 		thumb.skin = 'darthVader';
+		thumb.inputEnabled = true;
+		thumb.events.onInputDown.add(function(clickedImage) {
+			playerInfos.skin = clickedImage.skin;
+		}, this);
+
+		var thumb = game.add.sprite(191, 270, 'clone', 0);
+		thumb.skin = 'clone';
 		thumb.inputEnabled = true;
 		thumb.events.onInputDown.add(function(clickedImage) {
 			playerInfos.skin = clickedImage.skin;

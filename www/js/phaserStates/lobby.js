@@ -14,6 +14,7 @@ var lobby = {
 
 		title.inputEnabled = true;
 		title.events.onInputDown.add(function(clickedImage) {
+			lobbySocket.close();
 			game.state.start('bootState');
 		}, this);
 
