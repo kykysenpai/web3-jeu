@@ -4,7 +4,9 @@ var salt = bcrypt.genSaltSync(10);
 //db
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://heroku_user_test:pacmanweb3@ds127375.mlab.com:27375/heroku_djnrjqpc");
+//mongoose.connect("mongodb://heroku_user_test:pacmanweb3@ds127375.mlab.com:27375/heroku_djnrjqpc");
+mongoose.connect("mongodb://heroku_djnrjqpc:14l5erk3pnl3cb5p38pk4nfdht@ds127375.mlab.com:27375/heroku_djnrjqpc");
+
 var db = mongoose.connection;
 
 //import models
@@ -88,5 +90,126 @@ exports.connectPlayer = function(joueur,passwordClair){
         }else{
             reject("DbKO");
         }
-    }); 
+    });
 };
+    
+exports.updateStat = function(login,resultat,equipe,score){
+        if(connectedDB){
+            var p = Player.findOne({"login" : login},function (err,player) {
+                if (err) {
+                    reject(new Error("Erreur findOne"));
+                } else if (player==null) {
+                    reject(new Error("Not found"));
+                }
+            });
+            if(resultat=="win"){
+                if(equipe=="pacman"){
+                    if(p.bestScorePacman){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScorePacman" : score }
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+                else{
+                    if(p.bestScoreGhost){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScoreGhost" : score }
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+            }
+            else{
+                if(equipe=="pacman"){
+                    if(p.bestScorePacman){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScorePacman" : score }
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+                else{
+                    if(p.bestScoreGhost){ 
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScoreGhost" : score }
+                            }
+                        )
+                    }
+                    else{
+                        Player.findOneAndUpdate(
+                            { "login" : login },
+                            { 
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        else{
+            return new Promise(function(resolve,reject){
+                reject(new Error("Database is not accessible."));
+            });
+        }
+};
+    
+exports.checkSkin = function(login,nbVictory,nbDefeat,nbPlayedGames,bestScoreGhost,bestScorePacman){
+        if(connectedDB){
+            return new Promise(function(resolve, reject) {  
+                //Check si le login name est present et si oui recupere le player correspondant
+                Skin.find({}).toArray(function(err, result) {
+                    result.array.forEach(function(element){
+                        console.log("CONDITION : "+ element.condition);
+                        if(element.condition){
+                            findOneAndUpdate(
+                                { "login" : login },
+                                { $push : { pacmanSkins : "pacman.png" } }
+                             )
+                        }
+                    });
+                  });;
+            })
+        }else{
+            return new Promise(function(resolve,reject){
+                reject(new Error("Database is not accessible."));
+            }
+            );
+        }
+    };
