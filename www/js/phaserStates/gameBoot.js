@@ -1,5 +1,5 @@
 var bootState = {
-	preload: function(){
+	preload: function() {
 		game.load.image('bg', 'assets/bg.png');
 		game.load.image('title', 'assets/title.png');
 		game.load.image('mode', 'assets/mode.png');
@@ -15,14 +15,14 @@ var bootState = {
 		this.scale.pageAlignVertically = true;
 
 		this.titleImg = this.add.image(0, 140, 'title');
-		this.titleImg.alpha=0
+		this.titleImg.alpha = 0
 	},
-	update: function(){
-		if(this.titleImg.alpha<1){
-			this.titleImg.alpha+=0.01;
-		}else if(this.titleImg.y>=10){
-			this.titleImg.y-=5;
-		}else{
+	update: function() {
+		if (this.titleImg.alpha < 1) {
+			this.titleImg.alpha += 0.01;
+		} else if (this.titleImg.y >= 10) {
+			this.titleImg.y -= 5;
+		} else {
 			game.state.start('titleMenuState');
 		}
 	}

@@ -22,8 +22,8 @@ class Formulaires extends Component {
             <div id="formulaires">
                 <PacmanImageMenu />
                 <ul className="tab-group">
-                    <li className="tab active"><a id="inscription" onClick={this.handleTabChange}>Inscription</a></li>
-                    <li className="tab"><a id="connexion" onClick={this.handleTabChange}>Connexion</a></li>
+                    <li className={this.state.isInscriptionOpen ? "tab active" : "tab"}><a id="inscription" onClick={this.handleTabChange}>Inscription</a></li>
+                    <li className={this.state.isInscriptionOpen ? "tab" : "tab active"}><a id="connexion" onClick={this.handleTabChange}>Connexion</a></li>
                 </ul>
                 <div className="tab-content">
                     {this.state.isInscriptionOpen ? <FormulaireInscription /> : <FormulaireConnexion /> }
