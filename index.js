@@ -66,12 +66,19 @@ app.get('/', function(req, res) {
 
 
 app.get('/verifyLoggedIn', function(req, res) {
-	if (req.body.tokenLocal == undefined && req.body.tokenSession == undefined) {
+	if (!req.query.tokenLocal && !req.query.tokenSession) {
+		console.log("Les deux tokens sont vides...");
 		res.status(401).send();
 	} else {
-		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
+		var token = null;
+		if(req.query.tokenLocal){
+			token = req.query.tokenLocal;
+		}else{
+			token = req.query.tokenSession;
+		}
+		var decoded = jwt.verify(token, secretJWT, function(err, playload) {
 			if (err) {
-				console.log("Erreur token verification" + err.message)
+				console.log("Erreur token verification " + err.message)
 				res.status(401).send();
 			} else {
 				console.log(JSON.stringify(playload));
