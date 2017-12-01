@@ -1,6 +1,5 @@
 var selectPlayer = {
 	preload: function() {
-		game.load.spritesheet('pacman', 'assets/playerSkins/pacman.png', 32, 32);
 		game.load.image('blankThumb', 'assets/blankImage.png');
 		game.load.image('title', 'assets/title.png');
 		game.load.image('bg', 'assets/bg.png');
@@ -9,9 +8,9 @@ var selectPlayer = {
 		game.load.image('teamFrame', 'assets/teamFrame.png');
 		game.load.image('skinFrame', 'assets/skinFrame.png');
 		game.load.image('start', 'assets/start.png');
-		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 32, 32);
-		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 32, 32);
-		this.load.spritesheet('clone', 'assets/playerSkins/clone.png', 32, 32);
+		for (var i = 0; i < skinList.length; i++) {
+			this.load.spritesheet(skinList[i].name, skinList[i].path, 32, 32);
+		}
 	},
 	create: function() {
 		var teamHeight = 160;
@@ -58,33 +57,15 @@ var selectPlayer = {
 
 		var skinFrame = game.add.image(72, 270, 'skinFrame');
 
-		//all skins
-		var thumb = game.add.sprite(80, 270, 'pacman', 0);
-		thumb.skin = 'pacman';
-		thumb.inputEnabled = true;
-		thumb.events.onInputDown.add(function(clickedImage) {
-			playerInfos.skin = clickedImage.skin;
-		}, this);
-
-		var thumb = game.add.sprite(117, 270, 'batman', 0);
-		thumb.skin = 'batman';
-		thumb.inputEnabled = true;
-		thumb.events.onInputDown.add(function(clickedImage) {
-			playerInfos.skin = clickedImage.skin;
-		}, this);
-
-		var thumb = game.add.sprite(154, 270, 'darthVader', 0);
-		thumb.skin = 'darthVader';
-		thumb.inputEnabled = true;
-		thumb.events.onInputDown.add(function(clickedImage) {
-			playerInfos.skin = clickedImage.skin;
-		}, this);
-
-		var thumb = game.add.sprite(191, 270, 'clone', 0);
-		thumb.skin = 'clone';
-		thumb.inputEnabled = true;
-		thumb.events.onInputDown.add(function(clickedImage) {
-			playerInfos.skin = clickedImage.skin;
-		}, this);
+		var j = 80;
+		for (var i = 0; i < skinList.length; i++) {
+			var thumb = game.add.sprite(j, 270, skinList[i].name, 0);
+			j += 37; //32px for sprite width + 5 for margin
+			thumb.skin = skinList[i].name;
+			thumb.inputEnabled = true;
+			thumb.events.onInputDown.add(function(clickedImage) {
+				playerInfos.skin = clickedImage.skin;
+			}, this);
+		}
 	}
-};
+}

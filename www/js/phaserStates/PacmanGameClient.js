@@ -52,16 +52,15 @@ var PacmanGameClient = {
 		}
 		this.load.image('dot', 'assets/dot.png');
 		this.load.image('tiles', chosenGameModeInfos.tilesAsset);
-		this.load.spritesheet('pacman', 'assets/playerSkins/pacman.png', 32, 32);
-		this.load.spritesheet('batman', 'assets/playerSkins/batman.png', 32, 32);
-		this.load.spritesheet('darthVader', 'assets/playerSkins/darthVader.png', 32, 32);
-		this.load.spritesheet('clone', 'assets/playerSkins/clone.png', 32, 32);
 		this.load.spritesheet('superPacman', 'assets/superPacman.png', 32, 32);
 		this.load.spritesheet('badPacman', 'assets/badPacman.png', 32, 32);
 		this.load.tilemap('map', chosenGameModeInfos.mapAsset, null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet('buttonvertical', 'assets/button-vertical.png', 32, 48);
 		this.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png', 48, 32);
 		this.load.image('superDot', 'assets/superDot.png');
+		for (var i = 0; i < skinList.length; i++) {
+			this.load.spritesheet(skinList[i].name, skinList[i].path, 32, 32);
+		}
 		this.game.disableVisibilityChange = true;
 	},
 	/*

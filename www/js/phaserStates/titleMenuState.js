@@ -16,6 +16,22 @@ var playerInfos = { //default
 	dir: 4
 };
 
+var skinList = [];
+
+skinList.push({
+	name: 'darthVader',
+	path: 'assets/playerSkins/darthVader.png'
+}, {
+	name: 'batman',
+	path: 'assets/playerSkins/batman.png'
+}, {
+	name: 'clone',
+	path: 'assets/playerSkins/clone.png'
+}, {
+	name: 'pacman',
+	path: 'assets/playerSkins/pacman.png'
+});
+
 var titleMenuState = {
 	preload: function() {
 		game.load.image('levelThumb', 'assets/blankImage.png');
