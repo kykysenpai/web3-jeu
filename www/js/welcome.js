@@ -7,10 +7,14 @@ $(function(){
           url:'/verifyLoggedIn',
           type:'GET',
           data:{
-            token : localStorage.getItem("token")
+            tokenLocal : localStorage.getItem("token"),
+            tokenSession : sessionStorage.getItem("token")
           },
           success:function(response){
-            console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            console.log("Session localStorage active "+localStorage.getItem("authName") + "   " 
+              + localStorage.getItem("token"));
+            console.log("Session sessionStorage active "+sessionStorage.getItem("authName") + "   " 
+              + sessionStorage.getItem("token"));
             /*$("deconnexion").show();
             $("deconnexion").css("display","block");
             $("#accueil").hide();
@@ -20,6 +24,8 @@ $(function(){
           error:function(response){
             localStorage.removeItem("authName");
             localStorage.removeItem("token");
+            sessionStorage.removeItem("authName");
+            sessionStorage.removeItem("token");
             console.log("No active session");
             /*$("#accueil").hide();
             $("#formulaires").show();*/            

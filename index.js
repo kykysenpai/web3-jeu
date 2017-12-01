@@ -69,13 +69,15 @@ app.get('/', function(req, res) {
 
 
 app.get('/verifyLoggedIn', function(req, res) {
-	if (req.query.token == undefined) {
+	if (req.body.tokenLocal == undefined && req.body.tokenSession == undefined) {
 		res.status(401).send();
 	} else {
 		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
 			if (err) {
+				console.log("Erreur token verification" + err.message)
 				res.status(401).send();
 			} else {
+				console.log(JSON.stringify(playload));
 				res.status(200).send();
 			}
 		});
@@ -113,6 +115,7 @@ app.post('/seConnecter', (req, res) => {
 
 		console.log("La connexion a réussi");
 		res.status(connexion.status).json({
+			store: req.body.keep,
 			message: connexion.message,
 			authName: connexion.player.login,
 			token: tokenJWT
