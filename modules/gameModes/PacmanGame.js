@@ -1,14 +1,62 @@
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
-exports.RandomMapPacmanS = function(properties, updateLobby) {
-	this.respawnTime = properties.get('respawnTime');
-	//nbPlayer in each team required
-	this.reqPlayer = properties.get('reqPlayerSmall');
+exports.PacmanGame = function(properties, updateLobby, size) {
 
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
+
+	var SpawnPositions = require(__dirname + '/SpawnPositions.js');
+
+	this.respawnTime = properties.get('respawnTime');
+	this.superBuffDuration = properties.get('superBuffDuration');
+	this.startOfTheGameTimeoutDuration = properties.get('startOfTheGameTimeoutDuration');
+
+	this.size = size;
+
+	var map;
+	switch (size) {
+		case 'Default':
+			this.reqPlayer = properties.get('reqPlayerDefault');
+			map = require(__dirname + '/../../www/assets/pacman-map.json');
+			this.room = 'defaultPacmanRoom';
+			break;
+		case 'Small':
+			this.reqPlayer = properties.get('reqPlayerSmall');
+			map = require(__dirname + '/../../www/assets/random-map-small.json');
+			this.room = 'randomMapPacmanRoomS';
+			break;
+		case 'Medium':
+			this.reqPlayer = properties.get('reqPlayerMedium');
+			map = require(__dirname + '/../../www/assets/random-map-medium.json');
+			this.room = 'randomMapPacmanRoom';
+			break;
+		case 'Large':
+			this.reqPlayer = properties.get('reqPlayerLarge');
+			map = require(__dirname + '/../../www/assets/random-map-large.json');
+			this.room = 'randomMapPacmanRoomL';
+			break;
+	}
+
+	this.height = map.height;
+	this.width = map.width
+
+	switch (size) {
+		case 'Default':
+			this.spawnPos = SpawnPositions.default(this.width, this.height);
+			break;
+		case 'Small':
+			this.spawnPos = SpawnPositions.small(this.width, this.height);
+			break;
+		case 'Medium':
+			this.spawnPos = SpawnPositions.medium(this.width, this.height);
+			break;
+		case 'Large':
+			this.spawnPos = SpawnPositions.large(this.width, this.height);
+			break;
+	}
+
 
 	//players in game or ready for next game
 	this.players = {};
@@ -18,75 +66,39 @@ exports.RandomMapPacmanS = function(properties, updateLobby) {
 	this.scores = [0, 0];
 	this.isSuperState = [false, false];
 	this.state = 'Waiting for players';
+
+	this.updateLobby = updateLobby;
+
+	//the timeout IDs which need to be checked or stopped
+	this.startGameId = null;
 	this.timeOutSuperID = null;
 	this.startOfTheGameTimeout = null;
 
-	this.updateLobby = updateLobby;
-	this.startGameId;
+	//is the game running or waiting for players
 	this.isRunning = false;
 
-	var Dot = require('../Dot.js').Dot;
-	var map = require('../../www/assets/random-map-small.json');
-	this.height = map.height;
-	this.width = map.width
-	console.log(this.width + " " + this.height);
-	//spawn postitions of team pacman and ghost
-	this.spawnPos = [
-		[{
-				x: 24,
-				y: 24
-			},
-			{
-				x: 24,
-				y: 40
-			},
-			{
-				x: 40,
-				y: 24
-			},
-			{
-				x: 40,
-				y: 40
-			}
-		],
-		[{
-				x: 16 * (this.width - 2) + 8,
-				y: 16 * (this.height - 2) + 8
-			},
-			{
-				x: 16 * (this.width - 2) + 8,
-				y: 16 * (this.height - 3) + 8
-			},
-			{
-				x: 16 * (this.width - 3) + 8,
-				y: 16 * (this.height - 2) + 8
-			},
-			{
-				x: 16 * (this.width - 3) + 8,
-				y: 16 * (this.height - 3) + 8
-			}
-		]
-	];
+	var Dot = require(__dirname + '/../Dot.js').Dot;
 
-	//this.mapDots = [];
 	this.mapDots = {};
-	//chopper les dots
+	//fetch dots
 	var height = map.height;
 	var width = map.width;
 	for (var i = 1; i < height - 1; i++) {
 		for (var j = 1; j < width - 1; j++) {
 			tile = map.layers[0].data[i * width + j];
-			if (tile === 25 || tile === 30 || tile === 35 || tile === 40) {
-				//this.mapDots.push(new Dot(j * 16 + 8, i * 16 + 8));
+			if ((this.size == 'Default' && tile === 7) ||
+				(this.size != 'Default' && (tile === 25 || tile === 30 || tile === 35 || tile === 40))) {
 				this.mapDots[[j * 16, i * 16]] = new Dot(j * 16, i * 16);
 			}
 		}
 	}
 };
-exports.RandomMapPacmanS.prototype = {
+
+exports.PacmanGame.prototype = {
+	//add a player to the active game
 	addPlayer: function(player) {
 		this.players[player.playerId] = player;
-		console.log("a new player connected to the game RandomMapPacman");
+		console.log("a new player connected to the " + this.size + " Pacman game");
 		this.nPlayer++;
 		this.nPlayerTeam[player.team]++;
 		if (this.nPlayerTeam[TEAM_GHOST] >= this.reqPlayer && this.nPlayerTeam[TEAM_PACMAN] >= this.reqPlayer) {
@@ -100,27 +112,30 @@ exports.RandomMapPacmanS.prototype = {
 				thisContext.startOfTheGameTimeout = setTimeout(function() {
 					clearTimeout(thisContext.startOfTheGameTimeout);
 					thisContext.startOfTheGameTimeout = null;
-				}, 3000);
+				}, thisContext.startOfTheGameTimeoutDuration);
 			}, 10000);
 		}
 		this.emitUpdateLobby();
 	},
+	//add a player to the waiting room for the next game
 	addToWaitingRoom: function(player) {
 		this.waitingRoom[player.playerId] = player;
-		console.log("a new player was added to the game randomMapPacman\'s waiting room");
+		console.log("a new player was added to the " + this.size + " Pacman game's waiting room");
 		this.nPlayerWaitingRoom++;
 		this.emitUpdateLobby();
 	},
+	//send custom infos to the lobby websocket
 	emitLobby: function(event, data) {
 		this.updateLobby({
-			room: 'randomMapPacmanRoomS',
+			room: this.room,
 			event: event,
 			data: data
 		});
 	},
+	//send current lobby infos to the lobby websocket
 	emitUpdateLobby: function() {
 		this.updateLobby({
-			room: 'randomMapPacmanRoomS',
+			room: this.room,
 			event: 'updateWaiting',
 			data: {
 				nPlayerTeam: this.nPlayerTeam,
@@ -129,21 +144,23 @@ exports.RandomMapPacmanS.prototype = {
 			}
 		});
 	},
+	//check if a team lost
 	checkTeams: function(io) {
 		if (!this.isRunning || this.startOfTheGameTimeout != null)
 			return;
 		if (this.nPlayerTeam[TEAM_GHOST] == 0) {
-			console.log('Victoire team pacman');
+			console.log(this.size + ' Pacman game : Victoire team pacman');
 			this.endGame(TEAM_PACMAN, io);
 		} else if (this.nPlayerTeam[TEAM_PACMAN] == 0) {
-			console.log('Victoire team ghost');
+			console.log(this.size + ' Pacman game : Victoire team ghost');
 			this.endGame(TEAM_GHOST, io);
 		}
 	},
+	//hard remove a player from current game
 	removePlayer: function(playerId) {
 		if (this.players[playerId]) {
-			console.log(this.players[playerId].name + ' was removed' +
-				' from the game randomMapPacman with id : ' + this.players[playerId].playerId);
+			console.log('a player was removed' +
+				' from the game ' + this.size + ' Pacman game with id : ' + this.players[playerId].playerId);
 			if (this.nPlayer > 0) {
 				this.nPlayer--;
 			}
@@ -152,24 +169,18 @@ exports.RandomMapPacmanS.prototype = {
 			}
 			delete this.players[playerId];
 		} else if (this.waitingRoom[playerId]) {
-			console.log(this.waitingRoom[playerId].name + ' was removed' +
-				' from the game randomMapPacman\'s waiting Room with id : ' + this.waitingRoom[playerId].playerId);
+			console.log('a player was removed' +
+				' from the game ' + this.size + ' Pacman game waiting Room with id : ' + this.waitingRoom[playerId].playerId);
 			this.nPlayerWaitingRoom--;
 			delete this.waitingRoom[playerId];
 		} else {
-			console.log("DISGUSTANG");
-			return;
+			console.log("removed a player from " + this.size + " Pacman game that was nor in the active players nor in the waiting room");
 		}
 		if (!this.isRunning && (this.nPlayerTeam[TEAM_GHOST] < this.reqPlayer || this.nPlayerTeam[TEAM_PACMAN] < this.reqPlayer)) {
 			this.state = 'Waiting for players';
 			clearTimeout(this.startGameId);
 		}
 		this.emitUpdateLobby();
-	},
-	repawnDots: function() {
-		for (var dot in this.mapDots) {
-			this.mapDots[dot].isAlive = true;
-		}
 	},
 	incScore: function(playerId) {
 		if (!this.players[playerId])
@@ -188,6 +199,10 @@ exports.RandomMapPacmanS.prototype = {
 		this.nPlayer = 0;
 		this.scores = [0, 0];
 
+		for (var dot in this.mapDots) {
+			this.mapDots[dot].isSuper = false;
+		}
+
 		for (var player in this.waitingRoom) {
 			this.addPlayer(this.waitingRoom[player]);
 			delete this.waitingRoom[player];
@@ -199,6 +214,8 @@ exports.RandomMapPacmanS.prototype = {
 		//in the on connection function
 		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
 		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
+		var millisecondsBtwNewSuperDot = properties.get('millisecondsBtwNewSuperDot');
+		var superDotDuration = properties.get('superDotDuration');
 		var game = this;
 		var Player = require(__dirname + '/../Player.js').Player;
 		var uuid = require('uuid/v1');
@@ -218,17 +235,13 @@ exports.RandomMapPacmanS.prototype = {
 				var player = new Player(data);
 				if (!game.isRunning) {
 					game.addPlayer(player);
-					console.log('added a new player to the randomMapPacman\'s game');
+					console.log('added a new player to the ' + game.size + ' Pacman game');
 				} else {
 					game.addToWaitingRoom(player);
-					console.log('added a new player to the randomMapPacman\'s waitingRoom');
+					console.log('added a new player to the ' + game.size + ' Pacman game waitingRoom');
 				}
-				console.log(game.nPlayerTeam);
-				console.log(game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				socket.emit('initSpawn', game.spawnPos[data.team][game.nPlayerTeam[data.team] - 1]);
 				game.emitUpdateLobby();
-				//envoie des infos du socket connectant a tout le monde
-				//socket.broadcast.emit('user', game.players[socket.player.playerId]);
 			});
 
 			//envoie des joueurs déja présent au socket demandant
@@ -242,7 +255,6 @@ exports.RandomMapPacmanS.prototype = {
 
 			//on disconnection from websocket the player is removed from the game
 			socket.on('disconnect', function() {
-				console.log('a player socket disconnected');
 				game.removePlayer(socket.player.playerId);
 				game.checkTeams(io);
 				io.emit('disconnectedUser', {
@@ -257,19 +269,22 @@ exports.RandomMapPacmanS.prototype = {
 					return; //return to avoid sending useless informations to clients
 				}
 				game.setPosition(socket.player.playerId, data, io);
+
 				//broadcasts information to everyone except itself
 				data.playerId = socket.player.playerId;
-				//socket.broadcast.emit('positionUpdate', data);
+
 			});
 		});
-
 
 		//set super dot randomly
 		setInterval(function() {
 			var keys = Object.keys(game.mapDots)
-			game.mapDots[keys[keys.length * Math.random() << 0]].isSuper = true;
-		}, 10000);
+			var dot = game.mapDots[keys[keys.length * Math.random() << 0]];
+			dot.isSuper = true;
+			dot.superTimeout = superDotDuration;
+		}, millisecondsBtwNewSuperDot);
 
+		//send dot map
 		setInterval(function() {
 			io.emit('gameUpdate', {
 				players: game.players,
@@ -278,6 +293,7 @@ exports.RandomMapPacmanS.prototype = {
 			});
 		}, millisecondsBtwUpdatesDots);
 
+		//send player movement infos every millisecondsBtwUpdates milliseconds
 		setInterval(function() {
 			io.emit('gameUpdate', {
 				players: game.players,
@@ -286,8 +302,7 @@ exports.RandomMapPacmanS.prototype = {
 				dots: {} //game.mapDots
 			});
 			game.dotsLifeSpan();
-		}, millisecondsBtwUpdates); //envoie les infos toutes les 50 millisecondes
-
+		}, millisecondsBtwUpdates);
 	},
 	dotsLifeSpan: function() {
 		for (var dotsIter in this.mapDots) {
@@ -299,6 +314,13 @@ exports.RandomMapPacmanS.prototype = {
 					this.mapDots[dotsIter].timeUntilAlive--;
 				}
 			}
+			if (this.mapDots[dotsIter].isSuper) {
+				if (this.mapDots[dotsIter].superTimeout === 0) {
+					this.mapDots[dotsIter].isSuper = false;
+				} else {
+					this.mapDots[dotsIter].superTimeout--;
+				}
+			}
 		}
 	},
 	timeOutSuper(playerTeam) {
@@ -306,13 +328,13 @@ exports.RandomMapPacmanS.prototype = {
 		clearTimeout(game.timeOutSuperID);
 		game.timeOutSuperID = setTimeout(function() {
 			game.isSuperState[playerTeam] = false;
-		}, 10000);
+		}, game.superBuffDuration);
 	},
 	setPosition: function(playerId, player, io) {
 
-
-		player.x = Math.floor(player.x / 16) * 16;
-		player.y = Math.floor(player.y / 16) * 16;
+		//round down the pacman position so it's on a precise tile
+		player.x = (Math.floor(player.x / 16)) * 16;
+		player.y = (Math.floor(player.y / 16)) * 16;
 
 		this.players[playerId].x = player.x;
 		this.players[playerId].y = player.y;
