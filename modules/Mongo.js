@@ -4,7 +4,9 @@ var salt = bcrypt.genSaltSync(10);
 //db
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://heroku_user_test:pacmanweb3@ds127375.mlab.com:27375/heroku_djnrjqpc");
+//mongoose.connect("mongodb://heroku_user_test:pacmanweb3@ds127375.mlab.com:27375/heroku_djnrjqpc");
+mongoose.connect("mongodb://heroku_djnrjqpc:14l5erk3pnl3cb5p38pk4nfdht@ds127375.mlab.com:27375/heroku_djnrjqpc");
+
 var db = mongoose.connection;
 
 //import models
@@ -106,8 +108,8 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 },
-                                "bestScorePacman" : score
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScorePacman" : score }
                             }
                         )
                     }
@@ -115,7 +117,7 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 }
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 }
                             }
                         )
                     }
@@ -125,8 +127,8 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 },
-                                "bestScoreGhost" : score
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScoreGhost" : score }
                             }
                         )
                     }
@@ -134,7 +136,7 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbVictory" : 1, "nbPlayedGames" : 1 }
+                                $inc: { "stats.nbVictory" : 1, "stats.nbPlayedGames" : 1 }
                             }
                         )
                     }
@@ -146,8 +148,8 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 },
-                                "bestScorePacman" : score
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScorePacman" : score }
                             }
                         )
                     }
@@ -155,7 +157,7 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 }
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 }
                             }
                         )
                     }
@@ -165,8 +167,8 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 },
-                                "bestScoreGhost" : score
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 },
+                                $set : { "stats.bestScoreGhost" : score }
                             }
                         )
                     }
@@ -174,7 +176,7 @@ exports.updateStat = function(login,resultat,equipe,score){
                         Player.findOneAndUpdate(
                             { "login" : login },
                             { 
-                                $inc: { "nbDefeat" : 1, "nbPlayedGames" : 1 }
+                                $inc: { "stats.nbDefeat" : 1, "stats.nbPlayedGames" : 1 }
                             }
                         )
                     }

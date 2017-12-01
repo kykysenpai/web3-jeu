@@ -5,11 +5,6 @@ $(function(){
     window.open(shareUrl,"CONNEXION",'height=640,width=550'); 
   }); 
 
-  $('#facebookInsert').on('click',function(e){ 
-    console.log("formulaire.js -> onclick facebook"); 
-    var shareUrl = 'http://localhost:5000/auth/facebookInsert'; 
-    window.open(shareUrl,"CONNEXION",'height=640,width=550'); 
-  }); 
 
   $('#facebookShare').on('click',function(e){ 
     console.log("FACEBOOK SHARE"); 
