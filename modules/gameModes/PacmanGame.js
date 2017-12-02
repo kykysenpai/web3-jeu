@@ -1,4 +1,3 @@
-
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
@@ -216,6 +215,7 @@ exports.PacmanGame.prototype = {
 		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
 		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var millisecondsBtwNewSuperDot = properties.get('millisecondsBtwNewSuperDot');
+		var superDotDuration = properties.get('superDotDuration');
 		var game = this;
 		var Player = require(__dirname + '/../Player.js').Player;
 		var uuid = require('uuid/v1');
@@ -279,7 +279,9 @@ exports.PacmanGame.prototype = {
 		//set super dot randomly
 		setInterval(function() {
 			var keys = Object.keys(game.mapDots)
-			game.mapDots[keys[keys.length * Math.random() << 0]].isSuper = true;
+			var dot = game.mapDots[keys[keys.length * Math.random() << 0]];
+			dot.isSuper = true;
+			dot.superTimeout = superDotDuration;
 		}, millisecondsBtwNewSuperDot);
 
 		//send dot map
@@ -310,6 +312,13 @@ exports.PacmanGame.prototype = {
 					this.mapDots[dotsIter].isAlive = true;
 				} else {
 					this.mapDots[dotsIter].timeUntilAlive--;
+				}
+			}
+			if (this.mapDots[dotsIter].isSuper) {
+				if (this.mapDots[dotsIter].superTimeout === 0) {
+					this.mapDots[dotsIter].isSuper = false;
+				} else {
+					this.mapDots[dotsIter].superTimeout--;
 				}
 			}
 		}

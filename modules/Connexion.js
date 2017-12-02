@@ -6,7 +6,7 @@ exports.connexionHandler = function(login, mdp){
         mongo.findPlayer(login).then(function(playerFound){
             if(!playerFound){
                 console.log("Le login n'existe pas");
-                rejetc(new responseObject(false, "playerNotFound", null));
+                reject(new responseObject(false, "playerNotFound", null));
             }else{
                 mongo.connectPlayer(playerFound, mdp).then(function(playerData){
                     console.log("Joueur récupéré : " + playerData);

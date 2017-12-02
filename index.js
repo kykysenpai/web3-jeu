@@ -18,6 +18,7 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
+
 var properties = require('properties-reader')(__dirname + '/config.properties');
 
 var enforce = require('express-sslify');
@@ -32,6 +33,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
+
+app.use(passport.initialize());
 
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
 var options = {
@@ -66,13 +69,22 @@ app.get('/', function(req, res) {
 
 
 app.get('/verifyLoggedIn', function(req, res) {
-	if (req.query.token == undefined) {
+	if (!req.query.tokenLocal && !req.query.tokenSession) {
+		console.log("Les deux tokens sont vides...");
 		res.status(401).send();
 	} else {
-		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
+		var token = null;
+		if(req.query.tokenLocal){
+			token = req.query.tokenLocal;
+		}else{
+			token = req.query.tokenSession;
+		}
+		var decoded = jwt.verify(token, secretJWT, function(err, playload) {
 			if (err) {
+				console.log("Erreur token verification " + err.message)
 				res.status(401).send();
 			} else {
+				console.log(JSON.stringify(playload));
 				res.status(200).send();
 			}
 		});
@@ -89,7 +101,7 @@ app.get('/deconnecter', function(req, res) {
 
 app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
-	var response = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion) {
+	var responsse = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion) {
 		console.log("Recupéré : " + JSON.stringify(connexion));
 		const payload = {
 			"login": connexion.player.login,
@@ -110,6 +122,7 @@ app.post('/seConnecter', (req, res) => {
 
 		console.log("La connexion a réussi");
 		res.status(connexion.status).json({
+			store: req.body.keep,
 			message: connexion.message,
 			authName: connexion.player.login,
 			token: tokenJWT
@@ -148,13 +161,18 @@ app.post('/sInscrire', (req, res) => {
 	});
 });
 
-//get facebook path
-app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/closePage', function(req, res) {
+	res.type('.html');
+	res.send('<script> window.close(); </script>');
+});
 
-app.get('/auth/facebook/callback',
+//get facebook path
+app.get('/auth/facebookConnect', passport.authenticate('facebook'));
+
+app.get('/auth/facebookConnect/callback',
 	passport.authenticate('facebook', {
-		successRedirect: '/',
-		failureRedirect: '/'
+		successRedirect: '/closePage',
+		failureRedirect: '/closePage'
 	}));
 
 //facebookManaging
@@ -172,33 +190,48 @@ passport.use(new FacebookStrategy({
 			console.log("NEXTTICK");
 			console.log("login fcbk : " + login);
 			console.log("mdp fcbk : " + mdp);
-			mongo.insertPlayer(login, mdp).then(function(resp) {
-				if (resp) {
-					console.log("Inscription succeded");
-					return done(null, login);
-				} else {
-					mongo.connectPlayer(login, mdp).then(function(response) {
-						console.log("CONNECT PLAYER IN INDEX.JS =>" + response);
-						if (response) {
-							//METTRE COoKIE;
-							console.log("CONNEXION SUCCEEDED");
-							return done(null, profile.id);
-						} else {
-							console.log("CONNEXION FAILED");
-							return done(err);
-						}
-					}).catch(function(err) {
-						console.log("Catched : " + err.message);
-						res.status(406).send();
-					});
-				}
-			}).catch(function(err) {
-				console.log("Catched : " + err.message);
-				res.status(406).send();
+
+			inscription.inscriptionHandler(login, mdp).then(function(inscriptionOK) {
+				console.log("Recupéré INSCRIPTIONOK : " + inscriptionOK);
+				console.log("L'inscription a réussi.");
+
+				 done(null, login);
+			}).catch(function(pasInscrit) {
+				console.log("Déja Inscrit.");	
+				var response = connexion.connexionHandler(login, mdp).then(function(connexion) {
+				console.log("Recupéré PASINSCRIT: " + JSON.stringify(connexion));
+				const payload = {
+					"login": connexion.player.login,
+					"currentGhost": connexion.player.currentGhost,
+					"currentPacman": connexion.player.currentPacman,
+					"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+					"bestScorePacman": connexion.player.stats.bestScorePacman,
+					"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+					"nbVictory": connexion.player.stats.nbVictory,
+					"nbDefeat": connexion.player.stats.nbDefeat,
+					"ghostSkins": connexion.player.ghostSkins,
+					"pacmanSkins": connexion.player.pacmanSkins
+				};
+				var timeout = 1440 // expires in 24 hours
+				var tokenJWT = jwt.sign(payload, secretJWT, {
+					expiresIn: '24h'
+				});
+				
+				console.log("La connexion a réussi");
+				
+				 done(null, connexion);
+				}).catch(function(erreur) {
+					console.log("Recupéré : " + JSON.stringify(erreur));
+					console.log("La connexion a échoué");
+
+					done(erreur);
+				});
+
 			});
-		})
-	}
-));
+		});
+		}
+	));
+	
 
 passport.serializeUser(function(user, done) {
 	done(null, user);
