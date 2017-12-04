@@ -93,6 +93,7 @@ app.get('/verifyLoggedIn', function(req, res) {
 
 app.get('/deconnecter', function(req, res) {
 	if (req.query.token != null) {
+		console.log(req.query.token);
 		res.status(200).send();
 	} else {
 		res.status(202).send();
@@ -125,7 +126,16 @@ app.post('/seConnecter', (req, res) => {
 			store: req.body.keep,
 			message: connexion.message,
 			authName: connexion.player.login,
-			token: tokenJWT
+			token: tokenJWT,
+			"currentGhost": connexion.player.currentGhost,
+			"currentPacman": connexion.player.currentPacman,
+			"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+			"bestScorePacman": connexion.player.stats.bestScorePacman,
+			"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+			"nbVictory": connexion.player.stats.nbVictory,
+			"nbDefeat": connexion.player.stats.nbDefeat,
+			"ghostSkins": connexion.player.ghostSkins,
+			"pacmanSkins": connexion.player.pacmanSkins
 		});
 	}).catch(function(erreur) {
 		console.log("Recupéré : " + JSON.stringify(erreur));

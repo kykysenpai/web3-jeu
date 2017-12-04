@@ -1,27 +1,52 @@
 import React, { Component } from 'react';
 
-import {connect} from 'react-redux';
+import axios from 'axios';
+
+import * as states from './AppState';
 
 class ProfilLink extends Component{
-    handleClick(){
-        console.log("Afficher Profil")
+    handleClick = (ev) => {
+        ev.preventDefault();
+        this.props.update(
+            Object.assign(
+                this.props.state,
+                {'render':states.PROFILE}
+            )
+        );
     }
     render(){
         return(
-            <li onClick={this.handleClick}><a id="profil"><span className="glyphicon glyphicon-user"></span>Profil</a></li>
+            <li onClick={this.handleClick}><a href="" id="profil"><span className="glyphicon glyphicon-user"></span>Profil</a></li>
         )
     }
 }
 
 class Deconnexion extends Component{
-    handleClick(){
-        console.log("disconnect.js -> on clic deconnexion");
-        console.log("Contenu avant effacement : " + localStorage.getItem("authName")
-        +"   "+localStorage.getItem("token"));
+    handleClick = (ev) => {
+        ev.preventDefault();
+        axios.get('/deconnecter',{
+            token:sessionStorage.getItem('token')
+            }
+        ).then(() => {
+            sessionStorage.removeItem('authName');
+            sessionStorage.removeItem('token');
+            this.props.update(
+                Object.assign(
+                    this.props.state,
+                    {
+                        connected: false,
+                        render:states.HOME,
+                        player:{}
+                    }
+                )
+            )
+        }).catch((err) => {
+            console.error(err);
+        });
     }
     render(){
         return(
-            <li onClick={this.handleClick}><a id="deconnexion"><span className="glyphicon glyphicon-log-out"></span>Logout</a></li>
+            <li onClick={this.handleClick}><a href="" id="deconnexion"><span className="glyphicon glyphicon-log-out"></span>Logout</a></li>
         )
     }
 }
@@ -37,14 +62,12 @@ class NavBar extends Component {
                 <a className="navbar-brand" href="/">Pacman Evolution</a>
               </div>
   
-              <ul className="nav navbar-nav navbar-right">
-                {this.props.stateApp === "CONNECTED" ? (
-                    <div>
-                    <ProfilLink />
-                    <Deconnexion />
-                    </div>
+                {this.props.state.connected === true ? (
+                    <ul className="nav navbar-nav navbar-right">
+                        <ProfilLink state={this.props.state} update={this.props.upDateState}/>
+                        <Deconnexion state={this.props.state} update={this.props.upDateState}/>
+                    </ul>
                 ):null}
-              </ul>
             </div>
           </nav>
       </div>
@@ -52,10 +75,4 @@ class NavBar extends Component {
   }
 }
 
-function mapStateToProps(state, ownProps){
-    return{
-        stateApp: state.state
-    }
-}
-
-export default connect(mapStateToProps)(NavBar);
+export default NavBar;

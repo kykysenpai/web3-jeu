@@ -17,17 +17,17 @@ class Profile extends Component{
               </div>
             </div>
 
-            <MeilleurScorePacman />
+            <MeilleurScorePacman score={this.props.state.player.bestScorePacman}/>
             
-            <MeilleurScoreGhost />
+            <MeilleurScoreGhost score={this.props.state.player.bestScoreGhost}/>
             
-            <NombrePartieJouees />
+            <NombrePartieJouees score={this.props.state.player.nbPlayedGames}/>
             
-            <NombrePartiesGagnees />
+            <NombrePartiesGagnees score={this.props.state.player.nbVictory}/>
 
-            <NombrePartiesPerdues />
+            <NombrePartiesPerdues score={this.props.state.player.nbPlayedGames - this.props.state.player.nbVictory}/>
       
-            <BoutonJouer />
+            <BoutonJouer state={this.props.state} update={this.props.update}/>
           </div>
         );
     };

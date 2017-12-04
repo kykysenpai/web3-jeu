@@ -4,7 +4,7 @@ class ProfilMeilleurScoreGhost extends Component{
     constructor(props){
         super(props);
         this.state ={
-            meilleurScoreGhost: 0
+            meilleurScoreGhost: this.props.score
         }
     }
     

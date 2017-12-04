@@ -26,7 +26,7 @@ class Formulaires extends Component {
                     <li className={this.state.isInscriptionOpen ? "tab" : "tab active"}><a id="connexion" onClick={this.handleTabChange}>Connexion</a></li>
                 </ul>
                 <div className="tab-content">
-                    {this.state.isInscriptionOpen ? <FormulaireInscription /> : <FormulaireConnexion /> }
+                    {this.state.isInscriptionOpen ? <FormulaireInscription state={this.props.state} update={this.props.update}/> : <FormulaireConnexion state={this.props.state} update={this.props.update}/> }
                 </div>
             </div>
         );

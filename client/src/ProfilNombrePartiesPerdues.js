@@ -4,7 +4,7 @@ class ProfilNombrePartiesPerdues extends Component{
     constructor(props){
       super(props);
       this.state = {
-        nombrePartiesPerdues: 0
+        nombrePartiesPerdues: this.props.score
       }
     }
     render(){
