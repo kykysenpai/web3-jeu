@@ -20,11 +20,19 @@ $(function(){
             keep:remember
           },
           success:function(response){
-<<<<<<< HEAD
-            localStorage.setItem("authName", response.authName);
-            localStorage.setItem("token", response.token);
-            console.log("Contenu localStorage : " 
-            + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            console.log("Res : " + JSON.stringify(response));
+            if(response.store==true || response.store=="true"){
+              localStorage.setItem("authName", response.authName);
+              localStorage.setItem("token", response.token);
+              console.log("Contenu localStorage : " 
+              + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            }else{
+              sessionStorage.setItem("authName", response.authName);
+              sessionStorage.setItem("token", response.token);
+              console.log("Contenu sessionStorage : " 
+              + sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
+            }
+            $("#messages").append("<p class='alert-success'>" + response.message + "</p>").fadeIn("fast").fadeOut("slow");
             $("#bestScorePacman").text(response.bestScorePacman + " ");
             $("#bestScoreGhost").text(response.bestScoreGhost + " ");
             $("#nbPlayedGames").text(response.nbPlayedGames + " ");
@@ -38,22 +46,6 @@ $(function(){
             response.ghostSkins.forEach(function(element){
               $(".skinsGhost").append("<img alt=\"default\" src=\"images/"+element+"\" class=\"col-1 img-rounded img-responsive skins-gallery\"/>");
             });
-=======
-            console.log("Res : " + JSON.stringify(response));
-            if(response.store==true || response.store=="true"){
-              localStorage.setItem("authName", response.authName);
-              localStorage.setItem("token", response.token);
-              console.log("Contenu localStorage : " 
-              + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
-            }else{
-              sessionStorage.setItem("authName", response.authName);
-              sessionStorage.setItem("token", response.token);
-              console.log("Contenu sessionStorage : " 
-              + sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
-            }
-            
->>>>>>> c26e97a3b07d2a0037c61bc268eb72192d737f6c
-            $("#messages").append("<p class='alert-success'>" + response.message + "</p>").fadeIn("fast").fadeOut("slow");
             /*$("#deconnexion").show();
             $("#formulaires").hide();
             $("#choix").show();
