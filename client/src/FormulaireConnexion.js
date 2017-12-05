@@ -21,8 +21,8 @@ class FormulaireConnexion extends Component {
       passwd:this.state.mdp
     }).then((result) =>{
       console.log(result);
-      sessionStorage.setItem("authName",result.data.authName);
-      sessionStorage.setItem("token",result.data.token);
+      window.sessionStorage.setItem("authName",result.data.authName);
+      window.sessionStorage.setItem("token",result.data.token);
       this.props.update(
         Object.assign(
           this.props.state,

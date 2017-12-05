@@ -16,15 +16,15 @@ class Acceuil extends Component{
         console.log("React fait coucou -> on clic accueil");
         console.log(sessionStorage.getItem("token"));
         axios.get('/verifyLoggedIn', {
-            token : sessionStorage.getItem("token")
+            token : window.sessionStorage.getItem("token")
         })
           .then((response) => {
             console.log("Session active "+sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
             this.setState(Object.assign(this.state,{'render':states.PROFILE,'connected':true}));
           })
           .catch((error) => {
-            sessionStorage.removeItem("authName");
-            sessionStorage.removeItem("token");
+            window.sessionStorage.removeItem("authName");
+            window.sessionStorage.removeItem("token");
             console.log("No active session");
             this.setState(Object.assign(this.state,{'render':states.NO_CONNECTION}))
             this.props.update(this.state);
