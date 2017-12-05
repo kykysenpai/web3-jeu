@@ -41,7 +41,8 @@ var options = {
 	index: "./index.js"
 };
 //app.use('/', express.static('app', options));
-app.use(express.static(__dirname + '/www'))
+//app.use(express.static(__dirname + '/www'))
+app.use(express.static(__dirname + '/client/build'));
 
 require('./modules/MapGenerator.js');
 
@@ -64,7 +65,8 @@ var inscription = require("./modules/Inscription.js");
 //--------------------------- Gestion des routes ------------------------------//
 
 app.get('/', function(req, res) {
-	res.sendFile('www/index.html');
+	//res.sendFile('www/index.html');
+	res.sendFile(__dirname + 'build' + 'index.html');
 });
 
 
