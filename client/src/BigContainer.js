@@ -6,21 +6,23 @@ import Game from './GameComponent';
 
 import * as states from './AppState';
 
-import {connect} from 'react-redux';
-
 class BigContainer extends Component{
+    constructor(props){
+        super(props);
+        this.update = this.props.upDateState.bind(this);
+    }
+
     render(){
-        console.log(this.props.stateApp);
         return(
             <div className="container col-xs-8 col-xs-offset-2">
-                {this.props.stateApp.afficher === states.HOME ? (
-                    <Accueil />  
-                ): this.props.stateApp.afficher === states.NO_CONNECTION ? (
-                    <Formulaires />
-                ): this.props.stateApp.afficher === states.GAME ? (
+                {this.props.state.render === states.HOME ? (
+                    <Accueil state={this.props.state} update={this.update}/>  
+                ): this.props.state.render === states.NO_CONNECTION ? (
+                    <Formulaires state={this.props.state} update={this.update}/>
+                ): this.props.state.render === states.GAME ? (
                     <Game />
-                ): this.props.stateApp === states.PROFILE ? (
-                    <Profil />
+                ): this.props.state.render === states.PROFILE ? (
+                    <Profil state={this.props.state} update={this.update}/>
                 )
                 :(
                     <div><p>J'ai pas compris</p></div>
@@ -30,10 +32,4 @@ class BigContainer extends Component{
     }
 }
 
-function mapStateToProps(state, ownProps){
-    return{
-        stateApp: state
-    };
-}
-
-export default connect(mapStateToProps)(BigContainer);
+export default BigContainer;
