@@ -69,6 +69,11 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + 'build' + 'index.html');
 });
 
+app.get('/jeux.html', () => {
+	res.sendFile('www/jeux.html');
+	//res.sendFile(__dirname + 'build' + 'jeux.html');
+});
+
 
 app.get('/verifyLoggedIn', function(req, res) {
 	if (!req.query.tokenLocal && !req.query.tokenSession) {
