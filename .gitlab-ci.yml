@@ -8,6 +8,7 @@ before_script:
   - cd client
   - npm install
   - npm run build
+  - cd ..
 
 variables:
   NODE_ENV: "development" # required, because we need to install devDependencies
