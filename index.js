@@ -173,10 +173,12 @@ app.post('/sInscrire', (req, res) => {
 	});
 });
 
+/*
 app.get('/closePage', function(req, res) {
 	res.type('.html');
 	res.send('<script> window.close(); </script>');
 });
+*/
 
 //get facebook path
 app.get('/auth/facebookConnect', passport.authenticate('facebook'));
@@ -269,15 +271,6 @@ io.on('connection', function(socket) {
 	});
 });
 
-
-app.get('/lobby', function(req, res) {
-	res.send("Lobby goes here");
-});
-
-app.get('/game', function(req, res) {
-	res.send("Game hoes here");
-});
-
 //instanciate all game modes rooms
 var defaultPacman = new PacmanGame(properties, updateLobby, 'Default');
 var randomMapPacman = new PacmanGame(properties, updateLobby, 'Medium');
@@ -289,16 +282,6 @@ defaultPacman.initSocket(io.of('/defaultPacman'), properties);
 randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
 randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), properties);
 randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), properties);
-
-/*
-//force secure connection with the client
-app.use(function(req, res, next) {
-	if(!req.secure) {
-	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
-	}
-	next();
-});
-*/
 
 function updateLobby(data) {
 	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
