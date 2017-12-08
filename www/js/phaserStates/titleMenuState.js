@@ -48,9 +48,9 @@ var titleMenuState = {
 		var bg = game.add.image(0, 0, 'bg');
 		var mode = game.add.image(130, 130, 'mode');
 
-		var modeThumbs = ['default', 'randomS', 'randomM', 'randomL']
+		var modeThumbs = ['default', 'randomS', 'randomM', 'randomL', 'defaultSnake', 'randomSSnake', 'randomMSnake', 'randomLSnake']
 		var j = 1;
-		var nbGame = 4;
+		var nbGame = 8;
 		for (var i = 0; i < nbGame; i++) {
 			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 200, modeThumbs[i]);
 			thumb.levelNumber = j++;

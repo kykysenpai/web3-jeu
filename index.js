@@ -52,6 +52,7 @@ var Player = require('./modules/Player.js').Player;
 
 //imports pac man game modes
 var PacmanGame = require(__dirname + '/modules/gameModes/PacmanGame.js').PacmanGame;
+var PacSnake = require(__dirname + '/modules/gameModes/PacSnake.js').PacmanGame;
 /*
 var DefaultPacman = require('./modules/gameModes/DefaultPacman.js').DefaultPacman;
 var RandomMapPacman = require('./modules/gameModes/RandomMapPacman.js').RandomMapPacman;
@@ -306,11 +307,31 @@ var randomMapPacman = new PacmanGame(properties, updateLobby, 'Medium');
 var randomMapPacmanS = new PacmanGame(properties, updateLobby, 'Small');
 var randomMapPacmanL = new PacmanGame(properties, updateLobby, 'Large');
 
+var defaultPacmanSnake = new PacSnake(properties, updateLobby, 'Default');
+var randomMapPacmanSnake = new PacSnake(properties, updateLobby, 'Medium');
+var randomMapPacmanSSnake = new PacSnake(properties, updateLobby, 'Small');
+var randomMapPacmanLSnake = new PacSnake(properties, updateLobby, 'Large');
+
 //intialisation of the sockets of all rooms
 defaultPacman.initSocket(io.of('/defaultPacman'), properties);
 randomMapPacman.initSocket(io.of('/randomMapPacman'), properties);
 randomMapPacmanS.initSocket(io.of('/randomMapPacmanS'), properties);
 randomMapPacmanL.initSocket(io.of('/randomMapPacmanL'), properties);
+
+defaultPacmanSnake.initSocket(io.of('/defaultPacmanSnake'), properties);
+randomMapPacmanSnake.initSocket(io.of('/randomMapPacmanSnake'), properties);
+randomMapPacmanSSnake.initSocket(io.of('/randomMapPacmanSSnake'), properties);
+randomMapPacmanLSnake.initSocket(io.of('/randomMapPacmanLSnake'), properties);
+
+/*
+//force secure connection with the client
+app.use(function(req, res, next) {
+	if(!req.secure) {
+	  return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	next();
+});
+*/
 
 function updateLobby(data) {
 	io.of('lobbySocket').to(data.room).emit(data.event, data.data);
@@ -330,6 +351,18 @@ io.of('/lobbySocket').on('connection', function(socket) {
 				break;
 			case 4:
 				socket.join('randomMapPacmanRoomL');
+				break;
+			case 5:
+				socket.join('defaultPacmanRoomSnake');
+				break;
+			case 6:
+				socket.join('randomMapPacmanRoomSSnake');
+				break;
+			case 7:
+				socket.join('randomMapPacmanRoomSnake');
+				break;
+			case 8:
+				socket.join('randomMapPacmanRoomLSnake');
 				break;
 			default:
 				console.log('erreur n* level');
