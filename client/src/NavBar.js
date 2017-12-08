@@ -1,12 +1,32 @@
 import React, { Component } from 'react';
-
 import axios from 'axios';
-
 import * as states from './AppState';
 
 class ProfilLink extends Component{
     handleClick = (ev) => {
         ev.preventDefault();
+        var newState = this.props.state;
+        axios.post('infoPlayer',{
+            authName:localStorage.getItem("authName")
+          }).then((response) =>{
+            newState = Object.assign(newState,{'render':states.PROFILE,
+              'player':{
+                'login':response.data.login,
+                "currentGhost": response.data.currentGhost,
+                "currentPacman": response.data.currentPacman,
+                "bestScoreGhost": response.data.bestScoreGhost,
+                "bestScorePacman": response.data.bestScorePacman,
+                "nbPlayedGames": response.data.nbPlayedGames,
+                "nbVictory": response.data.nbVictory,
+                "nbDefeat": response.data.nbDefeat,
+                "ghostSkins": response.data.ghostSkins,
+                "pacmanSkins": response.data.pacmanSkins
+              }
+            })
+            this.props.update(newState);
+          }).catch((err)=>{
+            console.error(err);
+          });
         this.props.update(
             Object.assign(
                 this.props.state,
@@ -30,6 +50,8 @@ class Deconnexion extends Component{
         ).then(() => {
             sessionStorage.removeItem('authName');
             sessionStorage.removeItem('token');
+            localStorage.removeItem('authName');
+            localStorage.removeItem('token');
             this.props.update(
                 Object.assign(
                     this.props.state,
@@ -40,6 +62,7 @@ class Deconnexion extends Component{
                     }
                 )
             )
+            window.location.reload();
         }).catch((err) => {
             console.error(err);
         });

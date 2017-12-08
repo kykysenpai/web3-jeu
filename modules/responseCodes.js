@@ -12,6 +12,7 @@ exports.errorCodes = [
 exports.okCodes = [
     {"id":"mdpOk", "code" : "MDP_REGEX_OK", "status" : 200, "message" : "Mot de passe correct."},
     {"id":"inscriptionOk", "code" : "INSCRIPTION_OK", "status" : 201, "message" : "L'inscription a réussi."},
-    {"id":"connexionOk", "code" : "INSCRIPTION_OK", "status" : 201, "message" : "La connexion a réussi. Bienvenue"}
+    {"id":"connexionOk", "code" : "INSCRIPTION_OK", "status" : 201, "message" : "La connexion a réussi. Bienvenue"},
+    {"id":"findOk","code":"PLAYERFOUND","status": 200, "message":"PLayer trouvé et infos passée"}
 ];
 

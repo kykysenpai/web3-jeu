@@ -1,27 +1,6 @@
 var mongo = require("./Mongo.js");
 var codesReponse = require("./responseCodes.js");
 
-exports.connexionHandler = function(login, mdp){
-    return new Promise(function(resolve,reject){
-        mongo.findPlayer(login).then(function(playerFound){
-            if(!playerFound){
-                console.log("Le login n'existe pas");
-                reject(new responseObject(false, "playerNotFound", null));
-            }else{
-                mongo.connectPlayer(playerFound, mdp).then(function(playerData){
-                    console.log("Joueur récupéré : " + playerData);
-                    resolve(new responseObject(true, "inscriptionOk", playerData));
-                }).catch(function(connexionKo){
-                    console.log("Erreur de mdp reject " + connexionKo);
-                    reject(new responseObject(false, connexionKo, null));
-                });
-            }
-        }).catch(function(errFind){
-            reject(new responseObject(false, errFind));
-        });
-    });    
-};
-
 exports.findPlayer = (playerName) =>{
     return new Promise((resolve,reject) => {
         mongo.findPlayer(playerName).then((playerFound) => {

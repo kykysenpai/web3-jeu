@@ -14,13 +14,37 @@ class Acceuil extends Component{
     handleClick = (ev) => {
         ev.preventDefault();
         console.log("React fait coucou -> on clic accueil");
-        console.log(sessionStorage.getItem("token"));
-        axios.get('/verifyLoggedIn', {
-            token : window.sessionStorage.getItem("token")
+        console.log("session " + sessionStorage.getItem("token"));
+        console.log("local " + localStorage.getItem("token"));
+        axios.post('/verifyLoggedIn', {
+            tokenSession : window.sessionStorage.getItem("token"),
+            tokenLocal: window.localStorage.getItem("token")
         })
           .then((response) => {
+            console.log(response);
             console.log("Session active "+sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
-            this.setState(Object.assign(this.state,{'render':states.PROFILE,'connected':true}));
+            console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+            axios.post('infoPlayer',{
+                authName:localStorage.getItem("authName")
+              }).then((response) =>{
+                this.setState(Object.assign(this.state,{'render':states.PROFILE,'connected':true,
+                  'player':{
+                    'login':response.data.login,
+                    "currentGhost": response.data.currentGhost,
+                    "currentPacman": response.data.currentPacman,
+                    "bestScoreGhost": response.data.bestScoreGhost,
+                    "bestScorePacman": response.data.bestScorePacman,
+                    "nbPlayedGames": response.data.nbPlayedGames,
+                    "nbVictory": response.data.nbVictory,
+                    "nbDefeat": response.data.nbDefeat,
+                    "ghostSkins": response.data.ghostSkins,
+                    "pacmanSkins": response.data.pacmanSkins
+                  }
+                }))
+                this.props.update(this.state);
+              }).catch((err)=>{
+                console.error(err);
+              });
           })
           .catch((error) => {
             window.sessionStorage.removeItem("authName");

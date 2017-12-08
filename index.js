@@ -61,6 +61,7 @@ var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').Random
 /* Import les modules nécessaires a la connexion et inscription */
 var connexion = require("./modules/Connexion.js")
 var inscription = require("./modules/Inscription.js");
+var infoPlayer = require("./modules/InfoProfil.js");
 
 //--------------------------- Gestion des routes ------------------------------//
 
@@ -75,16 +76,16 @@ app.get('/jeux.html', () => {
 });
 
 
-app.get('/verifyLoggedIn', function(req, res) {
-	if (!req.query.tokenLocal && !req.query.tokenSession) {
+app.post('/verifyLoggedIn', function(req, res) {
+	if (!req.body.tokenLocal && !req.body.tokenSession) {
 		console.log("Les deux tokens sont vides...");
 		res.status(401).send();
 	} else {
 		var token = null;
-		if(req.query.tokenLocal){
-			token = req.query.tokenLocal;
+		if(req.body.tokenLocal){
+			token = req.body.tokenLocal;
 		}else{
-			token = req.query.tokenSession;
+			token = req.body.tokenSession;
 		}
 		var decoded = jwt.verify(token, secretJWT, function(err, playload) {
 			if (err) {
@@ -96,11 +97,6 @@ app.get('/verifyLoggedIn', function(req, res) {
 			}
 		});
 	}
-});
-
-app.post('/getPLayerInfo', (req,res) =>{
-	//db.getInfo req.data.authName
-	//playerInfor
 });
 
 app.get('/deconnecter', function(req, res) {
@@ -183,12 +179,36 @@ app.post('/sInscrire', (req, res) => {
 	});
 });
 
-/*
+app.post('/infoPlayer', (req,res) => {
+	var playerName = req.body.authName;
+	var respData = infoPlayer.findPlayer(playerName).then((data) =>{
+		console.log(data.player);
+		res.status(data.status).json({
+			"login": data.player.login,
+			"currentGhost": data.player.currentGhost,
+			"currentPacman": data.player.currentPacman,
+			"bestScoreGhost": data.player.stats.bestScoreGhost,
+			"bestScorePacman": data.player.stats.bestScorePacman,
+			"nbPlayedGames": data.player.stats.nbPlayedGames,
+			"nbVictory": data.player.stats.nbVictory,
+			"nbDefeat": data.player.stats.nbDefeat,
+			"ghostSkins": data.player.ghostSkins,
+			"pacmanSkins": data.player.pacmanSkins
+		});
+	}).catch((error) => {
+		res.status(error.status).json({
+			err: invalide.message
+		});
+	});
+});
+
+
 app.get('/closePage', function(req, res) {
+	console.log(req);
 	res.type('.html');
 	res.send('<script> window.close(); </script>');
 });
-*/
+
 
 //get facebook path
 app.get('/auth/facebookConnect', passport.authenticate('facebook'));
@@ -243,12 +263,11 @@ passport.use(new FacebookStrategy({
 				
 				console.log("La connexion a réussi");
 				
-				 done(null, connexion);
+				return done(null, payload);
 				}).catch(function(erreur) {
 					console.log("Recupéré : " + JSON.stringify(erreur));
 					console.log("La connexion a échoué");
-
-					done(erreur);
+					return done(erreur);
 				});
 
 			});

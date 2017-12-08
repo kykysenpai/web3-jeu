@@ -4,8 +4,8 @@ import MeilleurScoreGhost from './ProfilMeilleurScoreGhost';
 import NombrePartieJouees from './ProfilNombrePartiesJouees';
 import NombrePartiesGagnees from './ProfilNombrePartiesGagnee';
 import NombrePartiesPerdues from './ProfilNombrePartiesPerdues';
-
 import BoutonJouer from './ProfilBoutonJouer';
+import BoutonShare from './ProfilButtonShareFb';
 
 class Profile extends Component{
     render(){
@@ -28,6 +28,8 @@ class Profile extends Component{
             <NombrePartiesPerdues score={this.props.state.player.nbPlayedGames - this.props.state.player.nbVictory}/>
       
             <BoutonJouer state={this.props.state} update={this.props.update}/>
+
+            <BoutonShare state={this.props.state} update={this.props.update}/>
           </div>
         );
     };
