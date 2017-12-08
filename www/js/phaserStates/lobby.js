@@ -59,11 +59,28 @@ var lobby = {
 			case 4:
 				chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
 				break;
+			case 5:
+				chosenGameModeInfos.safeTiles = [7, 14];
+				chosenGameModeInfos.mapAsset = 'assets/pacman-map.json';
+				chosenGameModeInfos.tilesAsset = 'assets/pacman-tiles.png';
+				break;
+			case 6:
+				chosenGameModeInfos.mapAsset = 'assets/random-map-small.json';
+				break;
+			case 7:
+				chosenGameModeInfos.mapAsset = 'assets/random-map-medium.json';
+				break;
+			case 8:
+				chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
+				break;
 		}
 		switch (chosenGameMode) {
 			case 2:
 			case 3:
 			case 4:
+			case 6:
+			case 7:
+			case 8:
 				chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
 				chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
 				break;
@@ -86,6 +103,7 @@ function lobbySockets() {
 	lobbySocket.on('startGame', function() {
 		game.state.callbackContext.startGame();
 	});
+	console.log(chosenGameMode);
 	lobbySocket.emit('joinLobby', chosenGameMode);
 	switch (chosenGameMode) {
 		case 1:
@@ -101,6 +119,20 @@ function lobbySockets() {
 			break;
 		case 4:
 			socket = io('/randomMapPacmanL');
+			break;
+		case 5:
+			//game.load.image('title', 'assets/title.png');
+			//game.load.image('bg', 'assets/bg.png');
+			socket = io('/defaultPacmanSnake');
+			break;
+		case 6:
+			socket = io('/randomMapPacmanSSnake');
+			break;
+		case 7:
+			socket = io('/randomMapPacmanSnake');
+			break;
+		case 8:
+			socket = io('/randomMapPacmanLSnake');
 			break;
 	}
 	socket.on('initSpawn', function(data) {
