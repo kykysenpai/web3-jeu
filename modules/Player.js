@@ -1,4 +1,5 @@
 exports.Player = function(data) {
+	this.authName = data.authName;
 	this.playerId = data.playerId;
 	this.x = data.x;
 	this.y = data.y;

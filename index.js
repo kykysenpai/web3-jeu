@@ -18,6 +18,7 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./modules/oAuth.js');
 
+
 var properties = require('properties-reader')(__dirname + '/config.properties');
 
 var enforce = require('express-sslify');
@@ -33,12 +34,15 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+app.use(passport.initialize());
+
 app.use(favicon(path.join(__dirname, '', './www/images/icone_pacman.ico')));
 var options = {
 	index: "./index.js"
 };
 //app.use('/', express.static('app', options));
-app.use(express.static(__dirname + '/www'))
+//app.use(express.static(__dirname + '/www'))
+app.use(express.static(__dirname + '/client/build'));
 
 require('./modules/MapGenerator.js');
 
@@ -58,22 +62,38 @@ var RandomMapPacmanL = require('./modules/gameModes/RandomMapPacmanL.js').Random
 /* Import les modules nécessaires a la connexion et inscription */
 var connexion = require("./modules/Connexion.js")
 var inscription = require("./modules/Inscription.js");
+var infoPlayer = require("./modules/InfoProfil.js");
 
 //--------------------------- Gestion des routes ------------------------------//
 
 app.get('/', function(req, res) {
-	res.sendFile('www/index.html');
+	//res.sendFile('www/index.html');
+	res.sendFile(__dirname + 'build' + 'index.html');
+});
+
+app.get('/jeux.html', () => {
+	res.sendFile('www/jeux.html');
+	//res.sendFile(__dirname + 'build' + 'jeux.html');
 });
 
 
-app.get('/verifyLoggedIn', function(req, res) {
-	if (req.query.token == undefined) {
+app.post('/verifyLoggedIn', function(req, res) {
+	if (!req.body.tokenLocal && !req.body.tokenSession) {
+		console.log("Les deux tokens sont vides...");
 		res.status(401).send();
 	} else {
-		var decoded = jwt.verify(req.query.token, secretJWT, function(err, playload) {
+		var token = null;
+		if(req.body.tokenLocal){
+			token = req.body.tokenLocal;
+		}else{
+			token = req.body.tokenSession;
+		}
+		var decoded = jwt.verify(token, secretJWT, function(err, playload) {
 			if (err) {
+				console.log("Erreur token verification " + err.message)
 				res.status(401).send();
 			} else {
+				console.log(JSON.stringify(playload));
 				res.status(200).send();
 			}
 		});
@@ -82,6 +102,7 @@ app.get('/verifyLoggedIn', function(req, res) {
 
 app.get('/deconnecter', function(req, res) {
 	if (req.query.token != null) {
+		console.log(req.query.token);
 		res.status(200).send();
 	} else {
 		res.status(202).send();
@@ -90,7 +111,7 @@ app.get('/deconnecter', function(req, res) {
 
 app.post('/seConnecter', (req, res) => {
 	console.log("Index.js seConnecter-> app.post");
-	var response = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion) {
+	var responsse = connexion.connexionHandler(req.body.login, req.body.passwd).then(function(connexion) {
 		console.log("Recupéré : " + JSON.stringify(connexion));
 		const payload = {
 			"login": connexion.player.login,
@@ -111,9 +132,19 @@ app.post('/seConnecter', (req, res) => {
 
 		console.log("La connexion a réussi");
 		res.status(connexion.status).json({
+			store: req.body.keep,
 			message: connexion.message,
 			authName: connexion.player.login,
-			token: tokenJWT
+			token: tokenJWT,
+			"currentGhost": connexion.player.currentGhost,
+			"currentPacman": connexion.player.currentPacman,
+			"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+			"bestScorePacman": connexion.player.stats.bestScorePacman,
+			"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+			"nbVictory": connexion.player.stats.nbVictory,
+			"nbDefeat": connexion.player.stats.nbDefeat,
+			"ghostSkins": connexion.player.ghostSkins,
+			"pacmanSkins": connexion.player.pacmanSkins
 		});
 	}).catch(function(erreur) {
 		console.log("Recupéré : " + JSON.stringify(erreur));
@@ -149,13 +180,44 @@ app.post('/sInscrire', (req, res) => {
 	});
 });
 
-//get facebook path
-app.get('/auth/facebook', passport.authenticate('facebook'));
+app.post('/infoPlayer', (req,res) => {
+	var playerName = req.body.authName;
+	var respData = infoPlayer.findPlayer(playerName).then((data) =>{
+		console.log(data.player);
+		res.status(data.status).json({
+			"login": data.player.login,
+			"currentGhost": data.player.currentGhost,
+			"currentPacman": data.player.currentPacman,
+			"bestScoreGhost": data.player.stats.bestScoreGhost,
+			"bestScorePacman": data.player.stats.bestScorePacman,
+			"nbPlayedGames": data.player.stats.nbPlayedGames,
+			"nbVictory": data.player.stats.nbVictory,
+			"nbDefeat": data.player.stats.nbDefeat,
+			"ghostSkins": data.player.ghostSkins,
+			"pacmanSkins": data.player.pacmanSkins
+		});
+	}).catch((error) => {
+		res.status(error.status).json({
+			err: invalide.message
+		});
+	});
+});
 
-app.get('/auth/facebook/callback',
+
+app.get('/closePage', function(req, res) {
+	console.log(req);
+	res.type('.html');
+	res.send('<script> window.close(); </script>');
+});
+
+
+//get facebook path
+app.get('/auth/facebookConnect', passport.authenticate('facebook'));
+
+app.get('/auth/facebookConnect/callback',
 	passport.authenticate('facebook', {
-		successRedirect: '/',
-		failureRedirect: '/'
+		successRedirect: '/closePage',
+		failureRedirect: '/closePage'
 	}));
 
 //facebookManaging
@@ -173,33 +235,47 @@ passport.use(new FacebookStrategy({
 			console.log("NEXTTICK");
 			console.log("login fcbk : " + login);
 			console.log("mdp fcbk : " + mdp);
-			mongo.insertPlayer(login, mdp).then(function(resp) {
-				if (resp) {
-					console.log("Inscription succeded");
-					return done(null, login);
-				} else {
-					mongo.connectPlayer(login, mdp).then(function(response) {
-						console.log("CONNECT PLAYER IN INDEX.JS =>" + response);
-						if (response) {
-							//METTRE COoKIE;
-							console.log("CONNEXION SUCCEEDED");
-							return done(null, profile.id);
-						} else {
-							console.log("CONNEXION FAILED");
-							return done(err);
-						}
-					}).catch(function(err) {
-						console.log("Catched : " + err.message);
-						res.status(406).send();
-					});
-				}
-			}).catch(function(err) {
-				console.log("Catched : " + err.message);
-				res.status(406).send();
+
+			inscription.inscriptionHandler(login, mdp).then(function(inscriptionOK) {
+				console.log("Recupéré INSCRIPTIONOK : " + inscriptionOK);
+				console.log("L'inscription a réussi.");
+
+				 done(null, login);
+			}).catch(function(pasInscrit) {
+				console.log("Déja Inscrit.");	
+				var response = connexion.connexionHandler(login, mdp).then(function(connexion) {
+				console.log("Recupéré PASINSCRIT: " + JSON.stringify(connexion));
+				const payload = {
+					"login": connexion.player.login,
+					"currentGhost": connexion.player.currentGhost,
+					"currentPacman": connexion.player.currentPacman,
+					"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+					"bestScorePacman": connexion.player.stats.bestScorePacman,
+					"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+					"nbVictory": connexion.player.stats.nbVictory,
+					"nbDefeat": connexion.player.stats.nbDefeat,
+					"ghostSkins": connexion.player.ghostSkins,
+					"pacmanSkins": connexion.player.pacmanSkins
+				};
+				var timeout = 1440 // expires in 24 hours
+				var tokenJWT = jwt.sign(payload, secretJWT, {
+					expiresIn: '24h'
+				});
+				
+				console.log("La connexion a réussi");
+				
+				return done(null, payload);
+				}).catch(function(erreur) {
+					console.log("Recupéré : " + JSON.stringify(erreur));
+					console.log("La connexion a échoué");
+					return done(erreur);
+				});
+
 			});
-		})
-	}
-));
+		});
+		}
+	));
+	
 
 passport.serializeUser(function(user, done) {
 	done(null, user);
@@ -223,15 +299,6 @@ io.on('connection', function(socket) {
 	socket.broadcast.emit('user', {
 		playerId: playerId
 	});
-});
-
-
-app.get('/lobby', function(req, res) {
-	res.send("Lobby goes here");
-});
-
-app.get('/game', function(req, res) {
-	res.send("Game hoes here");
 });
 
 //instanciate all game modes rooms

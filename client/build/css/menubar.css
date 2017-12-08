@@ -1,0 +1,8 @@
+.colorbar {
+    background-color: rgba(19, 35, 47, 0.9); 
+    border-color: rgba(19, 35, 47, 0.9);
+}
+
+.navbar-inverse .navbar-brand{
+    color: #1ab188;;
+}

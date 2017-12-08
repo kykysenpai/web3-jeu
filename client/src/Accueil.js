@@ -2,30 +2,56 @@ import React, { Component } from 'react';
 
 import PacmanImageMenu from './PacmanImageMenu'
 
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as stateModifiers from './actions/stateActions';
-
 import * as states from './AppState';
 const axios = require('axios');
 
 class Acceuil extends Component{
-    handleClick = (ev)=>{
-        var that = this;
+    constructor(props){
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+        this.state = this.props.state;
+    }
+    handleClick = (ev) => {
         ev.preventDefault();
         console.log("React fait coucou -> on clic accueil");
-        axios.get('/verifyLoggedIn', {
-            token : localStorage.getItem("token")
+        console.log("session " + sessionStorage.getItem("token"));
+        console.log("local " + localStorage.getItem("token"));
+        axios.post('/verifyLoggedIn', {
+            tokenSession : window.sessionStorage.getItem("token"),
+            tokenLocal: window.localStorage.getItem("token")
         })
-          .then(function (response) {
+          .then((response) => {
+            console.log(response);
+            console.log("Session active "+sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
             console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
-            that.props.actions.modifyRenderNC(that.props.stateApp, states.CONNECTED);
+            axios.post('infoPlayer',{
+                authName:localStorage.getItem("authName")
+              }).then((response) =>{
+                this.setState(Object.assign(this.state,{'render':states.PROFILE,'connected':true,
+                  'player':{
+                    'login':response.data.login,
+                    "currentGhost": response.data.currentGhost,
+                    "currentPacman": response.data.currentPacman,
+                    "bestScoreGhost": response.data.bestScoreGhost,
+                    "bestScorePacman": response.data.bestScorePacman,
+                    "nbPlayedGames": response.data.nbPlayedGames,
+                    "nbVictory": response.data.nbVictory,
+                    "nbDefeat": response.data.nbDefeat,
+                    "ghostSkins": response.data.ghostSkins,
+                    "pacmanSkins": response.data.pacmanSkins
+                  }
+                }))
+                this.props.update(this.state);
+              }).catch((err)=>{
+                console.error(err);
+              });
           })
-          .catch(function (error) {
-            localStorage.removeItem("authName");
-            localStorage.removeItem("token");
+          .catch((error) => {
+            window.sessionStorage.removeItem("authName");
+            window.sessionStorage.removeItem("token");
             console.log("No active session");
-            that.props.actions.modifyRenderNC(that.props.stateApp, states.NO_CONNECTION);
+            this.setState(Object.assign(this.state,{'render':states.NO_CONNECTION}))
+            this.props.update(this.state);
           });
     }
 
@@ -63,16 +89,4 @@ class Acceuil extends Component{
     }
 }
 
-function mapStateToProps(state, ownProps){
-    return{
-        stateApp: state
-    };
-}
-
-function mapDispatchToProps(dispatch){
-    return{
-        actions: bindActionCreators(stateModifiers, dispatch)
-    };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(Acceuil);
+export default Acceuil;

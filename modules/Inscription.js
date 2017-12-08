@@ -22,7 +22,7 @@ exports.inscriptionHandler = function(login, mdp){
 exports.validerMdp = function(mdp){
     return new Promise(function(resolve, reject) { 
     /* Mdp entre 4 et 8 charactères */
-        if(mdp.match("^.{4,8}$")){
+        if(mdp.match("^.{4,}$")){
             resolve(new responseObject(true, "mdpOk", null));
         }else{
             reject(new responseObject(false, "mdpRegexKo", null));

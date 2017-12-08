@@ -12,8 +12,11 @@ $(function(){
           success:function(response){
               localStorage.removeItem("authName");
               localStorage.removeItem("token");
+              sessionStorage.removeItem("authName");
+              sessionStorage.removeItem("token");
               console.log("Contenu après effacement : " 
-                      + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+                      + localStorage.getItem("authName") + "   " + localStorage.getItem("token") 
+                      + "   " + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
             /*$("#deconnexion").hide();
             $("#accueil").hide();
             $("#choix").hide();

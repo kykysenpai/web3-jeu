@@ -4,7 +4,7 @@ class ProfilMeilleurScorePacman extends Component{
     constructor(props){
         super(props);
         this.state = {
-            meilleurScorePacman : 0
+            meilleurScorePacman : this.props.score
         }
     }
     render(){
