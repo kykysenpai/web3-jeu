@@ -1,7 +1,5 @@
 const fs = require("fs");
 
-
-
 var create = function(size) {
 
 	//rajoute une brique dans la map
@@ -18,7 +16,6 @@ var create = function(size) {
 		];
 		while (tileStack.length) {
 			newPos = tileStack.pop();
-			//console.log(newPos);
 			x = newPos[0];
 			y = newPos[1];
 
@@ -133,7 +130,7 @@ var create = function(size) {
 	var max = 50;
 	var min = 25;
 	var height;
-	var spwanSize
+	var spawnSize;
 
 	if (size == 'small') {
 		height = 16;
@@ -145,7 +142,6 @@ var create = function(size) {
 		height = 44;
 		spawnSize = 6;
 	} else {
-		console.log('entree invalide');
 		return;
 	}
 
@@ -176,7 +172,7 @@ var create = function(size) {
 			"imageheight": 137,
 			"imagewidth": 86,
 			"margin": 1,
-			"name": "tiles",
+			"name": "pacman-tiles",
 			"properties": {
 
 			},
@@ -299,7 +295,6 @@ var create = function(size) {
 	var width2 = width - left - right;
 
 	if (height2 < 0.75 * height || width2 < 0.75 * width) {
-		console.log('trop petit');
 		create(size);
 		return;
 	}
@@ -319,7 +314,6 @@ var create = function(size) {
 	map.layers[0].width = width;
 
 	var json = JSON.stringify(map);
-	console.log("end");
 	fs.writeFileSync('./www/assets/random-map.json', json, 'utf8');
 
 
@@ -331,8 +325,6 @@ var create = function(size) {
 			fill(data2, x + y * width2, width2);
 		}
 	}
-
-	console.log("totalsize2 = " + data2.length);
 
 
 	map.height = height2;
@@ -347,7 +339,6 @@ var create = function(size) {
 
 
 	var json = JSON.stringify(map);
-	console.log("end");
 	var nameFile = __dirname + '/../www/assets/random-map-' + size + '.json';
 
 	fs.writeFileSync(nameFile, json, 'utf8');

@@ -1,6 +1,6 @@
 //Cryptage
 var bcrypt = require('bcryptjs');
-
+var salt = bcrypt.genSaltSync(10);
 //db
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -25,51 +25,68 @@ db.once('open', function() {
     connectedDB = true;
 });
 
-exports.Mongo = function(){};
+exports.findPlayer = function(login){
+    return new Promise(function(resolve, reject){
+        if(connectedDB){
+            /*  If an error occurs executing the query, 
+            *   error will contain an error and player will be null. 
+            *   If the query is successful, 
+            *   error will be null and player will be populated with the query result.*/
+            Player.findOne({"login" : login}, function (error,player){
+                /*If error is not null reject with error*/
+                    if (error){
+                        reject("ErrFind");
+                    } else if (!player){
+                        resolve(null);
+                    } else{
+                        resolve(player);
+                    }
+                });
+            }else{
+                reject("DbKO");
+            }
+    });
+};
 
-exports.Mongo.prototype = {
-    findPlayer: function(login, ret){
+exports.insertPlayer = function(login,password){
+    console.log("Mongo.js / function insertPlayer");
+    return new Promise(function(resolve, reject) { 
         if(connectedDB){
-           Player.findOne({"login" : login},function (err,player){
-                if (err || !player) {
-                    return null;
-                }else{
-                    ret(player);
+            var hash = bcrypt.hashSync(password, salt);
+            var p = new Player({login:login, password : hash });
+            console.log("Mongo.js / function insertPlayer / p created : \nLogin :" + p.login 
+                + "\nCrypted pass : " + p.password + "\n-> ready to insert in db");
+                Player.create(p, function(error,player){
+                if (error) {
+                    reject("ErrCreate");
+                } else {
+                    return resolve(player);
                 }
             });
         }else{
-            return new Error("Database is not accessible.");
-        }
-    },
-    insertPlayer: function(login,password, ret){
-        console.log("Mongo.js / mongo proto / IN FUNCTION INSERT");
+                reject("DbKO");
+            }
+    });
+};
+
+exports.connectPlayer = function(joueur,passwordClair){
+    return new Promise(function(resolve, reject) {  
         if(connectedDB){
-            var p = new Player({login:login, password : password});               
-            Player.create(p, function(err,player){
-                if (player) {
-                    ret(null);
-                } else {
-                    ret(player);
-                }
-            });
-        };
-    },
-    connectPlayer: function(player, password, ret){
-        if(connectedDB){
-            //Check si le login name est present et si oui recupere le player correspondant
-            console.log("player password findOne : " + player.login + " passwd : " 
-                + player.password + " en clair "+ password);
-            bcrypt.compare(password, player.password, function(err, res) {
-                if (res) {
-                    console.log("Mongo.js / bon mdp");
-                    ret(res);
-                } else {
-                    console.log("Mongo.js / pas bon mdp");
-                    ret(null);
-                }
-            }); 
+            console.log("Mongo.js / function connectPlayer / Le joueur avec le login est trouvé, vérification du password");
+                /* Compare le mot de passe en clair passé en argument et celui du joueur en db. */
+                console.log("Mongo.js / function connectPlayer /\nPass clair : " 
+                + passwordClair + "\nPass crypté du joueur trouvé dans le findPLayer : " + joueur.password);
+                bcrypt.compare(passwordClair, joueur.password, function(err, res) {
+                    if (res) {
+                        console.log("Mongo.js / function connectPlayer / bon mdp / renvoie le joueur");
+                        resolve(joueur);
+                    } else {
+                        console.log("Mongo.js / function connectPlayer / pas bon mdp / renvoie une erreur");
+                        reject("mdpKo");
+                    }
+                }); 
         }else{
-            res(new Error("Database is not accessible."));
+            reject("DbKO");
         }
-    },
+    }); 
 };
