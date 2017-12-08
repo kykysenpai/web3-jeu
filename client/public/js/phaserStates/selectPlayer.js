@@ -10,11 +10,14 @@ var selectPlayer = {
 		game.load.image('start', 'assets/start.png');
 		for (var i = 0; i < skinList.length; i++) {
 			this.load.spritesheet(skinList[i].name, skinList[i].path, 32, 32);
-			console.log(skinList[i].name +"\n"+ skinList[i].path)
+			console.log(skinList[i].name + "\n" + skinList[i].path)
 		}
 		this.skinFrameP = this.add.group();
 		this.skinFrameG = this.add.group();
 	},
+	/*addSkin: function(group, x, y, skinName) {
+		return group.create(x, y, skinName);
+	},*/
 	create: function() {
 		var game = this;
 		$.ajax({
@@ -30,21 +33,23 @@ var selectPlayer = {
 				game.skinFrameG = game.add.image(72, 270, 'skinFrame');
 				*/
 				var j = 80;
-				for(var skinP in ret["pacmanSkins"]){
+				for (var skinP in ret["pacmanSkins"]) {
+					//var thumb = game.addSkin(game.skinFrameP, j, 270, ret["pacmanSkins"][skinP]);
 					var thumb = game.skinFrameP.create(j, 270, ret["pacmanSkins"][skinP]);
 					j += 37; //32px for sprite width + 5 for margin
-					thumb.skin =  ret["pacmanSkins"][skinP];
+					thumb.skin = ret["pacmanSkins"][skinP];
 					thumb.inputEnabled = true;
 					thumb.events.onInputDown.add(function(clickedImage) {
 						playerInfos.skin = clickedImage.skin;
 					}, this);
-					
+
 				}
 				var j = 80;
-				for(var skinP in ret["ghostSkins"]){
-					var thumb = game.skinFrameP.create(j, 270, ret["ghostSkins"][skinP]);
+				for (var skinP in ret["ghostSkins"]) {
+					//var thumb = game.addSkin(game.skinFrameG, j, 270, ret["ghostSkins"][skinP]);
+					var thumb = game.skinFrameG.create(j, 270, ret["ghostSkins"][skinP]);
 					j += 37; //32px for sprite width + 5 for margin
-					thumb.skin =  ret["ghostSkins"][skinP];
+					thumb.skin = ret["ghostSkins"][skinP];
 					thumb.inputEnabled = true;
 					thumb.events.onInputDown.add(function(clickedImage) {
 						playerInfos.skin = clickedImage.skin;
@@ -103,6 +108,6 @@ var selectPlayer = {
 		}, this);
 
 
-		
+
 	}
 }
