@@ -1,6 +1,8 @@
 $(function(){
+
+
     $('#profil').on('click',function(e){
-        console.log("disconnect.js -> on clic deconnexion");
+        console.log("profil.js -> on clic profil");
         console.log("Contenu avant effacement : " 
             + localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
         /*$.ajax({

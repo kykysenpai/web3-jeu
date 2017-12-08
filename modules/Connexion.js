@@ -6,7 +6,7 @@ exports.connexionHandler = function(login, mdp){
         mongo.findPlayer(login).then(function(playerFound){
             if(!playerFound){
                 console.log("Le login n'existe pas");
-                rejetc(new responseObject(false, "playerNotFound", null));
+                reject(new responseObject(false, "playerNotFound", null));
             }else{
                 mongo.connectPlayer(playerFound, mdp).then(function(playerData){
                     console.log("Joueur récupéré : " + playerData);
@@ -21,6 +21,16 @@ exports.connexionHandler = function(login, mdp){
         });
     });    
 };
+
+exports.findPlayer = (playerName) =>{
+    return new Promise((resolve,reject) => {
+        mongo.findPlayer(playerName).then((playerFound) => {
+            resolve(new responseObject(true,"findOk",playerFound));     
+        }).catch((error) => {
+            reject(new responseObject(false,error));
+        })
+    });
+} 
 
 function responseObject(isSuccess, code, data) {
     this.success = isSuccess;
