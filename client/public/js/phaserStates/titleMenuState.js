@@ -9,6 +9,7 @@ var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
 var playerInfos = { //default
+	authName: sessionStorage.getItem("authName"),
 	team: TEAM_PACMAN,
 	skin: 'pacman',
 	x: 24,
@@ -60,7 +61,6 @@ var titleMenuState = {
 			thumb.input.useHandCursor = true;
 			thumb.events.onInputDown.add(function(clickedImage) {
 				chosenGameMode = clickedImage.levelNumber;
-
 				game.state.start('selectPlayer');
 			}, this);
 		}
