@@ -7,6 +7,7 @@ import Iframe from 'react-iframe';
 class GameComponent extends Component{
     render(){
         //<!--<Script url={process.env.PUBLIC_URL + "/js/main.js"} attributes={{id:'gameScript'}}/>-->
+        console.log(process.env.PUBLIC_URL);
         return(
             <div id="jeu">
             <div className="col-xs-0 col-sm-0 col-md-1" id="left_pannel"></div>
