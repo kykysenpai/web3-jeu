@@ -124,7 +124,6 @@ class FormulaireConnexion extends Component {
             appId="264160964107154"
             autoLoad={true}
             fields="name,email,picture"
-            onClick={this.loginFacebook}
             callback={this.responseFacebook}
             />
           </div>
