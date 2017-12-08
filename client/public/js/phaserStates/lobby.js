@@ -14,9 +14,10 @@ var lobby = {
 
 		title.inputEnabled = true;
 		title.events.onInputDown.add(function(clickedImage) {
+			lobbySocket.close();
 			game.state.start('bootState');
 		}, this);
-		
+
 		this.nPlayerPacman = 0;
 		this.nPlayerGhost = 0;
 		this.reqPlayer = 0;
@@ -31,11 +32,11 @@ var lobby = {
 		var frame2 = game.add.image(234, teamHeight, 'frame');
 		var team2 = game.add.image(234, teamHeight, 'teamGhost');
 
-		this.waitingForLabelPacman = game.add.text(115, teamHeight+64, this.nPlayerPacman + '/' + this.reqPlayer, {
+		this.waitingForLabelPacman = game.add.text(115, teamHeight + 64, this.nPlayerPacman + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
-		this.waitingForLabelGhost = game.add.text(250, teamHeight+64, this.nPlayerGhost + '/' + this.reqPlayer, {
+		this.waitingForLabelGhost = game.add.text(250, teamHeight + 64, this.nPlayerGhost + '/' + this.reqPlayer, {
 			font: '25px Arial',
 			fill: '#ffffff'
 		});
@@ -45,19 +46,29 @@ var lobby = {
 		lobbySocket.close();
 		switch (chosenGameMode) {
 			case 1:
-				game.state.start('defaultPacman');
+				chosenGameModeInfos.safeTiles = [7, 14];
+				chosenGameModeInfos.mapAsset = 'assets/pacman-map.json';
+				chosenGameModeInfos.tilesAsset = 'assets/pacman-tiles.png';
 				break;
 			case 2:
-				game.state.start('randomMapPacmanS');
+				chosenGameModeInfos.mapAsset = 'assets/random-map-small.json';
 				break;
 			case 3:
-				game.state.start('randomMapPacman');
+				chosenGameModeInfos.mapAsset = 'assets/random-map-medium.json';
 				break;
 			case 4:
-				game.state.start('randomMapPacmanL');
-			default:
-				console.log('erreur n* level');
+				chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
+				break;
 		}
+		switch (chosenGameMode) {
+			case 2:
+			case 3:
+			case 4:
+				chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+				chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+				break;
+		}
+		game.state.start('PacmanGameClient');
 	},
 	updateWaiting: function(data) {
 		this.nPlayerPacman = data.nPlayerTeam[TEAM_PACMAN];
@@ -77,8 +88,9 @@ function lobbySockets() {
 	});
 	lobbySocket.emit('joinLobby', chosenGameMode);
 	switch (chosenGameMode) {
-		case 1:game.load.image('title', 'assets/title.png');
-		game.load.image('bg', 'assets/bg.png');
+		case 1:
+			game.load.image('title', 'assets/title.png');
+			game.load.image('bg', 'assets/bg.png');
 			socket = io('/defaultPacman');
 			break;
 		case 2:
@@ -87,11 +99,9 @@ function lobbySockets() {
 		case 3:
 			socket = io('/randomMapPacman');
 			break;
-		case 4:320
+		case 4:
 			socket = io('/randomMapPacmanL');
 			break;
-		default:
-			console.log('erreur n* level');
 	}
 	socket.on('initSpawn', function(data) {
 		playerInfos.x = data.x;
