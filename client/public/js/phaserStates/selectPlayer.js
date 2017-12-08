@@ -11,6 +11,19 @@ var selectPlayer = {
 		for (var i = 0; i < skinList.length; i++) {
 			this.load.spritesheet(skinList[i].name, skinList[i].path, 32, 32);
 		}
+		$.ajax({
+			url: '/infoPlayer',
+			type: 'POST',
+			data: {
+				authName: sessionStorage.getItem("authName") ? sessionStorage.getItem("authName") : localStorage.getItem("authName")
+			},
+			success: function(ret) {
+				//load les skins :D
+			},
+			error: function(ret) {
+
+			}
+		});
 	},
 	create: function() {
 		var teamHeight = 160;
