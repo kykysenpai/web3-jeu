@@ -69,7 +69,6 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + 'build' + 'index.html');
 });
 
-
 app.get('/verifyLoggedIn', function(req, res) {
 	if (!req.query.tokenLocal && !req.query.tokenSession) {
 		console.log("Les deux tokens sont vides...");
@@ -91,6 +90,11 @@ app.get('/verifyLoggedIn', function(req, res) {
 			}
 		});
 	}
+});
+
+app.post('/getPLayerInfo', (req,res) =>{
+	//db.getInfo req.data.authName
+	//playerInfor
 });
 
 app.get('/deconnecter', function(req, res) {

@@ -4,6 +4,7 @@ var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
 
 var playerInfos = { //default
+	authName: sessionStorage.getItem("authName"),
 	team: TEAM_PACMAN,
 	skin: 'pacman',
 	x: 24,

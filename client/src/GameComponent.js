@@ -11,7 +11,7 @@ class GameComponent extends Component{
             <div id="jeu">
             <div className="col-xs-0 col-sm-0 col-md-1" id="left_pannel"></div>
             <div className="col-xs-12 col-sm-12 col-md-10">
-            <Iframe url={process.env.PUBLIC_URL + "./jeux.html"}
+            <Iframe url={process.env.PUBLIC_URL + 'jeux.html'}
             width="100%"
             height="600px"
             id="myId"

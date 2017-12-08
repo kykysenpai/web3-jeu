@@ -5,4 +5,4 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 
-render(<App />, document.getElementById('appDiv'));registerServiceWorker();
+render(<App />, document.getElementById('appDiv'));//registerServiceWorker();
