@@ -55,7 +55,7 @@ exports.insertPlayer = function(login,password){
     return new Promise(function(resolve, reject) { 
         if(connectedDB){
             var hash = bcrypt.hashSync(password, salt);
-            var p = new Player({login:login, password : hash, pacmanSkins : ["pacman.png"], ghostSkins : ["ghost.png"]});
+            var p = new Player({login:login, password : hash, pacmanSkins : ["pacman"], ghostSkins : ["ghost"]});
             console.log("Mongo.js / function insertPlayer / p created : \nLogin :" + p.login 
                 + "\nCrypted pass : " + p.password + "\n-> ready to insert in db");
                 Player.create(p, function(error,player){
@@ -200,7 +200,7 @@ exports.checkSkin = function(login,nbVictory,nbDefeat,nbPlayedGames,bestScoreGho
                         if(element.condition){
                             findOneAndUpdate(
                                 { "login" : login },
-                                { $push : { pacmanSkins : "pacman.png" } }
+                                { $push : { pacmanSkins : "pacman" } }
                              )
                         }
                     });
