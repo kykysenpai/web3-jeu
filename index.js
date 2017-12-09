@@ -44,7 +44,7 @@ var options = {
 //app.use(express.static(__dirname + '/www'))
 app.use(express.static(__dirname + '/client/build'));
 
-require('./modules/MapGenerator.js');
+require(__dirname + '/modules/MapGenerator.js');
 
 app.set('port', process.env.PORT || 5000);
 
@@ -83,9 +83,9 @@ app.post('/verifyLoggedIn', function(req, res) {
 		res.status(401).send();
 	} else {
 		var token = null;
-		if(req.body.tokenLocal){
+		if (req.body.tokenLocal) {
 			token = req.body.tokenLocal;
-		}else{
+		} else {
 			token = req.body.tokenSession;
 		}
 		var decoded = jwt.verify(token, secretJWT, function(err, playload) {
@@ -180,9 +180,9 @@ app.post('/sInscrire', (req, res) => {
 	});
 });
 
-app.post('/infoPlayer', (req,res) => {
+app.post('/infoPlayer', (req, res) => {
 	var playerName = req.body.authName;
-	var respData = infoPlayer.findPlayer(playerName).then((data) =>{
+	var respData = infoPlayer.findPlayer(playerName).then((data) => {
 		console.log(data.player);
 		res.status(data.status).json({
 			"login": data.player.login,
@@ -240,31 +240,31 @@ passport.use(new FacebookStrategy({
 				console.log("Recupéré INSCRIPTIONOK : " + inscriptionOK);
 				console.log("L'inscription a réussi.");
 
-				 done(null, login);
+				done(null, login);
 			}).catch(function(pasInscrit) {
-				console.log("Déja Inscrit.");	
+				console.log("Déja Inscrit.");
 				var response = connexion.connexionHandler(login, mdp).then(function(connexion) {
-				console.log("Recupéré PASINSCRIT: " + JSON.stringify(connexion));
-				const payload = {
-					"login": connexion.player.login,
-					"currentGhost": connexion.player.currentGhost,
-					"currentPacman": connexion.player.currentPacman,
-					"bestScoreGhost": connexion.player.stats.bestScoreGhost,
-					"bestScorePacman": connexion.player.stats.bestScorePacman,
-					"nbPlayedGames": connexion.player.stats.nbPlayedGames,
-					"nbVictory": connexion.player.stats.nbVictory,
-					"nbDefeat": connexion.player.stats.nbDefeat,
-					"ghostSkins": connexion.player.ghostSkins,
-					"pacmanSkins": connexion.player.pacmanSkins
-				};
-				var timeout = 1440 // expires in 24 hours
-				var tokenJWT = jwt.sign(payload, secretJWT, {
-					expiresIn: '24h'
-				});
-				
-				console.log("La connexion a réussi");
-				
-				return done(null, payload);
+					console.log("Recupéré PASINSCRIT: " + JSON.stringify(connexion));
+					const payload = {
+						"login": connexion.player.login,
+						"currentGhost": connexion.player.currentGhost,
+						"currentPacman": connexion.player.currentPacman,
+						"bestScoreGhost": connexion.player.stats.bestScoreGhost,
+						"bestScorePacman": connexion.player.stats.bestScorePacman,
+						"nbPlayedGames": connexion.player.stats.nbPlayedGames,
+						"nbVictory": connexion.player.stats.nbVictory,
+						"nbDefeat": connexion.player.stats.nbDefeat,
+						"ghostSkins": connexion.player.ghostSkins,
+						"pacmanSkins": connexion.player.pacmanSkins
+					};
+					var timeout = 1440 // expires in 24 hours
+					var tokenJWT = jwt.sign(payload, secretJWT, {
+						expiresIn: '24h'
+					});
+
+					console.log("La connexion a réussi");
+
+					return done(null, payload);
 				}).catch(function(erreur) {
 					console.log("Recupéré : " + JSON.stringify(erreur));
 					console.log("La connexion a échoué");
@@ -273,9 +273,9 @@ passport.use(new FacebookStrategy({
 
 			});
 		});
-		}
-	));
-	
+	}
+));
+
 
 passport.serializeUser(function(user, done) {
 	done(null, user);
