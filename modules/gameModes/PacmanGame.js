@@ -19,22 +19,22 @@ exports.PacmanGame = function(properties, updateLobby, size) {
 	switch (size) {
 		case 'Default':
 			this.reqPlayer = properties.get('reqPlayerDefault');
-			map = require(__dirname + '/../../www/assets/pacman-map.json');
+			map = require(__dirname + '/../../client/public/assets/pacman-map.json');
 			this.room = 'defaultPacmanRoom';
 			break;
 		case 'Small':
 			this.reqPlayer = properties.get('reqPlayerSmall');
-			map = require(__dirname + '/../../www/assets/random-map-small.json');
+			map = require(__dirname + '/../../client/public/assets/random-map-small.json');
 			this.room = 'randomMapPacmanRoomS';
 			break;
 		case 'Medium':
 			this.reqPlayer = properties.get('reqPlayerMedium');
-			map = require(__dirname + '/../../www/assets/random-map-medium.json');
+			map = require(__dirname + '/../../client/public/assets/random-map-medium.json');
 			this.room = 'randomMapPacmanRoom';
 			break;
 		case 'Large':
 			this.reqPlayer = properties.get('reqPlayerLarge');
-			map = require(__dirname + '/../../www/assets/random-map-large.json');
+			map = require(__dirname + '/../../client/public/assets/random-map-large.json');
 			this.room = 'randomMapPacmanRoomL';
 			break;
 	}
