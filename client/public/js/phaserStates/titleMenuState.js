@@ -40,28 +40,112 @@ var titleMenuState = {
 		game.load.image('randomS', 'assets/randomThumbS.png');
 		game.load.image('randomM', 'assets/randomThumbM.png');
 		game.load.image('randomL', 'assets/randomThumbL.png');
+		game.load.image('defaultSnake', 'assets/defaultSnake.png');
+		game.load.image('randomSSnake', 'assets/randomSSnake.png');
+		game.load.image('randomMSnake', 'assets/randomMSnake.png');
+		game.load.image('randomLSnake', 'assets/randomLSnake.png');
+
 		game.load.image('title', 'assets/title.png');
 		game.load.image('bg', 'assets/bg.png');
 		game.load.image('mode', 'assets/mode.png');
 		game.load.image('blackScreen', 'assets/blackScreen.png');
+		game.load.image('replay', 'assets/replay.png');
 	},
 	create: function() {
 		var bg = game.add.image(0, 0, 'bg');
 		var mode = game.add.image(130, 130, 'mode');
 
-		var modeThumbs = ['default', 'randomS', 'randomM', 'randomL']
+		var defaultModeThumbs = ['default', 'randomS', 'randomM', 'randomL'] 
+		var snakeModeThumbs = ['defaultSnake', 'randomSSnake', 'randomMSnake', 'randomLSnake']
 		var j = 1;
 		var nbGame = 4;
 		for (var i = 0; i < nbGame; i++) {
-			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 200, modeThumbs[i]);
-			thumb.levelNumber = j++;
-			thumb.inputEnabled = true;
+			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 180, defaultModeThumbs[i]);
+			var replay = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32+19, 244, 'replay');
+			thumb.levelNumber = j;
+			replay.levelNumber = j;
+			j++;
 			thumb.useHandCursor = true;
+			replay.useHandCursor = true;
 			thumb.inputEnabled = true;
+			replay.inputEnabled = true;
 			thumb.input.useHandCursor = true;
+			replay.input.useHandCursor = true;
 			thumb.events.onInputDown.add(function(clickedImage) {
 				chosenGameMode = clickedImage.levelNumber;
 				game.state.start('selectPlayer');
+			}, this);
+			replay.events.onInputDown.add(function(clickedImage) {
+				chosenGameMode = clickedImage.levelNumber;
+				playerInfos.team = 0;
+				switch(chosenGameMode){
+					case 1:
+						chosenGameModeInfos.safeTiles = [7, 14];
+						chosenGameModeInfos.mapAsset = 'assets/pacman-map.json';
+						chosenGameModeInfos.tilesAsset = 'assets/pacman-tiles.png';
+						break;
+					case 2:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-small.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 3:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-medium.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 4:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+				}
+				game.state.start('ReplaySelector');
+			}, this);
+		}
+		//var j = 1;
+		for (var i = 0; i < nbGame; i++) {
+			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 280, snakeModeThumbs[i]);
+			var replay = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32+19, 344, 'replay');
+			thumb.levelNumber = j;
+			replay.levelNumber = j;
+			j++;
+			thumb.useHandCursor = true;
+			replay.useHandCursor = true;
+			thumb.inputEnabled = true;
+			replay.inputEnabled = true;
+			thumb.input.useHandCursor = true;
+			replay.input.useHandCursor = true;
+			thumb.events.onInputDown.add(function(clickedImage) {
+				chosenGameMode = clickedImage.levelNumber;
+				game.state.start('selectPlayer');
+			}, this);
+			replay.events.onInputDown.add(function(clickedImage) {
+				chosenGameMode = clickedImage.levelNumber;
+				playerInfos.team = 0;
+				switch(chosenGameMode){
+					case 5:
+						chosenGameModeInfos.safeTiles = [7, 14];
+						chosenGameModeInfos.mapAsset = 'assets/pacman-map.json';
+						chosenGameModeInfos.tilesAsset = 'assets/pacman-tiles.png';
+						break;
+					case 6:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-small.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 7:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-medium.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 8:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+				}
+				game.state.start('ReplaySelector');
 			}, this);
 		}
 

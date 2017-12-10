@@ -18,5 +18,7 @@ game.state.add('PacmanGameClient', PacmanGameClient);
 game.state.add('selectPlayer', selectPlayer);
 game.state.add('win', win);
 game.state.add('lose', lose);
+game.state.add('ReplaySelector', ReplaySelector);
+game.state.add('replay', replay);
 
 game.state.start('bootState');

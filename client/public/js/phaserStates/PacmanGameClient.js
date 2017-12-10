@@ -21,7 +21,7 @@ var PacmanGameClient = {
 		this.skin = null;
 		this.safetile = chosenGameModeInfos.safeTiles;
 		this.gridsize = 16;
-		this.speed = 150;
+		this.speed = 110;
 		this.threshold = 3;
 		this.networkThreshold = 15;
 		this.marker = new Phaser.Point();
@@ -238,7 +238,7 @@ var PacmanGameClient = {
 
 		this.pacman = this.add.sprite(xSpawn, ySpawn, data.skin, 0);
 		this.pacman.anchor.set(0.5);
-		this.pacman.animations.add('munch', [0, 1, 2, 1], 20, true); //Add crunching animation to the character with the pacman.png sprite
+		this.pacman.animations.add('munch', [0, 1, 2, 1], 10, true); //Add crunching animation to the character with the pacman.png sprite
 		this.physics.arcade.enable(this.pacman);
 		this.pacman.body.setSize(16, 16, 0, 0);
 		this.cursors = this.input.keyboard.createCursorKeys();
@@ -255,7 +255,7 @@ var PacmanGameClient = {
 			newPlayer = this.enemies.create(data.x, data.y, data.skin);
 		}
 		newPlayer.anchor.set(0.5);
-		newPlayer.animations.add('munch', [0, 1, 2, 1], 20, true);
+		newPlayer.animations.add('munch', [0, 1, 2, 1], 10, true);
 		newPlayer.chosenSkin = data.skin;
 		this.physics.arcade.enable(newPlayer);
 		newPlayer.body.setSize(16, 16, 0, 0);

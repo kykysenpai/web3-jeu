@@ -44,6 +44,7 @@ var titleMenuState = {
 		game.load.image('bg', 'assets/bg.png');
 		game.load.image('mode', 'assets/mode.png');
 		game.load.image('blackScreen', 'assets/blackScreen.png');
+		game.load.image('replay', 'assets/replay.png');
 	},
 	create: function() {
 		var bg = game.add.image(0, 0, 'bg');
@@ -54,15 +55,46 @@ var titleMenuState = {
 		var nbGame = 8;
 		for (var i = 0; i < nbGame; i++) {
 			var thumb = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32, 200, modeThumbs[i]);
-			thumb.levelNumber = j++;
-			thumb.inputEnabled = true;
+			var replay = game.add.image((400 / (nbGame + 1)) * (i + 1) - 32+19, 274, 'replay');
+			thumb.levelNumber = j;
+			replay.levelNumber = j;
+			j++;
 			thumb.useHandCursor = true;
+			replay.useHandCursor = true;
 			thumb.inputEnabled = true;
+			replay.inputEnabled = true;
 			thumb.input.useHandCursor = true;
+			replay.input.useHandCursor = true;
 			thumb.events.onInputDown.add(function(clickedImage) {
 				chosenGameMode = clickedImage.levelNumber;
-
 				game.state.start('selectPlayer');
+			}, this);
+			replay.events.onInputDown.add(function(clickedImage) {
+				chosenGameMode = clickedImage.levelNumber;
+				playerInfos.team = 0;
+				switch(chosenGameMode){
+					case 1:
+						chosenGameModeInfos.safeTiles = [7, 14];
+						chosenGameModeInfos.mapAsset = 'assets/pacman-map.json';
+						chosenGameModeInfos.tilesAsset = 'assets/pacman-tiles.png';
+						break;
+					case 2:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-small.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 3:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-medium.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+					case 4:
+                        chosenGameModeInfos.mapAsset = 'assets/random-map-large.json';
+                        chosenGameModeInfos.safeTiles = [25, 30, 35, 40];
+                        chosenGameModeInfos.tilesAsset = 'assets/tiles.png';
+						break;
+				}
+				game.state.start('ReplaySelector');
 			}, this);
 		}
 

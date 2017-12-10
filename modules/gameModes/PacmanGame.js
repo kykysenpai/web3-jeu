@@ -1,11 +1,19 @@
+const fs = require("fs");
+const path = require('path');
+
+var replayPath = './client/build/assets/replays/';
 var TEAM_PACMAN = 0;
 var TEAM_GHOST = 1;
-
 exports.PacmanGame = function(properties, updateLobby, size) {
-
 	//players waiting
 	this.waitingRoom = {};
 	this.nPlayerWaitingRoom = 0;
+	this.nbrReplay=0;
+	this.replay=[
+		[],//Players
+		[],//Dots
+		[] //Scores
+	];
 
 	var SpawnPositions = require(__dirname + '/SpawnPositions.js');
 
@@ -14,49 +22,60 @@ exports.PacmanGame = function(properties, updateLobby, size) {
 	this.startOfTheGameTimeoutDuration = properties.get('startOfTheGameTimeoutDuration');
 
 	this.size = size;
-
 	var map;
 	switch (size) {
 		case 'Default':
+			map = require(__dirname + '/../../www/assets/pacman-map.json');
 			this.reqPlayer = properties.get('reqPlayerDefault');
-			map = require(__dirname + '/../../client/public/assets/pacman-map.json');
+			this.spawnPos = SpawnPositions.default(map.width, map.height);			
 			this.room = 'defaultPacmanRoom';
 			break;
 		case 'Small':
+			map = require(__dirname + '/../../www/assets/random-map-small.json');
 			this.reqPlayer = properties.get('reqPlayerSmall');
-			map = require(__dirname + '/../../client/public/assets/random-map-small.json');
+			this.spawnPos = SpawnPositions.small(map.width, map.height);
 			this.room = 'randomMapPacmanRoomS';
 			break;
 		case 'Medium':
+			map = require(__dirname + '/../../www/assets/random-map-medium.json');
 			this.reqPlayer = properties.get('reqPlayerMedium');
-			map = require(__dirname + '/../../client/public/assets/random-map-medium.json');
+			this.spawnPos = SpawnPositions.medium(map.width, map.height);
 			this.room = 'randomMapPacmanRoom';
 			break;
+
 		case 'Large':
+			map = require(__dirname + '/../../www/assets/random-map-large.json');
 			this.reqPlayer = properties.get('reqPlayerLarge');
-			map = require(__dirname + '/../../client/public/assets/random-map-large.json');
+			this.spawnPos = SpawnPositions.large(map.width, map.height);			
 			this.room = 'randomMapPacmanRoomL';
 			break;
 	}
-
 	this.height = map.height;
-	this.width = map.width
-
-	switch (size) {
-		case 'Default':
-			this.spawnPos = SpawnPositions.default(this.width, this.height);
-			break;
-		case 'Small':
-			this.spawnPos = SpawnPositions.small(this.width, this.height);
-			break;
-		case 'Medium':
-			this.spawnPos = SpawnPositions.medium(this.width, this.height);
-			break;
-		case 'Large':
-			this.spawnPos = SpawnPositions.large(this.width, this.height);
-			break;
-	}
-
+	this.width = map.width;
+	
+	//Cleaning replay directories
+	//const directoryD = 'www/assets/replays/'+size+'/';
+	const directoryD = replayPath+size+'/';
+	
+	fs.readdir(directoryD, (err, files) => {
+		if (err) throw err;
+		for (const file of files) {
+			if(file==='replays.json')continue
+			fs.unlinkSync(path.join(directoryD, file), err => {
+				if (err) throw err;
+			});
+		}
+	});
+	const dir = replayPath+this.size+'/replays.json';
+	fs.writeFile(dir,
+		JSON.stringify(0),
+		function (err) {
+			console.log("Wringting replays.json in "+size)
+			if (err) {
+				console.error('Crap happens');
+			}
+		}
+	);
 
 	//players in game or ready for next game
 	this.players = {};
@@ -193,6 +212,9 @@ exports.PacmanGame.prototype = {
 		this.isRunning = false;
 		io.emit('endGame', winner);
 
+		this.writeReplay();
+		this.replay=[[],[],[]];
+
 		for (var player in this.players) {
 			this.removePlayer(this.players[player].playerId);
 		}
@@ -209,12 +231,58 @@ exports.PacmanGame.prototype = {
 		}
 		this.emitUpdateLobby();
 	},
+
+	writeReplay: function(){
+		//Make room for 0.json
+		const dir3 = replayPath+this.size+'/2.json';
+		const dir2 = replayPath+this.size+'/1.json';
+		const dir1 = replayPath+this.size+'/0.json';
+		const countDir = replayPath+this.size+'/replays.json';
+		
+		console.log(this.nbrReplay)
+		switch(this.nbrReplay){
+			case 3: //Deleting oldest replay
+				fs.unlinkSync(dir3, err => {
+					if (err) throw err;
+				});
+			case 2: //Moving 1.json to 2.json
+				fs.renameSync(dir2, dir3, function(err) {
+					if ( err ) console.log('ERROR: ' + err);
+				});
+			case 1://Moving 0.json to 1.json
+				fs.renameSync(dir1, dir2, function(err) {
+					if ( err ) console.log('ERROR: ' + err);
+				});
+				break;
+		}
+		//Saving replay to 0.json
+		fs.writeFileSync(dir1,
+			JSON.stringify(this.replay),
+			function (err) {
+				if (err) {
+					console.error('Crap happens');
+				}
+			}
+		);
+		//Updating replay counter
+		if(this.nbrReplay<3)this.nbrReplay++;
+		fs.writeFileSync(countDir,
+			JSON.stringify(this.nbrReplay),
+			function (err) {
+				if (err) {
+					console.error('Crap happens');
+				}
+			}
+		);
+	},
+
 	initSocket: function(io, properties) {
 		//game instance is saved because 'this''s value is replaced by 'io'
 		//in the on connection function
 		var millisecondsBtwUpdates = properties.get('millisecondsBtwUpdates');
 		var millisecondsBtwUpdatesDots = properties.get('millisecondsBtwUpdatesDots');
 		var millisecondsBtwNewSuperDot = properties.get('millisecondsBtwNewSuperDot');
+		var millisecondsBtwReplaySave = properties.get('millisecondsBtwReplaySave');
 		var superDotDuration = properties.get('superDotDuration');
 		var game = this;
 		var Player = require(__dirname + '/../Player.js').Player;
@@ -283,6 +351,36 @@ exports.PacmanGame.prototype = {
 			dot.isSuper = true;
 			dot.superTimeout = superDotDuration;
 		}, millisecondsBtwNewSuperDot);
+
+		//Save game state to array in memory
+		setInterval(function() {
+			if(game.players!==undefined && game.scores!==undefined && game.mapDots!==undefined && game.isRunning){
+				//if(typeof this.replay != 'undefined' && this.replay[0].length>5000)return;
+				playersCpy = [];
+				dotsCpy=[];				
+				for(var player in game.players){
+					data= {};
+					data.playerId = game.players[player].playerId;
+					data.x = game.players[player].x;
+					data.y = game.players[player].y;
+					data.dir = game.players[player].dir;
+					data.team = game.players[player].team;
+					data.skin = game.players[player].skin;
+					data.isAlive = game.players[player].isAlive;
+					playersCpy.push(data);
+				}				
+				for(var dot in game.mapDots){
+					data= {}
+					data.x = game.mapDots[dot].x;
+					data.y = game.mapDots[dot].y;
+					data.isAlive = game.mapDots[dot].isAlive;
+					dotsCpy.push(data);
+				}
+				game.replay[0].push(playersCpy);				
+				game.replay[1].push(dotsCpy);
+				game.replay[2].push([game.scores[0], game.scores[1]]);
+			}
+		}, millisecondsBtwReplaySave);
 
 		//send dot map
 		setInterval(function() {
