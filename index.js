@@ -11,6 +11,7 @@ var $ = require("jquery");
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var uuid = require('uuid/v1');
+
 //gestion des sessions
 var jwt = require('jsonwebtoken');
 var secretJWT = "secretpacman";
@@ -71,10 +72,7 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + 'build' + 'index.html');
 });
 
-app.get('/jeux.html', () => {
-	res.sendFile('www/jeux.html');
-	//res.sendFile(__dirname + 'build' + 'jeux.html');
-});
+
 
 
 app.post('/verifyLoggedIn', function(req, res) {

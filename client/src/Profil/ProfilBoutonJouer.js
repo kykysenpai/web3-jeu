@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 
-import * as states from './AppState';
+import * as states from '../AppState';
 
 class ProfilBoutonJouer extends Component{
     constructor(props){

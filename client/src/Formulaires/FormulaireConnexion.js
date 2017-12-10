@@ -2,8 +2,9 @@ import React,{Component} from 'react';
 import FacebookLogin from 'react-facebook-login';
 import axios from 'axios';
 
-import * as states from './AppState';
+import * as states from '../AppState';
 
+import { ToastContainer} from 'react-toastify';
 
 class FormulaireConnexion extends Component {
   constructor(props){
@@ -25,7 +26,6 @@ class FormulaireConnexion extends Component {
       login:this.state.login,
       passwd:this.state.mdp
     }).then((result) =>{
-      console.log(result);
       window.sessionStorage.setItem("authName",result.data.authName);
       window.sessionStorage.setItem("token",result.data.token);
       window.localStorage.setItem("authName",result.data.authName);
@@ -50,17 +50,12 @@ class FormulaireConnexion extends Component {
         })
       );
     }).catch((err) => {
-      console.log(err);
+      this.props.notifyError("Le nom d'utilisateur ou le mot de passe ne sont pas valide");
     }
     );
-    
-  }
-  loginFacebook = (ev) =>{
-    ev.preventDefault();
   }
 
   responseFacebook = (data) =>{
-    console.log(data.id);
     this.setState({fbLogin:data.id+'-'+data.name,fbmdp:data.id});
     axios.post('/sInscrire',{
       login:this.state.fbLogin,
@@ -70,7 +65,6 @@ class FormulaireConnexion extends Component {
       login:this.state.fbLogin,
       passwd:this.state.fbmdp
     }).then((result) =>{
-      console.log(result);
       sessionStorage.setItem("authName",result.data.authName);
       sessionStorage.setItem("token",result.data.toker);
       this.props.update(
@@ -93,7 +87,7 @@ class FormulaireConnexion extends Component {
         })
       );
     }).catch((err) => {
-      console.error(err);
+      this.props.notifyError("Un problème est survenu avec la connection Facebook");
     });
   }
 
@@ -104,30 +98,31 @@ class FormulaireConnexion extends Component {
     render(){
         return(
         <div id="login">
+            <ToastContainer />
             <h1>On joue?</h1>
-            <div id="form">
-            <div className="row">
-              <label>Pseudo<span className="req">*</span></label>
-              <input type="text" required autoComplete="off" id="login" value={this.state.id} onChange={this.textInputChanged}/>
+              <div id="form">
+                <div className="row">
+                  <label>Pseudo<span className="req">*</span></label>
+                  <input type="text" required autoComplete="off" id="login" value={this.state.id} onChange={this.textInputChanged}/>
+                </div>
+                <div className="row">
+                  <label>Mot de passe<span className="req">*</span></label>
+                  <input type="password" required autoComplete="off" id="mdp" value={this.state.mdp} onChange={this.textInputChanged}/>
+                </div>
+                <div className="row">
+                  <button className="button button-block" id="seConnecter" onClick={this.login}>Se connecter</button>
+                </div>
+                <div className="row">
+                  <FacebookLogin
+                  appId="264160964107154"
+                  autoLoad={false}
+                  fields="name,email,picture"
+                  callback={this.responseFacebook}
+                  icon="fa-facebook"
+                  />
+                </div>
             </div>
-            <div className="row">
-              <label>Mot de passe<span className="req">*</span></label>
-              <input type="password" required autoComplete="off" id="mdp" value={this.state.mdp} onChange={this.textInputChanged}/>
-            </div>
-            <div className="row">
-              <button className="button button-block" id="seConnecter" onClick={this.login}>Se connecter</button>
-            </div>
-            <div className="row">
-              <button className="button button-block" id="facebookConnect" onClick={this.loginFacebook}>Se connecter avec Facebook</button>
-            </div>
-            <FacebookLogin
-            appId="264160964107154"
-            autoLoad={true}
-            fields="name,email,picture"
-            callback={this.responseFacebook}
-            />
-          </div>
-          </div>
+        </div>
         );
     }
 }

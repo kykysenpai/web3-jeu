@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
-import PacmanImageMenu from './PacmanImageMenu'
+import PacmanImageMenu from '../PacmanImageMenu'
 
-import * as states from './AppState';
+import * as states from '../AppState';
 const axios = require('axios');
 
 class Acceuil extends Component{
@@ -13,17 +13,10 @@ class Acceuil extends Component{
     }
     handleClick = (ev) => {
         ev.preventDefault();
-        console.log("React fait coucou -> on clic accueil");
-        console.log("session " + sessionStorage.getItem("token"));
-        console.log("local " + localStorage.getItem("token"));
         axios.post('/verifyLoggedIn', {
             tokenSession : window.sessionStorage.getItem("token"),
             tokenLocal: window.localStorage.getItem("token")
-        })
-          .then((response) => {
-            console.log(response);
-            console.log("Session active "+sessionStorage.getItem("authName") + "   " + sessionStorage.getItem("token"));
-            console.log("Session active "+localStorage.getItem("authName") + "   " + localStorage.getItem("token"));
+        }).then((response) => {
             axios.post('infoPlayer',{
                 authName:localStorage.getItem("authName")
               }).then((response) =>{
@@ -43,13 +36,12 @@ class Acceuil extends Component{
                 }))
                 this.props.update(this.state);
               }).catch((err)=>{
-                console.error(err);
+                //console.error(err);
               });
-          })
-          .catch((error) => {
+          }).catch((error) => {
             window.sessionStorage.removeItem("authName");
             window.sessionStorage.removeItem("token");
-            console.log("No active session");
+            //console.log("No active session");
             this.setState(Object.assign(this.state,{'render':states.NO_CONNECTION}))
             this.props.update(this.state);
           });
@@ -82,7 +74,7 @@ class Acceuil extends Component{
                 </div>
 
                 <div className='row'>
-                <div className="button button-block" id="loading" onClick={this.handleClick}> Enter </div>
+                <div className="button button-block" id="loading" onClick={this.handleClick}> Entrer </div>
                 </div>
             </div>
         );

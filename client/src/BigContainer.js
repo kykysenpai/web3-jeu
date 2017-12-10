@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import Accueil from './Accueil';
-import Formulaires from './Formulaires';
-import Profil from './Profil';
-import Game from './GameComponent';
+import Accueil from './BigContainer/Accueil';
+import Formulaires from './Formulaires/Formulaires';
+import Profil from './Profil/Profil';
+import Game from './BigContainer/GameComponent';
 
 import * as states from './AppState';
 
@@ -18,7 +18,7 @@ class BigContainer extends Component{
                 {this.props.state.render === states.HOME ? (
                     <Accueil state={this.props.state} update={this.update}/>  
                 ): this.props.state.render === states.NO_CONNECTION ? (
-                    <Formulaires state={this.props.state} update={this.update}/>
+                    <Formulaires state={this.props.state} update={this.update} notifyError={this.props.notifyError} info={this.props.notifyInfo}/>
                 ): this.props.state.render === states.GAME ? (
                     <Game />
                 ): this.props.state.render === states.PROFILE ? (
