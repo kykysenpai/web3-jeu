@@ -20,18 +20,49 @@ var playerInfos = { //default
 var skinList = [];
 
 skinList.push({
-	name: 'darthVader',
-	path: 'assets/playerSkins/darthVader.png'
-}, {
 	name: 'batman',
 	path: 'assets/playerSkins/batman.png'
 }, {
 	name: 'clone',
 	path: 'assets/playerSkins/clone.png'
 }, {
+	name: 'darthVader',
+	path: 'assets/playerSkins/darthVader.png'
+}, {
+	name: 'dragon',
+	path: 'assets/playerSkins/dragon.png'
+}, {
+	name: 'ghost',
+	path: 'assets/playerSkins/ghost.png'
+}, {
+	name: 'goku',
+	path: 'assets/playerSkins/goku.png'
+}, {
+	name: 'greenBird',
+	path: 'assets/playerSkins/greenBird.png'
+}, {
+	name: 'joker',
+	path: 'assets/playerSkins/joker.png'
+}, {
+	name: 'lucario',
+	path: 'assets/playerSkins/lucario.png'
+}, {
+	name: 'luigi',
+	path: 'assets/playerSkins/luigi.png'
+}, {
+	name: 'mario',
+	path: 'assets/playerSkins/mario.png'
+}, {
+	name: 'masterChief',
+	path: 'assets/playerSkins/masterChief.png'
+}, {
 	name: 'pacman',
 	path: 'assets/playerSkins/pacman.png'
-});
+}, {
+	name: 'yellowBird',
+	path: 'assets/playerSkins/yellowBird.png'
+}
+);
 
 var titleMenuState = {
 	preload: function() {
